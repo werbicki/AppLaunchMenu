@@ -1,0 +1,119 @@
+﻿using AppLaunchMenu.DataModels;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AppLaunchMenu.ViewModels
+{
+    public class ApplicationViewModel : TreeViewItemViewModel
+    {
+        Application m_objApplication;
+
+        public ApplicationViewModel(LaunchMenu? p_objLaunchMenu, Application p_objApplication, MenuViewModel p_objMenuViewModel)
+            : base(p_objLaunchMenu, p_objMenuViewModel, true)
+        {
+            m_objApplication = p_objApplication;
+        }
+
+        public ApplicationViewModel(LaunchMenu?p_objLaunchMenu, Application p_objApplication, FolderViewModel p_objFolderViewModel)
+            : base(p_objLaunchMenu, p_objFolderViewModel, true)
+        {
+            m_objApplication = p_objApplication;
+        }
+
+        protected override void Insert(object p_objItem, int p_intIndex)
+        {
+            //if (p_objItem is EnvironmentViewModel objEnvironmentViewModel)
+            //    m_objApplication.Insert(objEnvironmentViewModel.Environment, p_intIndex);
+        }
+
+        protected override void Remove(object p_objItem, int p_intIndex)
+        {
+            //if (p_objItem is EnvironmentViewModel objEnvironmentViewModel)
+            //    m_objApplication.Remove(objEnvironmentViewModel.Environment);
+        }
+
+        internal VariableViewModel? CreateVariable(String p_strVariableName)
+        {
+            VariableViewModel? objVariableViewModel = null;
+            Variable? objVariable = m_objApplication.CreateVariable(p_strVariableName);
+            if (objVariable != null)
+            {
+                objVariableViewModel = new VariableViewModel(LaunchMenu, objVariable, new EnvironmentViewModel(LaunchMenu, m_objApplication.Environment));
+                //Children.Add(new ApplicationViewModel(objApplication, this));
+            }
+
+            return objVariableViewModel;
+        }
+
+        public Application Application
+        {
+            get { return m_objApplication; }
+            set { m_objApplication = value; }
+        }
+
+        public override string Name
+        {
+            get { return m_objApplication.Name; }
+            set
+            {
+                m_objApplication.Name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
+
+        public override bool Expanded
+        {
+            get { return false; }
+        }
+
+        public string Executable
+        {
+            get { return m_objApplication.Executable; }
+            set
+            {
+                m_objApplication.Executable = value;
+                OnPropertyChanged(nameof(Executable));
+            }
+        }
+
+        public string WorkingDirectory
+        {
+            get { return m_objApplication.WorkingDirectory; }
+            set
+            {
+                m_objApplication.WorkingDirectory = value;
+                OnPropertyChanged(nameof(WorkingDirectory));
+            }
+        }
+
+        public string Parameters
+        {
+            get { return m_objApplication.Parameters; }
+            set
+            {
+                m_objApplication.Parameters = value;
+                OnPropertyChanged(nameof(Parameters));
+            }
+        }
+
+        public EnvironmentViewModel Environment
+        {
+            get { return new EnvironmentViewModel(LaunchMenu, m_objApplication.Environment); }
+        }
+
+        protected override void LoadChildren()
+        {
+            if (EditMode)
+            {
+                foreach (DataModelBase objItem in m_objApplication.Items)
+                {
+                    if (objItem is DataModels.Environment objEnvironment)
+                        Children.Add(new EnvironmentViewModel(LaunchMenu, objEnvironment, this));
+                }
+            }
+
+            base.LoadChildren();
+        }
+    }
+}

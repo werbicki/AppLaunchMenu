@@ -1,0 +1,13 @@
+<AppLaunchMenu>
+  <Menus>
+    <Menu Name="Programs">
+      <Environment Name="Common">
+        <Variable Group="Application" Name="MY_OFFICE_DIR" Value="C:\Program Files\Microsoft Office\root\Office16" />
+      </Environment>
+      <Folder Name="Microsoft Office" Expanded="Yes">
+        <Application Name="Microsoft Excel 2" Executable="EXCEL.EXE" WorkingDirectory="%MY_OFFICE_DIR%" />
+        <Application Name="Microsoft Word 2" Executable="WINWORD.EXE" WorkingDirectory="%MY_OFFICE_DIR%" />
+      </Folder>
+    </Menu>
+  </Menus>
+</AppLaunchMenu>

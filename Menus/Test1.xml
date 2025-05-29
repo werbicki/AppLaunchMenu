@@ -1,0 +1,10 @@
+<AppLaunchMenu>
+  <Menus>
+    <Menu Name="Programs">
+      <Folder Name="Microsoft Office" Expanded="Yes">
+        <Application Name="Microsoft Excel" Executable="EXCEL.EXE" WorkingDirectory="C:\Program Files\Microsoft Office\root\Office16" />
+        <Application Name="Microsoft Word" Executable="WINWORD.EXE" WorkingDirectory="C:\Program Files\Microsoft Office\root\Office16" />
+      </Folder>
+    </Menu>
+  </Menus>
+</AppLaunchMenu>
