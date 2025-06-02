@@ -41,7 +41,9 @@
 			<Variable Group="Java" Name="JRE_HOME" Value="%INSTALL_BASE%\AdoptOpenJDK\openj9_0_21_0\jre" />
 			<Variable Group="Java" Name="AB_JRE_HOME" Value="%JRE_HOME%" />
 			<Variable Group="Crystal" Name="CRYSTAL_HOME" Value="C:\Program Files (x86)\Crystal Reports Viewer\SAP Crystal Reports viewer" />
-			<Variable Group="Development" Name="AB_JAVA_IDE" Value="%AB_ECLIPSE%\eclipse.exe" />
+			<Variable Group="Development" Name="ECLIPSE_HOME" Value="%INSTALL_BASE%\Eclipse\eclispe-java-2022-03-win32-x86_64" />
+			<Variable Group="Development" Name="AB_JAVA_IDE_VMARGS" Value="-Duser.home=%OLF_FILESHARE%\Staging\%USERNAME% -Dorg.clispe.equinox.p2.reconciler.dropins.directory=%OLF_BIN%\otk\openjvs\lib -Dhttps.protocols=TLSv1.2" />
+			<Variable Group="Development" Name="AB_JAVA_IDE" Value="%ECLIPSE_HOME%\eclipse.exe" />
 			<Variable Group="Development" Name="AB_ENABLE_PLUGIN_DEBUGGING" Value="True" />
 			<Variable Group="FileSystem" Name="PATH" Value="%OLF_BIN%;%JAVA_HOME%\bin;AB_JAVA_IDE%;%PATH%" />
 		</Environment>
@@ -78,13 +80,11 @@
 		</Menu>
 		<Menu Name="Development">
 			<Environment Name="Development">
-				<Variable Group="Development" Name="AB_ECLISPE_HOME" Value="%INSTALL_BASE%\Eclipse" />
 				<Variable Group="Development" Name="AB_VISUAL_STUDIO_PRO_HOME" Value="C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE" />
-				<Variable Group="Development" Name="AB_JAVA_IDE_VMARGS" Value="-Duser.home=%OLF_FILESHARE%\Staging\%USERNAME% -Dorg.clispe.equinox.p2.reconciler.dropins.directory=%OLF_BIN%\otk\openjvs\lib -Dhttps.protocols=TLSv1.2" />
 				<Variable Group="Development" Name="AB_JAVA_WORKSPACE" Value="%OLF_FILESHARE%\Staging\%USERNAME%\workspace" />
 			</Environment>
 			<Folder Name="Endur Development" Expanded="True">
-				<Application Name="Eclipse 2022-03" Executable="eclipse.exe" Parameters="-install %AB_ECLIPSE_HOME% -configuration %OLF_FILESHARE%\Staging\%USERNAME%\.eclipse2 -data %AB_JAVA_WORKSPACE -vm %JAVA_HOME%\bin\javaw.exe -eclispe.keyring %FILESHRE_NONPROD\Staging\%USERNAME%\.eclipse\org.eclipse.equinox.security\secure_storage -vmargs %AB_JAVA_IDE_VMARGS%" WorkingDirectory="%AB_ECLIPSE_HOME%" />
+				<Application Name="Eclipse 2022-03" Executable="eclipse.exe" Parameters="-install %AB_ECLIPSE_HOME% -configuration %OLF_FILESHARE%\Staging\%USERNAME%\.eclipse2 -data %AB_JAVA_WORKSPACE% -vm %JAVA_HOME%\bin\javaw.exe -eclispe.keyring %FILESHRE_NONPROD\Staging\%USERNAME%\.eclipse\org.eclipse.equinox.security\secure_storage -vmargs %AB_JAVA_IDE_VMARGS%" WorkingDirectory="%ECLIPSE_HOME%" />
 				<Environment>
 					<Variable Group="Development" Name="AB_ECLIPSE_HOME" Value="%INSTALL_BASE%\Eclipse\eclispe-java-2022-03-win32-x86_64" />
 				</Environment>

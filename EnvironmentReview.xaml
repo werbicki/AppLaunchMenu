@@ -33,7 +33,6 @@
             >
             
             <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn Header="Environment" Binding="{Binding Environment}"/>
                 <controls:DataGridTextColumn Header="Name" Binding="{Binding Name}"/>
                 <controls:DataGridTextColumn Header="Group" Binding="{Binding Group}"/>
                 <controls:DataGridTextColumn Header="Value" Binding="{Binding Value}"/>

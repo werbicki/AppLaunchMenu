@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml;
+using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -21,47 +22,46 @@ namespace AppLaunchMenu.ViewModels
         private bool m_blnExpanded = false;
         private bool m_blnSelected = false;
 
-        protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, bool p_blnLazyLoadChildren)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
-
-            if (p_blnLazyLoadChildren)
-            {
-                m_blnLazyLoadChildren = p_blnLazyLoadChildren;
-                m_objChildren.Add(DummyChild);
-            }
-
-            if (m_objLaunchMenu != null)
-                m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
-        }
-
-        protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, TreeViewItemViewModel p_objParent)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objParent = p_objParent;
-
-            if (m_objLaunchMenu != null)
-                m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
-        }
-
-        protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, TreeViewItemViewModel p_objParent, bool p_blnLazyLoadChildren)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objParent = p_objParent;
-
-            if (p_blnLazyLoadChildren)
-            {
-                m_blnLazyLoadChildren = p_blnLazyLoadChildren;
-                m_objChildren.Add(DummyChild);
-            }
-
-            if (m_objLaunchMenu != null)
-                m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
-        }
-
         // This is used to create the DummyChild instance.
         internal TreeViewItemViewModel()
         {
+        }
+
+        protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, bool p_blnLazyLoadChildren = false)
+        {
+            m_objLaunchMenu = p_objLaunchMenu;
+
+            if (p_blnLazyLoadChildren)
+            {
+                m_blnLazyLoadChildren = p_blnLazyLoadChildren;
+                m_objChildren.Add(DummyChild);
+            }
+
+            if (m_objLaunchMenu != null)
+                m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
+        }
+
+        protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, TreeViewItemViewModel p_objParent, bool p_blnLazyLoadChildren = false)
+        {
+            m_objLaunchMenu = p_objLaunchMenu;
+            m_objParent = p_objParent;
+
+            if (p_blnLazyLoadChildren)
+            {
+                m_blnLazyLoadChildren = p_blnLazyLoadChildren;
+                m_objChildren.Add(DummyChild);
+            }
+
+            if (m_objLaunchMenu != null)
+                m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
+
+            TreeViewItemViewModel? objTreeViewItemViewModel = Parent;
+
+            while ((objTreeViewItemViewModel != null) && (objTreeViewItemViewModel.Parent != null))
+                objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
+
+            if (objTreeViewItemViewModel != null)
+                objTreeViewItemViewModel.PropertyChanged += MenuViewModel_PropertyChanged;
         }
 
         private void LaunchMenu_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -72,6 +72,12 @@ namespace AppLaunchMenu.ViewModels
                 ReloadChildren();
                 OnPropertyChanged(nameof(IsExpanded));
             }
+        }
+
+        private void MenuViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(TreeViewItemWidth))
+                OnPropertyChanged(nameof(TreeViewItemWidth));
         }
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -168,6 +174,39 @@ namespace AppLaunchMenu.ViewModels
                     return objTreeViewItemViewModel.EditMode;
 
                 return blnEditMode;
+            }
+        }
+
+        public virtual GridLength TreeViewItemWidth
+        {
+            get
+            {
+                GridLength objTreeViewItemWidth = new(100.0);
+                TreeViewItemViewModel? objTreeViewItemViewModel = Parent;
+
+                while ((objTreeViewItemViewModel != null)
+                    && (objTreeViewItemViewModel is not MenuViewModel)
+                    && (objTreeViewItemViewModel.Parent != null)
+                    )
+                    objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
+
+                if (objTreeViewItemViewModel != null)
+                    return objTreeViewItemViewModel.TreeViewItemWidth;
+
+                return objTreeViewItemWidth;
+            }
+            set
+            {
+                TreeViewItemViewModel? objTreeViewItemViewModel = Parent;
+
+                while ((objTreeViewItemViewModel != null)
+                    && (objTreeViewItemViewModel is not MenuViewModel)
+                    && (objTreeViewItemViewModel.Parent != null)
+                    )
+                    objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
+
+                if (objTreeViewItemViewModel != null)
+                    objTreeViewItemViewModel.TreeViewItemWidth = value;
             }
         }
 

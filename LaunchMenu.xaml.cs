@@ -35,7 +35,7 @@ namespace AppLaunchMenu
         private MenuFile m_objMenuFile = new();
         private MenuListViewModel m_objMenusViewModel;
         private DataModels.Application? m_objSelectedApplication = null;
-        private bool m_blnShowEnvironment = true;
+        private bool m_blnShowEnvironment = false;
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
         private string m_strStatusText = "";
         private int m_intSelectedMenu = 0;

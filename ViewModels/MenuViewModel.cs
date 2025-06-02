@@ -1,5 +1,6 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace AppLaunchMenu.ViewModels
         private readonly Menu m_objMenu;
         private readonly Page m_objMenuPage;
         private readonly IconSource m_objDataIconSource = new SymbolIconSource() { Symbol = Symbol.Placeholder };
+        GridLength m_objTreeViewItemWidth = new(200.0);
 
         public MenuViewModel(LaunchMenu p_objLaunchMenu, MenuListViewModel p_objMenusViewModel, Menu p_objMenu)
             : base(p_objLaunchMenu, p_objMenu)
@@ -46,6 +48,16 @@ namespace AppLaunchMenu.ViewModels
                     return LaunchMenu.EditMode;
                 else 
                     return false;
+            }
+        }
+
+        public override GridLength TreeViewItemWidth
+        {
+            get { return m_objTreeViewItemWidth; }
+            set
+            {
+                m_objTreeViewItemWidth = value;
+                OnPropertyChanged(nameof(TreeViewItemWidth));
             }
         }
 

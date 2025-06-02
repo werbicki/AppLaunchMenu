@@ -1,5 +1,6 @@
 using AppLaunchMenu.Dialogs;
 using AppLaunchMenu.ViewModels;
+using CommunityToolkit.WinUI.Controls;
 using CommunityToolkit.WinUI.Converters;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -70,9 +71,16 @@ namespace AppLaunchMenu
 
         private bool EditMode
         {
-            get
+            get { return m_objLaunchMenu.EditMode; }
+        }
+
+        private GridLength TreeViewItemWidth
+        {
+            get { return m_objMenuViewModel.TreeViewItemWidth; }
+            set
             {
-                return m_objLaunchMenu.EditMode;
+                m_objMenuViewModel.TreeViewItemWidth = value;
+                OnPropertyChanged(nameof(TreeViewItemWidth));
             }
         }
 
@@ -408,6 +416,39 @@ namespace AppLaunchMenu
                     }
                 }
             }
+        }
+
+        private void m_objTreeListView_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            if (e.OriginalSource is GridSplitter)
+            {
+                GridSplitter objGridSplitter = (GridSplitter)e.OriginalSource;
+
+                if (objGridSplitter.Parent is Grid)
+                {
+                    Grid objGrid = (Grid)objGridSplitter.Parent;
+                    TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
+                }
+            }
+        }
+
+        private void m_objTreeListView_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        {
+            if (e.OriginalSource is GridSplitter)
+            {
+                GridSplitter objGridSplitter = (GridSplitter)e.OriginalSource;
+
+                if (objGridSplitter.Parent is Grid)
+                {
+                    Grid objGrid = (Grid)objGridSplitter.Parent;
+                    TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
+                }
+            }
+        }
+
+        private void m_objReservedBy_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 
