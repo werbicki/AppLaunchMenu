@@ -127,15 +127,17 @@ namespace AppLaunchMenu.ViewModels
             {
                 if (objItem is Folder objFolder)
                     Children.Add(new FolderViewModel(LaunchMenu, objFolder, this));
-                }
+            }
 
-                foreach (DataModelBase objItem in m_objFolder.Items)
+            foreach (DataModelBase objItem in m_objFolder.Items)
             {
                 if (objItem is Application objApplication)
                     Children.Add(new ApplicationViewModel(LaunchMenu, objApplication, this));
             }
 
             base.LoadChildren();
+
+            OnPropertyChanged(nameof(Expanded));
         }
     }
 }

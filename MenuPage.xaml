@@ -15,7 +15,7 @@
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <converters:BoolToVisibilityConverter x:Key="BoolNegationConverter" />
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
         <DataTemplate x:Key="FolderTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
             <TreeViewItem
@@ -96,16 +96,33 @@
                     </RelativePanel>
                     <toolkit:GridSplitter x:Name="m_objTreeListView"
                         Grid.Column="1"
-                        ManipulationCompleted="m_objTreeListView_ManipulationCompleted"
+                        ManipulationStarted="m_objTreeListView_ManipulationStarted"
                         ManipulationDelta="m_objTreeListView_ManipulationDelta"
+                        ManipulationCompleted="m_objTreeListView_ManipulationCompleted"
                         />
-                    <TextBox
-                        Grid.Column="2"
-                        TextWrapping="NoWrap" 
-                        Width="100" 
-                        Margin="5,0,5,0"
-                        Text="{x:Bind Name, Mode=TwoWay}" 
-                        />
+                    <RelativePanel Grid.Column="2">
+                        <TextBox x:Name="m_objDescription"
+                            Width="120" 
+                            Margin="5,0,5,0"
+                            Text="{x:Bind Name, Mode=TwoWay}" 
+                            IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
+                            TextWrapping="NoWrap" 
+                            />
+                        <CalendarDatePicker x:Name="m_objReservedDate"
+                            RelativePanel.RightOf="m_objDescription"
+                            Width="120" 
+                            Margin="5,0,5,0"
+                            PlaceholderText="Date"
+                            IsEnabled="{x:Bind EditMode, Mode=OneWay}"
+                            />
+                        <TextBox x:Name="m_objReservedBy"
+                            RelativePanel.RightOf="m_objReservedDate"
+                            Width="120" 
+                            Margin="5,0,5,0"
+                            IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
+                            TextWrapping="NoWrap" 
+                            />
+                    </RelativePanel>
                 </Grid>
             </TreeViewItem>
         </DataTemplate>
@@ -114,7 +131,7 @@
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item, Mode=OneWay}" 
                     ContextRequested="TreeViewItem_EnvironmentContextMenu"
-                    Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                     >
                 <RelativePanel>
                     <Image x:Name="EnvironmentImage"
@@ -215,17 +232,22 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <ScrollViewer Grid.Row="0">
+            <ScrollViewer Grid.Row="0"
+                    HorizontalScrollMode="Enabled"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollMode="Enabled"
+                    VerticalScrollBarVisibility="Auto"
+                    >
                 <TreeView x:Name="Apps" 
                     VerticalAlignment="Top" 
-                    HorizontalAlignment="Left" 
+                    HorizontalAlignment="Left"
                     Margin="0,12,0,0"
                     ItemTemplateSelector="{StaticResource TreeViewItemTemplateSelector}"
                     ItemsSource="{x:Bind Menu.Children}"
                     ItemInvoked="Apps_ItemInvoked"
                     DoubleTapped="Apps_DoubleTapped"
-                    CanDragItems="{x:Bind EditMode, Mode=OneWay}"
-                    CanReorderItems="{x:Bind EditMode, Mode=OneWay}"
+                    CanDragItems="{x:Bind DragDropEnabled, Mode=OneWay}"
+                    CanReorderItems="{x:Bind DragDropEnabled, Mode=OneWay}"
                     />
             </ScrollViewer>
             <Button x:Name="m_objNewButton" 

@@ -36,6 +36,7 @@ namespace AppLaunchMenu
     {
         private LaunchMenu m_objLaunchMenu;
         private readonly MenuViewModel m_objMenuViewModel;
+        private bool m_blnDragDropEnabled = true;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -61,7 +62,10 @@ namespace AppLaunchMenu
         private void LaunchMenu_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(EditMode))
+            {
                 OnPropertyChanged(nameof(EditMode));
+                OnPropertyChanged(nameof(DragDropEnabled));
+            }
         }
 
         private MenuViewModel Menu
@@ -72,6 +76,21 @@ namespace AppLaunchMenu
         private bool EditMode
         {
             get { return m_objLaunchMenu.EditMode; }
+        }
+
+        private bool DragDropEnabled
+        {
+            get
+            {
+                if (!EditMode)
+                    return false;
+                return m_blnDragDropEnabled;
+            }
+            set
+            {
+                m_blnDragDropEnabled = value;
+                OnPropertyChanged(nameof(DragDropEnabled));
+            }
         }
 
         private GridLength TreeViewItemWidth
@@ -418,18 +437,9 @@ namespace AppLaunchMenu
             }
         }
 
-        private void m_objTreeListView_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        private void m_objTreeListView_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
-            if (e.OriginalSource is GridSplitter)
-            {
-                GridSplitter objGridSplitter = (GridSplitter)e.OriginalSource;
-
-                if (objGridSplitter.Parent is Grid)
-                {
-                    Grid objGrid = (Grid)objGridSplitter.Parent;
-                    TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
-                }
-            }
+            DragDropEnabled = false;
         }
 
         private void m_objTreeListView_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
@@ -446,9 +456,20 @@ namespace AppLaunchMenu
             }
         }
 
-        private void m_objReservedBy_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void m_objTreeListView_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
+            if (e.OriginalSource is GridSplitter)
+            {
+                GridSplitter objGridSplitter = (GridSplitter)e.OriginalSource;
 
+                if (objGridSplitter.Parent is Grid)
+                {
+                    Grid objGrid = (Grid)objGridSplitter.Parent;
+                    TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
+                }
+            }
+
+            DragDropEnabled = true;
         }
     }
 

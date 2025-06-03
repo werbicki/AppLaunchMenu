@@ -67,11 +67,7 @@ namespace AppLaunchMenu.ViewModels
         private void LaunchMenu_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(EditMode))
-            {
                 OnPropertyChanged(nameof(EditMode));
-                ReloadChildren();
-                OnPropertyChanged(nameof(IsExpanded));
-            }
         }
 
         private void MenuViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
