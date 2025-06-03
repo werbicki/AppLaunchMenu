@@ -10,7 +10,7 @@ namespace AppLaunchMenu.DataAccess
 {
     public class MenuFile : DataModelBase
     {
-        String? m_strFilename;
+        string? m_strFilename;
 
         public MenuFile()
             : base(new XmlDocument(), string.Empty)
@@ -18,7 +18,7 @@ namespace AppLaunchMenu.DataAccess
             CreateFile("New LaunchMenu");
         }
 
-        public MenuFile(String p_strFilename)
+        public MenuFile(string p_strFilename)
             : base(new XmlDocument(), string.Empty)
         {
             FileInfo objFileInfo = new FileInfo(p_strFilename);
@@ -82,7 +82,7 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        protected bool CreateFile(String p_strDocument)
+        protected bool CreateFile(string p_strDocument)
         {
             XmlDocument? objDocument = null;
 
@@ -90,7 +90,7 @@ namespace AppLaunchMenu.DataAccess
             {
                 objDocument ??= new XmlDocument();
 
-                XmlElement objLaunchMenuElement = objDocument.CreateElement(MenuFile.RootElementName);
+                XmlElement objLaunchMenuElement = objDocument.CreateElement(RootElementName);
                 XmlElement objMenusElement = objDocument.CreateElement("Menus");
                 objLaunchMenuElement.AppendChild(objMenusElement);
                 objDocument.AppendChild(objLaunchMenuElement);
@@ -104,7 +104,7 @@ namespace AppLaunchMenu.DataAccess
                 m_strFilename = p_strDocument;
                 m_objXmlDocument = objDocument;
 
-                XmlNode? objNode = m_objXmlDocument.SelectSingleNode(MenuFile.RootElementName);
+                XmlNode? objNode = m_objXmlDocument.SelectSingleNode(RootElementName);
                 if (objNode != null)
                     m_objXmlNode = objNode;
             }
@@ -114,7 +114,7 @@ namespace AppLaunchMenu.DataAccess
             return true;
         }
 
-        protected bool ReadFile(String p_strFilename)
+        protected bool ReadFile(string p_strFilename)
         {
             FileInfo objFileInfo = new(p_strFilename);
             XmlDocument? objDocument = null;
@@ -146,11 +146,11 @@ namespace AppLaunchMenu.DataAccess
                     }
                 }
 
-                if ((blnLoaded) && (objDocument != null))
+                if (blnLoaded && objDocument != null)
                 {
                     m_objXmlDocument = objDocument;
 
-                    XmlNode? objNode = m_objXmlDocument.SelectSingleNode(MenuFile.RootElementName);
+                    XmlNode? objNode = m_objXmlDocument.SelectSingleNode(RootElementName);
                     if (objNode != null)
                         m_objXmlNode = objNode;
 
@@ -163,56 +163,7 @@ namespace AppLaunchMenu.DataAccess
             return false;
         }
 
-        public bool CanEdit
-        {
-            get {
-                List<string> objGroups = [];
-
-                WindowsIdentity objWindowsIdentity = WindowsIdentity.GetCurrent();
-                if (objWindowsIdentity.Groups != null)
-                {
-                    foreach (var group in objWindowsIdentity.Groups)
-                    {
-                        try
-                        {
-                            objGroups.Add(group.Translate(typeof(NTAccount)).ToString());
-                        }
-                        catch (Exception)
-                        {
-                            // ignored
-                        }
-                    }
-
-                    return objGroups.Contains(SecurityGroup);
-                }
-
-                return false;
-            }
-        }
-
-        public string SecurityGroup
-        {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["SecurityGroup"] != null)
-                    )
-                    return m_objXmlNode.Attributes["SecurityGroup"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["SecurityGroup"] != null)
-                    )
-                    m_objXmlNode.Attributes["SecurityGroup"]!.Value = value;
-            }
-        }
-
-        internal Menu? AddMenu(String p_strMenuName)
+        internal Menu? AddMenu(string p_strMenuName)
         {
             if (m_objXmlDocument != null)
             {
@@ -220,7 +171,7 @@ namespace AppLaunchMenu.DataAccess
                 XmlNodeList? objMenusNode = null;
 
                 if (objRoot != null)
-                    objMenusNode = objRoot.SelectNodes("/" + MenuFile.RootElementName + "/MenuList");
+                    objMenusNode = objRoot.SelectNodes("/" + RootElementName + "/MenuList");
 
                 if (objMenusNode != null)
                 {
@@ -268,7 +219,7 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objMenusNode = m_objXmlNode.SelectSingleNode("/" + MenuFile.RootElementName + "/MenuList");
+                XmlNode? objMenusNode = m_objXmlNode.SelectSingleNode("/" + RootElementName + "/MenuList");
 
                 if (objMenusNode == null)
                 {
@@ -281,6 +232,33 @@ namespace AppLaunchMenu.DataAccess
                 else
                     return new MenuList(m_objXmlDocument, objMenusNode);
             }
+        }
+
+        public string SecurityGroup
+        {
+            get
+            {
+                if (m_objXmlNode != null
+                    && m_objXmlNode.Attributes != null
+                    && m_objXmlNode.Attributes["SecurityGroup"] != null
+                    )
+                    return m_objXmlNode.Attributes["SecurityGroup"]!.Value;
+
+                return "Everyone";
+            }
+            set
+            {
+                if (m_objXmlNode != null
+                    && m_objXmlNode.Attributes != null
+                    && m_objXmlNode.Attributes["SecurityGroup"] != null
+                    )
+                    m_objXmlNode.Attributes["SecurityGroup"]!.Value = value;
+            }
+        }
+
+        public bool CanEdit
+        {
+            get { return MemberOf(SecurityGroup); }
         }
     }
 }

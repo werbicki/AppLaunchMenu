@@ -59,6 +59,37 @@ namespace AppLaunchMenu.DataModels
             get { return nameof(Application); }
         }
 
+        public string SecurityGroup
+        {
+            get
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["SecurityGroup"] != null)
+                    )
+                    return m_objXmlNode.Attributes["SecurityGroup"]!.Value;
+
+                return "Everyone";
+            }
+            set
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["SecurityGroup"] != null)
+                    )
+                    m_objXmlNode.Attributes["SecurityGroup"]!.Value = value;
+            }
+        }
+
+        public bool CanAccess
+        {
+            get
+            {
+                //TODO: Checked for CanEdit and override to make visible
+                return MemberOf(SecurityGroup);
+            }
+        }
+
         public string Executable
         {
             get

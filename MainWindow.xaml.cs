@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.DataModels;
 using AppLaunchMenu.Helper;
 using AppLaunchMenu.ViewModels;
 using Microsoft.UI.Xaml;

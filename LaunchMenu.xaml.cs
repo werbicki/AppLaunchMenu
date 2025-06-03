@@ -12,15 +12,14 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.Helper;
 using AppLaunchMenu.ViewModels;
 using System.Collections.ObjectModel;
 using Windows.UI;
 using Windows.Devices.Enumeration;
-using AppLaunchMenu.DataModels;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using AppLaunchMenu.DataAccess;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.

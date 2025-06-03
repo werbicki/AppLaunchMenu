@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Principal;
 using System.Text;
 using System.Xml;
 using Windows.Media.Audio;
@@ -105,6 +106,31 @@ namespace AppLaunchMenu.DataModels
             }
 
             throw new ArgumentException("p_objObject is not a ConfigNode");
+        }
+
+        public bool MemberOf(string p_strSecurityGroup)
+        {
+            List<string> objGroups = [];
+
+            WindowsIdentity objWindowsIdentity = WindowsIdentity.GetCurrent();
+            if (objWindowsIdentity.Groups != null)
+            {
+                foreach (var group in objWindowsIdentity.Groups)
+                {
+                    try
+                    {
+                        objGroups.Add(group.Translate(typeof(NTAccount)).ToString());
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
+                }
+
+                return objGroups.Contains(p_strSecurityGroup);
+            }
+
+            return false;
         }
     }
 }
