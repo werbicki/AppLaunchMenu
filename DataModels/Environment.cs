@@ -22,6 +22,16 @@ namespace AppLaunchMenu.DataModels
                 Initialize(p_objXmlDocument, p_objXmlDocument, p_objEnvironmentNode.ParentNode);
         }
 
+        internal static string ElementName
+        {
+            get { return nameof(Environment); }
+        }
+
+        protected override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
         internal override void Insert(DataModelBase p_objObject, int p_intIndex)
         {
             if (p_objObject is Variable)
@@ -43,11 +53,6 @@ namespace AppLaunchMenu.DataModels
                 throw new ArgumentException();
         }
 
-        protected override string ElementName
-        {
-            get { return nameof(Environment); }
-        }
-
         public override DataModelBase[] Items
         {
             get
@@ -56,7 +61,7 @@ namespace AppLaunchMenu.DataModels
 
                 if (m_objXmlNode != null)
                 {
-                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes("Variable");
+                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes(Variable.ElementName);
                     if (objNodes != null)
                     {
                         foreach (XmlNode objItemNode in objNodes)
@@ -70,7 +75,7 @@ namespace AppLaunchMenu.DataModels
 
                             if (blnInclude)
                             {
-                                if (objItemNode.Name == "Variable")
+                                if (objItemNode.Name == Variable.ElementName)
                                     objItems.Add(new Variable(m_objXmlDocument, objItemNode));
                             }
                         }
@@ -115,9 +120,6 @@ namespace AppLaunchMenu.DataModels
                         && (objVariable.Attributes["Name"] != null)
                         )
                         strName = objVariable.Attributes["Name"]!.Value;
-
-                    if (strName == "AB_OLF_CONFIG_FILE")
-                        blnInclude = true;
 
                     /*
                     XmlNode? objEnvironmentNode = objVariable.ParentNode;
@@ -165,7 +167,7 @@ namespace AppLaunchMenu.DataModels
             if (objRoot != null)
             {
                 List<XmlNode> objIncludedNodes = [];
-                XmlNodeList? objVariables = objRoot.SelectNodes("./Environment/Variable");
+                XmlNodeList? objVariables = objRoot.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
                 Initialize(objIncludedNodes, objVariables);
 
                 if (p_objParent != null)
@@ -177,9 +179,9 @@ namespace AppLaunchMenu.DataModels
                     if (objApplication != null)
                         objNode = objApplication.ParentNode;
 
-                    while ((objNode != null) && (objNode.Name != "Menus"))
+                    while ((objNode != null) && (objNode.Name != MenuList.ElementName))
                     {
-                        if ((objNode.Name == "Folder") || (objNode.Name == "Menu"))
+                        if ((objNode.Name == Folder.ElementName) || (objNode.Name == Menu.ElementName))
                             objMenuAndFolders.Insert(0, objNode);
 
                         objNode = objNode.ParentNode;
@@ -187,12 +189,12 @@ namespace AppLaunchMenu.DataModels
 
                     foreach (XmlNode objFolder in objMenuAndFolders)
                     {
-                        objVariables = objFolder.SelectNodes("./Environment/Variable");
+                        objVariables = objFolder.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
                         Initialize(objIncludedNodes, objVariables);
                     }
 
                     if (objApplication != null)
-                        objVariables = objApplication.SelectNodes("./Environment/Variable");
+                        objVariables = objApplication.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
 
                     Initialize(objIncludedNodes, objVariables);
                 }

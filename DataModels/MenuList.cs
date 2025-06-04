@@ -21,9 +21,19 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
+        internal static string ElementName
+        {
+            get { return nameof(MenuList); }
+        }
+
+        protected override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
         private Environment CreateEnvironment()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement("Environment");
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
             return new Environment(m_objXmlDocument, objEnvironmentElement);
         }
 
@@ -40,11 +50,6 @@ namespace AppLaunchMenu.DataModels
                 throw new ArgumentException();
         }
 
-        protected override string ElementName
-        {
-            get { return nameof(MenuList); }
-        }
-
         public Menu[] Menus
         {
             get
@@ -57,7 +62,7 @@ namespace AppLaunchMenu.DataModels
                     XmlNodeList? objMenusNode = null;
 
                     if (objRoot != null)
-                        objMenusNode = objRoot.SelectNodes("/" + MenuFile.RootElementName + "/" + ElementName);
+                        objMenusNode = objRoot.SelectNodes("/" + MenuFile.ElementName + "/" + _ElementName);
 
                     if (objMenusNode != null)
                     {
@@ -75,7 +80,7 @@ namespace AppLaunchMenu.DataModels
 
                             if (blnInclude)
                             {
-                                XmlNodeList? objNodes = objMenuNode.SelectNodes("Menu");
+                                XmlNodeList? objNodes = objMenuNode.SelectNodes(Menu.ElementName);
 
                                 if (objNodes != null)
                                 {
@@ -95,7 +100,7 @@ namespace AppLaunchMenu.DataModels
         {
             get
             {
-                XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("/" + MenuFile.RootElementName + "/" + ElementName + "/Environment");
+                XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("/" + MenuFile.ElementName + "/" + _ElementName + "/Environment");
 
                 if (objEnvironmentNode == null)
                 {

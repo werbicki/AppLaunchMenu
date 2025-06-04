@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using Windows.Foundation;
 using AppLaunchMenu.Helper;
-using AppLaunchMenu.DataModels;
 using AppLaunchMenu.DataAccess;
 
 // To learn more about WinUI, the WinUI project structure,

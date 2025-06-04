@@ -17,11 +17,21 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
+        internal static string ElementName
+        {
+            get { return nameof(Folder); }
+        }
+
+        protected override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
         internal Folder? CreateFolder(String p_strFolderName)
         {
             if (m_objXmlNode != null)
             {
-                XmlElement? objFolderElement = m_objXmlDocument.CreateElement("Folder");
+                XmlElement? objFolderElement = m_objXmlDocument.CreateElement(Folder.ElementName);
                 XmlAttribute? objFolderNameAttribute = m_objXmlDocument.CreateAttribute("Name");
                 if ((objFolderElement != null) && (objFolderNameAttribute != null))
                 {
@@ -39,7 +49,7 @@ namespace AppLaunchMenu.DataModels
         {
             if (m_objXmlNode != null)
             {
-                XmlElement? objApplicationElement = m_objXmlDocument.CreateElement("Application");
+                XmlElement? objApplicationElement = m_objXmlDocument.CreateElement(Application.ElementName);
                 XmlAttribute? objApplicationNameAttribute = m_objXmlDocument.CreateAttribute("Name");
                 if ((objApplicationElement != null) && (objApplicationNameAttribute != null))
                 {
@@ -55,7 +65,7 @@ namespace AppLaunchMenu.DataModels
 
         internal Environment CreateEnvironment()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement("Environment");
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
             return new Environment(m_objXmlDocument, objEnvironmentElement);
         }
 
@@ -63,7 +73,7 @@ namespace AppLaunchMenu.DataModels
         {
             if (m_objXmlNode != null)
             {
-                XmlElement? objVariableElement = m_objXmlDocument.CreateElement("Variable");
+                XmlElement? objVariableElement = m_objXmlDocument.CreateElement(Variable.ElementName);
                 XmlAttribute? objVariableNameAttribute = m_objXmlDocument.CreateAttribute("Name");
                 if ((objVariableElement != null) && (objVariableNameAttribute != null))
                 {
@@ -96,11 +106,6 @@ namespace AppLaunchMenu.DataModels
                 p_objObject.XmlNode?.ParentNode?.RemoveChild(p_objObject.XmlNode);
 
             throw new ArgumentException();
-        }
-
-        protected override string ElementName
-        {
-            get { return nameof(Folder); }
         }
 
         public bool Expanded
@@ -142,7 +147,7 @@ namespace AppLaunchMenu.DataModels
 
                 if (m_objXmlNode != null)
                 {
-                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes("Folder|Application|Environment");
+                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes(Folder.ElementName + "|" + Application.ElementName + "|" + Environment.ElementName);
                     if (objNodes != null)
                     {
                         foreach (XmlNode objItemNode in objNodes)
@@ -156,11 +161,11 @@ namespace AppLaunchMenu.DataModels
 
                             if (blnInclude)
                             {
-                                if (objItemNode.Name == "Folder")
+                                if (objItemNode.Name == Folder.ElementName)
                                     objItems.Add(new Folder(m_objXmlDocument, objItemNode));
-                                else if (objItemNode.Name == "Application")
+                                else if (objItemNode.Name == Application.ElementName)
                                     objItems.Add(new Application(m_objXmlDocument, objItemNode));
-                                else if (objItemNode.Name == "Environment")
+                                else if (objItemNode.Name == Environment.ElementName)
                                     objItems.Add(new Environment(m_objXmlDocument, objItemNode));
                             }
                         }
@@ -179,7 +184,7 @@ namespace AppLaunchMenu.DataModels
 
                 if (m_objXmlNode != null)
                 {
-                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes("Folder");
+                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes(Folder.ElementName);
 
                     if (objNodes != null)
                     {
@@ -210,7 +215,7 @@ namespace AppLaunchMenu.DataModels
 
                 if (m_objXmlNode != null)
                 {
-                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes("Application");
+                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes(Application.ElementName);
 
                     if (objNodes != null)
                     {
@@ -237,7 +242,7 @@ namespace AppLaunchMenu.DataModels
         {
             get
             {
-                XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("./Environment");
+                XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("./" + Environment.ElementName);
 
                 if (objEnvironmentNode == null)
                 {

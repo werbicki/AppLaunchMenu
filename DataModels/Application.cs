@@ -20,15 +20,25 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
+        internal static string ElementName
+        {
+            get { return nameof(Application); }
+        }
+
+        protected override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
         private Environment CreateEnvironment()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement("Environment");
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
             return new Environment(m_objXmlDocument, objEnvironmentElement);
         }
 
         internal Variable? CreateVariable(String p_strVariableName)
         {
-            XmlElement? objVariableElement = m_objXmlDocument.CreateElement("Variable");
+            XmlElement? objVariableElement = m_objXmlDocument.CreateElement(Variable.ElementName);
             XmlAttribute? objVariableNameAttribute = m_objXmlDocument.CreateAttribute("Name");
             if ((objVariableElement != null) && (objVariableNameAttribute != null))
             {
@@ -52,11 +62,6 @@ namespace AppLaunchMenu.DataModels
             }
             else
                 throw new ArgumentException();
-        }
-
-        protected override string ElementName
-        {
-            get { return nameof(Application); }
         }
 
         public string SecurityGroup
@@ -160,7 +165,7 @@ namespace AppLaunchMenu.DataModels
         {
             get
             {
-                XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("./Environment");
+                XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("./" + Environment.ElementName);
 
                 if (objEnvironmentNode == null)
                 {
@@ -183,7 +188,7 @@ namespace AppLaunchMenu.DataModels
 
                 if (m_objXmlNode != null)
                 {
-                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes("Environment");
+                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes(Environment.ElementName);
                     if (objNodes != null)
                     {
                         foreach (XmlNode objItemNode in objNodes)
@@ -197,7 +202,7 @@ namespace AppLaunchMenu.DataModels
 
                             if (blnInclude)
                             {
-                                if (objItemNode.Name == "Environment")
+                                if (objItemNode.Name == Environment.ElementName)
                                     objItems.Add(new Environment(m_objXmlDocument, objItemNode));
                             }
                         }

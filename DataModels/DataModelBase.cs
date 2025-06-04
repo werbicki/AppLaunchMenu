@@ -34,14 +34,14 @@ namespace AppLaunchMenu.DataModels
             Name = p_strName;
         }
 
-        protected abstract string ElementName
+        protected abstract string _ElementName
         {
             get;
         }
 
         protected XmlNode CreateNode()
         {
-            return m_objXmlDocument.CreateNode("element", ElementName, "");
+            return m_objXmlDocument.CreateNode("element", _ElementName, "");
         }
 
         internal virtual void Insert(DataModelBase p_objObject, int p_intIndex)

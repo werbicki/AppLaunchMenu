@@ -19,9 +19,14 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        protected override string ElementName
+        internal static string ElementName
         {
             get { return nameof(Variable); }
+        }
+
+        protected override string _ElementName
+        {
+            get { return ElementName; }
         }
 
         public string Description

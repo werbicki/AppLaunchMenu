@@ -18,9 +18,9 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        protected override string ElementName
+        protected override string _ElementName
         {
-            get { return nameof(Menu); }
+            get { return ElementName; }
         }
     }
 }

@@ -35,14 +35,14 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        internal static string RootElementName
+        internal static string ElementName
         {
             get { return "AppLaunchMenu"; }
         }
 
-        protected override string ElementName
+        protected override string _ElementName
         {
-            get { return RootElementName; }
+            get { return ElementName; }
         }
 
         public void Load()
@@ -90,7 +90,7 @@ namespace AppLaunchMenu.DataAccess
             {
                 objDocument ??= new XmlDocument();
 
-                XmlElement objLaunchMenuElement = objDocument.CreateElement(RootElementName);
+                XmlElement objLaunchMenuElement = objDocument.CreateElement(ElementName);
                 XmlElement objMenusElement = objDocument.CreateElement("Menus");
                 objLaunchMenuElement.AppendChild(objMenusElement);
                 objDocument.AppendChild(objLaunchMenuElement);
@@ -104,7 +104,7 @@ namespace AppLaunchMenu.DataAccess
                 m_strFilename = p_strDocument;
                 m_objXmlDocument = objDocument;
 
-                XmlNode? objNode = m_objXmlDocument.SelectSingleNode(RootElementName);
+                XmlNode? objNode = m_objXmlDocument.SelectSingleNode(ElementName);
                 if (objNode != null)
                     m_objXmlNode = objNode;
             }
@@ -150,7 +150,7 @@ namespace AppLaunchMenu.DataAccess
                 {
                     m_objXmlDocument = objDocument;
 
-                    XmlNode? objNode = m_objXmlDocument.SelectSingleNode(RootElementName);
+                    XmlNode? objNode = m_objXmlDocument.SelectSingleNode(ElementName);
                     if (objNode != null)
                         m_objXmlNode = objNode;
 
@@ -171,7 +171,7 @@ namespace AppLaunchMenu.DataAccess
                 XmlNodeList? objMenusNode = null;
 
                 if (objRoot != null)
-                    objMenusNode = objRoot.SelectNodes("/" + RootElementName + "/MenuList");
+                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/MenuList");
 
                 if (objMenusNode != null)
                 {
@@ -219,7 +219,7 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objMenusNode = m_objXmlNode.SelectSingleNode("/" + RootElementName + "/MenuList");
+                XmlNode? objMenusNode = m_objXmlNode.SelectSingleNode("/" + ElementName + "/MenuList");
 
                 if (objMenusNode == null)
                 {
