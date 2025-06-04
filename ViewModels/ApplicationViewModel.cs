@@ -102,6 +102,46 @@ namespace AppLaunchMenu.ViewModels
             get { return new EnvironmentViewModel(LaunchMenu, m_objApplication.Environment); }
         }
 
+        public bool IsReservable
+        {
+            get { return m_objApplication.IsReservable; }
+            set
+            {
+                m_objApplication.IsReservable = value;
+                OnPropertyChanged(nameof(IsReservable));
+            }
+        }
+
+        public string ReservationDescription
+        {
+            get { return m_objApplication.ReservationDescription; }
+            set
+            {
+                m_objApplication.ReservationDescription = value;
+                OnPropertyChanged(nameof(ReservationDescription));
+            }
+        }
+
+        public DateTimeOffset ReservationDate
+        {
+            get { return m_objApplication.ReservationDate; }
+            set
+            {
+                m_objApplication.ReservationDate = value;
+                OnPropertyChanged(nameof(ReservationDate));
+            }
+        }
+
+        public string ReservationOwner
+        {
+            get { return m_objApplication.ReservationOwner; }
+            set
+            {
+                m_objApplication.ReservationOwner = value;
+                OnPropertyChanged(nameof(ReservationOwner));
+            }
+        }
+
         protected override void LoadChildren()
         {
             if (EditMode)

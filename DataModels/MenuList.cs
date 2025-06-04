@@ -62,7 +62,7 @@ namespace AppLaunchMenu.DataModels
                     XmlNodeList? objMenusNode = null;
 
                     if (objRoot != null)
-                        objMenusNode = objRoot.SelectNodes("/" + MenuFile.ElementName + "/" + _ElementName);
+                        objMenusNode = objRoot.SelectNodes("/" + MenuFile.ElementName + "/" + MenuList.ElementName);
 
                     if (objMenusNode != null)
                     {

@@ -18,6 +18,11 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
+        internal static new string ElementName
+        {
+            get { return nameof(Menu); }
+        }
+
         protected override string _ElementName
         {
             get { return ElementName; }

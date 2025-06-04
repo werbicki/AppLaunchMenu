@@ -180,6 +180,108 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
+        public bool IsReservable
+        {
+            get
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["IsReservable"] != null)
+                    )
+                    return m_objXmlNode.Attributes["IsReservable"]!.Value.Equals("true", StringComparison.CurrentCultureIgnoreCase);
+
+                return false;
+            }
+            set
+            {
+                if ((m_objXmlDocument != null)
+                    && (m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    )
+                {
+                    if (m_objXmlNode.Attributes["IsReservable"] == null)
+                    {
+                        XmlAttribute objXmlAttribute = m_objXmlDocument.CreateAttribute("IsReservable");
+                        objXmlAttribute.Value = value ? "true" : "false";
+                        m_objXmlNode.Attributes.Append(objXmlAttribute);
+                    }
+                    else
+                        m_objXmlNode.Attributes["IsReservable"]!.Value = value ? "true" : "false";
+                }
+            }
+        }
+
+        public string ReservationDescription
+        {
+            get
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["ReservationDescription"] != null)
+                    )
+                    return m_objXmlNode.Attributes["ReservationDescription"]!.Value;
+
+                return "";
+            }
+            set
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["ReservationDescription"] != null)
+                    )
+                    m_objXmlNode.Attributes["ReservationDescription"]!.Value = value;
+            }
+        }
+
+        public DateTimeOffset ReservationDate
+        {
+            get
+            {
+                try
+                {
+                    if ((m_objXmlNode != null)
+                        && (m_objXmlNode.Attributes != null)
+                        && (m_objXmlNode.Attributes["ReservationDate"] != null)
+                        )
+                        return DateTime.Parse(m_objXmlNode.Attributes["ReservationDate"]!.Value);
+                }
+                catch
+                { }
+
+                return DateTime.Today;
+            }
+            set
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["ReservationDate"] != null)
+                    )
+                    m_objXmlNode.Attributes["ReservationDate"]!.Value = value.ToString("yyyy-MM-dd"); ;
+            }
+        }
+
+        public string ReservationOwner
+        {
+            get
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["ReservationOwner"] != null)
+                    )
+                    return m_objXmlNode.Attributes["ReservationOwner"]!.Value;
+
+                return "";
+            }
+            set
+            {
+                if ((m_objXmlNode != null)
+                    && (m_objXmlNode.Attributes != null)
+                    && (m_objXmlNode.Attributes["ReservationOwner"] != null)
+                    )
+                    m_objXmlNode.Attributes["ReservationOwner"]!.Value = value;
+            }
+        }
+
         public override DataModelBase[] Items
         {
             get

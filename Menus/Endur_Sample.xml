@@ -49,7 +49,7 @@
 		</Environment>
 		<Menu Name="Openlink Endur">
 			<Folder Name="Openlink Endur" Expanded="True">
-				<Application Name="Development01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
+				<Application Name="Development01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" IsReservable="True">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Dev01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="14003" />

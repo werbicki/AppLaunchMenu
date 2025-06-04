@@ -91,7 +91,7 @@ namespace AppLaunchMenu.DataAccess
                 objDocument ??= new XmlDocument();
 
                 XmlElement objLaunchMenuElement = objDocument.CreateElement(ElementName);
-                XmlElement objMenusElement = objDocument.CreateElement("Menus");
+                XmlElement objMenusElement = objDocument.CreateElement(MenuList.ElementName);
                 objLaunchMenuElement.AppendChild(objMenusElement);
                 objDocument.AppendChild(objLaunchMenuElement);
             }
@@ -171,11 +171,11 @@ namespace AppLaunchMenu.DataAccess
                 XmlNodeList? objMenusNode = null;
 
                 if (objRoot != null)
-                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/MenuList");
+                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/" + MenuList.ElementName);
 
                 if (objMenusNode != null)
                 {
-                    XmlElement objMenuElement = m_objXmlDocument.CreateElement("Menu");
+                    XmlElement objMenuElement = m_objXmlDocument.CreateElement(Menu.ElementName);
                     XmlAttribute objMenuNameAttribute = m_objXmlDocument.CreateAttribute("Name");
                     objMenuNameAttribute.Value = p_strMenuName;
                     objMenuElement.Attributes.Append(objMenuNameAttribute);
@@ -211,7 +211,7 @@ namespace AppLaunchMenu.DataAccess
 
         private MenuList CreateMenus()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement("MenuList");
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(MenuList.ElementName);
             return new MenuList(m_objXmlDocument, objEnvironmentElement);
         }
 
@@ -219,7 +219,7 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objMenusNode = m_objXmlNode.SelectSingleNode("/" + ElementName + "/MenuList");
+                XmlNode? objMenusNode = m_objXmlNode.SelectSingleNode("/" + ElementName + "/" + MenuList.ElementName);
 
                 if (objMenusNode == null)
                 {

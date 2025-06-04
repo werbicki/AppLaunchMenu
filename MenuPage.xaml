@@ -17,7 +17,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
-        <DataTemplate x:Key="FolderTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
+        <DataTemplate x:Key="FolderTreeViewItemTemplate" x:DataType="local1:FolderViewModel">
             <TreeViewItem
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item}" 
@@ -52,7 +52,7 @@
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
-        <DataTemplate x:Key="ApplicationTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
+        <DataTemplate x:Key="ApplicationTreeViewItemTemplate" x:DataType="local1:ApplicationViewModel">
             <TreeViewItem
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item, Mode=OneWay}" 
@@ -96,15 +96,19 @@
                     </RelativePanel>
                     <toolkit:GridSplitter x:Name="m_objTreeListView"
                         Grid.Column="1"
+                        Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                         ManipulationStarted="m_objTreeListView_ManipulationStarted"
                         ManipulationDelta="m_objTreeListView_ManipulationDelta"
                         ManipulationCompleted="m_objTreeListView_ManipulationCompleted"
                         />
-                    <RelativePanel Grid.Column="2">
+                    <RelativePanel 
+                            Grid.Column="2"
+                            Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
+                            >
                         <TextBox x:Name="m_objDescription"
                             Width="120" 
                             Margin="5,0,5,0"
-                            Text="{x:Bind Name, Mode=TwoWay}" 
+                            Text="{x:Bind ReservationDescription, Mode=TwoWay}" 
                             IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
                             TextWrapping="NoWrap" 
                             />
@@ -113,12 +117,14 @@
                             Width="120" 
                             Margin="5,0,5,0"
                             PlaceholderText="Date"
+                            Date="{x:Bind ReservationDate, Mode=TwoWay}" 
                             IsEnabled="{x:Bind EditMode, Mode=OneWay}"
                             />
-                        <TextBox x:Name="m_objReservedBy"
+                        <TextBox x:Name="m_objReservedOwner"
                             RelativePanel.RightOf="m_objReservedDate"
                             Width="120" 
                             Margin="5,0,5,0"
+                            Text="{x:Bind ReservationOwner, Mode=TwoWay}" 
                             IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
                             TextWrapping="NoWrap" 
                             />
