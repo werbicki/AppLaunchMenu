@@ -9,14 +9,15 @@
 	<xs:element name="AppLaunchMenu">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element minOccurs="0" maxOccurs="unbounded" name="Environment" type="EnvironmentType"/>
-				<xs:element minOccurs="1" maxOccurs="1" name="Menus" type="MenusType"/>
+				<xs:element minOccurs="0" maxOccurs="1" name="Environment" type="EnvironmentType"/>
+				<xs:element minOccurs="1" maxOccurs="1" name="MenuList" type="MenuListType"/>
 			</xs:sequence>
+			<xs:attribute name="SecurityGroup"/>
 		</xs:complexType>
 	</xs:element>
-	<xs:complexType name="MenusType">
+	<xs:complexType name="MenuListType">
 		<xs:sequence>
-			<xs:element name="Menu" type="MenuType"/>
+			<xs:element minOccurs="1" maxOccurs="unbounded" name="Menu" type="MenuType"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="MenuType">
@@ -30,30 +31,34 @@
 		<xs:sequence>
 			<xs:element minOccurs="1" maxOccurs="unbounded" name="Application" type="ApplicationType"/>
 		</xs:sequence>
-		<xs:attribute name="Expanded" use="required" type="xs:NCName"/>
 		<xs:attribute name="Name" use="required" type="xs:NCName"/>
+		<xs:attribute name="Expanded" type="xs:NCName"/>
 	</xs:complexType>
 	<xs:complexType name="EnvironmentType">
 		<xs:sequence>
 			<xs:element minOccurs="1" maxOccurs="unbounded" name="Variable" type="VariableType"/>
 		</xs:sequence>
-		<xs:attribute name="Name" use="required" type="xs:NCName"/>
+		<xs:attribute name="Name" type="xs:NCName"/>
 	</xs:complexType>
 	<xs:complexType name="ApplicationType">
 		<xs:sequence>
-			<xs:element minOccurs="0" maxOccurs="unbounded" name="Variable" type="VariableType"/>
 			<xs:element minOccurs="0" maxOccurs="unbounded" name="Environment" type="EnvironmentType"/>
 		</xs:sequence>
-		<xs:attribute name="Executable" use="required"/>
 		<xs:attribute name="Name" use="required"/>
+		<xs:attribute name="SecurityGroup"/>
+		<xs:attribute name="Executable" use="required"/>
 		<xs:attribute name="Parameters"/>
 		<xs:attribute name="WorkingDirectory"/>
+		<xs:attribute name="IsReservable"/>
+		<xs:attribute name="ReservationDescription"/>
+		<xs:attribute name="ReservationDate"/>
+		<xs:attribute name="ReservationOwner"/>
 	</xs:complexType>
 	<xs:complexType name="VariableType">
-		<xs:attribute name="Description"/>
-		<xs:attribute name="Group" use="required" type="xs:NCName"/>
 		<xs:attribute name="Name" use="required" type="xs:NCName"/>
+		<xs:attribute name="Description"/>
+		<xs:attribute name="Group" type="xs:NCName"/>
+		<xs:attribute name="Value"/>
 		<xs:attribute name="Validation" type="xs:NCName"/>
-		<xs:attribute name="Value" use="required"/>
 	</xs:complexType>
 </xs:schema>
