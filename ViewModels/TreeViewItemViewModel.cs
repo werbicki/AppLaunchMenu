@@ -230,10 +230,6 @@ namespace AppLaunchMenu.ViewModels
                 // Expand all the way up to the root.
                 if (Expanded && m_objParent != null)
                     m_objParent.IsExpanded = true;
-
-                // Lazy load the child items, if necessary.
-                if (m_blnLazyLoadChildren)
-                    LoadChildren();
             }
         }
 

@@ -43,11 +43,11 @@
                     TextWrapping="NoWrap" 
                     Margin="5,5,5,5" 
                     />
-            <TextBlock Text="Reservable?" 
+            <TextBlock Text="Is Reservable?" 
                     Margin="5,5,5,0" 
                     />
             <CheckBox IsChecked="{Binding IsReservable, Mode=TwoWay}" 
-                    Content="Expanded" 
+                    Content="Reservable" 
                     Margin="5,5,5,5" 
                     />
             <TextBlock Text="Resrvation Description" 
