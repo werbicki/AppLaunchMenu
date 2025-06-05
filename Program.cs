@@ -1,34 +1,44 @@
-﻿using System;
+﻿using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
+using Microsoft.Windows.AppLifecycle;
+using System;
+using System.CommandLine;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
-using Microsoft.Windows.AppLifecycle;
 
 namespace AppLaunchMenu
 {
     public class Program
     {
         [STAThread]
-        static int Main(string[] args)
+        static async Task Main(string[] args)
         {
-            WinRT.ComWrappersSupport.InitializeComWrappers();
-            bool isRedirect = DecideRedirection();
+            var rootCommand = new RootCommand("AppLaunchMenu");
+            var menuArgument = new Argument<string>("menu", "A path to a valid menu file.");
 
-            if (!isRedirect)
+            rootCommand.Add(menuArgument);
+
+            rootCommand.SetHandler((p_strMenuFilePath) =>
             {
-                Application.Start((p) =>
-                {
-                    var context = new DispatcherQueueSynchronizationContext(
-                        DispatcherQueue.GetForCurrentThread());
-                    SynchronizationContext.SetSynchronizationContext(context);
-                    _ = new App();
-                });
-            }
+                WinRT.ComWrappersSupport.InitializeComWrappers();
+                bool isRedirect = DecideRedirection();
 
-            return 0;
+                if (!isRedirect)
+                {
+                    Application.Start((p) =>
+                    {
+                        var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
+                        SynchronizationContext.SetSynchronizationContext(context);
+                        _ = (p_strMenuFilePath is null ? new App() : new App(p_strMenuFilePath));
+                    });
+                }
+            }
+            , menuArgument
+            );
+
+            await rootCommand.InvokeAsync(args);
         }
 
         private static bool DecideRedirection()
@@ -71,8 +81,7 @@ namespace AppLaunchMenu
 
         // Do the redirection on another thread, and use a non-blocking
         // wait method to wait for the redirection to complete.
-        public static void RedirectActivationTo(AppActivationArguments args,
-                                                AppInstance keyInstance)
+        public static void RedirectActivationTo(AppActivationArguments args, AppInstance keyInstance)
         {
             redirectEventHandle = CreateEvent(IntPtr.Zero, true, false, null);
             Task.Run(() =>
@@ -83,9 +92,7 @@ namespace AppLaunchMenu
 
             uint CWMO_DEFAULT = 0;
             uint INFINITE = 0xFFFFFFFF;
-            _ = CoWaitForMultipleObjects(
-               CWMO_DEFAULT, INFINITE, 1,
-               [redirectEventHandle], out uint handleIndex);
+            _ = CoWaitForMultipleObjects(CWMO_DEFAULT, INFINITE, 1, [redirectEventHandle], out uint handleIndex);
 
             // Bring the window to the foreground
             Process process = Process.GetProcessById((int)keyInstance.ProcessId);

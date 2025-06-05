@@ -11,6 +11,7 @@
         mc:Ignorable="d"
         Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
         x:Name="ParentPage"
+        Loaded="ParentPage_Loaded"
         >
 
     <Page.Resources>
@@ -245,7 +246,7 @@
                     VerticalScrollMode="Enabled"
                     VerticalScrollBarVisibility="Auto"
                     >
-                <TreeView x:Name="Apps" 
+                <TreeView x:Name="m_objTreeView" 
                     VerticalAlignment="Top" 
                     HorizontalAlignment="Left"
                     Margin="0,12,0,0"
