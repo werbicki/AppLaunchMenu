@@ -31,68 +31,20 @@ namespace AppLaunchMenu.DataModels
 
         public string Description
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Description"] != null)
-                    )
-                    return m_objXmlNode.Attributes["Description"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Description"] != null)
-                    )
-                    m_objXmlNode.Attributes["Description"]!.Value = value;
-            }
+            get { return Property(nameof(Description)); }
+            set { Property(nameof(Description), value); }
         }
 
         public string Group
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null) 
-                    && (m_objXmlNode.Attributes["Group"] != null)
-                    )
-                    return m_objXmlNode.Attributes["Group"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Group"] != null)
-                    )
-                    m_objXmlNode.Attributes["Group"]!.Value = value;
-            }
+            get { return Property(nameof(Group)); }
+            set { Property(nameof(Group), value); }
         }
 
         public string Value
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Value"] != null)
-                    )
-                    return m_objXmlNode.Attributes["Value"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Value"] != null)
-                    )
-                    m_objXmlNode.Attributes["Value"]!.Value = value;
-            }
+            get { return Property(nameof(Value)); }
+            set { Property(nameof(Value), value); }
         }
 
         public string ExpandedValue
@@ -109,24 +61,8 @@ namespace AppLaunchMenu.DataModels
 
         public string Validation
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Validation"] != null)
-                    )
-                    return m_objXmlNode.Attributes["Validation"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Validation"] != null)
-                    )
-                    m_objXmlNode.Attributes["Validation"]!.Value = value;
-            }
+            get { return Property(nameof(Validation)); }
+            set { Property(nameof(Validation), value); }
         }
     }
 }

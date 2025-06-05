@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Security.Principal;
 using System.Text;
@@ -59,35 +60,49 @@ namespace AppLaunchMenu.DataModels
             get { return m_objXmlNode; }
         }
 
-        public string Name
+        protected string Property(string p_strPropertyName)
         {
-            get
-            {
-                if (m_objXmlNode != null
-                    && m_objXmlNode.Attributes != null
-                    && m_objXmlNode.Attributes["Name"] != null
-                    )
-                    return m_objXmlNode.Attributes["Name"]!.Value;
+            if (m_objXmlNode != null
+                && m_objXmlNode.Attributes != null
+                && m_objXmlNode.Attributes[p_strPropertyName] != null
+                )
+                return m_objXmlNode.Attributes[p_strPropertyName]!.Value;
 
-                return "";
-            }
-            set
+            return "";
+        }
+
+        protected void Property(string p_strPropertyName, string value)
+        {
+            if ((m_objXmlDocument != null)
+                && (m_objXmlNode != null)
+                && (m_objXmlNode.Attributes != null)
+                )
             {
-                if ((m_objXmlDocument != null)
-                    && (m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
+                if ((m_objXmlNode.Attributes[p_strPropertyName] == null)
+                    && (!string.IsNullOrEmpty(value))
                     )
                 {
-                    if (m_objXmlNode.Attributes["Name"] == null)
+                    XmlAttribute objXmlAttribute = m_objXmlDocument.CreateAttribute(p_strPropertyName);
+                    objXmlAttribute.Value = value;
+                    m_objXmlNode.Attributes.Append(objXmlAttribute);
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(value))
                     {
-                        XmlAttribute objXmlAttribute = m_objXmlDocument.CreateAttribute("Name");
-                        objXmlAttribute.Value = value;
-                        m_objXmlNode.Attributes.Append(objXmlAttribute);
+                        XmlElement objXmlElement = (XmlElement)m_objXmlNode;
+                        objXmlElement.RemoveAttribute(p_strPropertyName);
                     }
                     else
-                        m_objXmlNode.Attributes["Name"]!.Value = value;
+                        m_objXmlNode.Attributes[p_strPropertyName]!.Value = value;
                 }
             }
+        }
+
+        public string Name
+        {
+            get { return Property(nameof(Name)); }
+            set { Property(nameof(Name), value); }
         }
 
         public virtual DataModelBase[] Items

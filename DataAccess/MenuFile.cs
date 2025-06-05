@@ -236,24 +236,8 @@ namespace AppLaunchMenu.DataAccess
 
         public string SecurityGroup
         {
-            get
-            {
-                if (m_objXmlNode != null
-                    && m_objXmlNode.Attributes != null
-                    && m_objXmlNode.Attributes["SecurityGroup"] != null
-                    )
-                    return m_objXmlNode.Attributes["SecurityGroup"]!.Value;
-
-                return "Everyone";
-            }
-            set
-            {
-                if (m_objXmlNode != null
-                    && m_objXmlNode.Attributes != null
-                    && m_objXmlNode.Attributes["SecurityGroup"] != null
-                    )
-                    m_objXmlNode.Attributes["SecurityGroup"]!.Value = value;
-            }
+            get { return Property(nameof(SecurityGroup)); }
+            set { Property(nameof(SecurityGroup), value); }
         }
 
         public bool CanEdit

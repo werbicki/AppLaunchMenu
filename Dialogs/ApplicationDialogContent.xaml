@@ -12,30 +12,64 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     >
 
-    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <TextBlock Text="Name" 
+    <ScrollViewer
+            HorizontalScrollMode="Enabled"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollMode="Enabled"
+            VerticalScrollBarVisibility="Auto"
+            >
+        <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <TextBlock Text="Name" 
                 Margin="5,5,5,0" 
                 />
-        <TextBox Text="{Binding Name, Mode=TwoWay}" 
-                TextWrapping="NoWrap" 
-                Margin="5,5,5,15" 
-                />
-        <TextBlock Text="Executable" />
-        <TextBox Text="{Binding Executable, Mode=TwoWay}" 
-                TextWrapping="NoWrap" 
-                Margin="5,5,5,0" 
-                />
-        <TextBlock Text="Working Directory" />
-        <TextBox Text="{Binding WorkingDirectory, Mode=TwoWay}" 
-                TextWrapping="NoWrap" 
-                Margin="5,5,5,15" 
-                />
-        <TextBlock Text="Parameters" 
-                Margin="5,5,5,0" 
-                />
-        <TextBox Text="{Binding Parameters, Mode=TwoWay}" 
-                TextWrapping="NoWrap" 
-                Margin="5,5,5,5" 
-                />
-    </StackPanel>
+            <TextBox Text="{Binding Name, Mode=TwoWay}" 
+                    TextWrapping="NoWrap" 
+                    Margin="5,5,5,15" 
+                    />
+            <TextBlock Text="Executable" />
+            <TextBox Text="{Binding Executable, Mode=TwoWay}" 
+                    TextWrapping="NoWrap" 
+                    Margin="5,5,5,0" 
+                    />
+            <TextBlock Text="Working Directory" />
+            <TextBox Text="{Binding WorkingDirectory, Mode=TwoWay}" 
+                    TextWrapping="NoWrap" 
+                    Margin="5,5,5,15" 
+                    />
+            <TextBlock Text="Parameters" 
+                    Margin="5,5,5,0" 
+                    />
+            <TextBox Text="{Binding Parameters, Mode=TwoWay}" 
+                    TextWrapping="NoWrap" 
+                    Margin="5,5,5,5" 
+                    />
+            <TextBlock Text="Reservable?" 
+                    Margin="5,5,5,0" 
+                    />
+            <CheckBox IsChecked="{Binding IsReservable, Mode=TwoWay}" 
+                    Content="Expanded" 
+                    Margin="5,5,5,5" 
+                    />
+            <TextBlock Text="Resrvation Description" 
+                    Margin="5,5,5,0" 
+                    />
+            <TextBox Text="{Binding ReservationDescription, Mode=TwoWay}" 
+                    TextWrapping="NoWrap" 
+                    Margin="5,5,5,5" 
+                    />
+            <TextBlock Text="Resrvation Date" 
+                    Margin="5,5,5,0" 
+                    />
+            <CalendarDatePicker Date="{Binding ReservationDate, Mode=TwoWay}" 
+                    Margin="5,5,5,0" 
+                    />
+            <TextBlock Text="Resrvation Owner" 
+                    Margin="5,5,5,0" 
+                    />
+            <TextBox Text="{Binding ReservationOwner, Mode=TwoWay}" 
+                    TextWrapping="NoWrap" 
+                    Margin="5,5,5,5" 
+                    />
+        </StackPanel>
+    </ScrollViewer>
 </Page>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -66,24 +67,8 @@ namespace AppLaunchMenu.DataModels
 
         public string SecurityGroup
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["SecurityGroup"] != null)
-                    )
-                    return m_objXmlNode.Attributes["SecurityGroup"]!.Value;
-
-                return "Everyone";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["SecurityGroup"] != null)
-                    )
-                    m_objXmlNode.Attributes["SecurityGroup"]!.Value = value;
-            }
+            get { return Property(nameof(SecurityGroup)); }
+            set { Property(nameof(SecurityGroup), value); }
         }
 
         public bool CanAccess
@@ -97,68 +82,20 @@ namespace AppLaunchMenu.DataModels
 
         public string Executable
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Executable"] != null)
-                    )
-                    return m_objXmlNode.Attributes["Executable"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Executable"] != null)
-                    )
-                    m_objXmlNode.Attributes["Executable"]!.Value = value;
-            }
+            get { return Property(nameof(Executable)); }
+            set { Property(nameof(Executable), value); }
         }
 
         public string WorkingDirectory
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["WorkingDirectory"] != null)
-                    )
-                    return m_objXmlNode.Attributes["WorkingDirectory"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["WorkingDirectory"] != null)
-                    )
-                    m_objXmlNode.Attributes["WorkingDirectory"]!.Value = value;
-            }
+            get { return Property(nameof(WorkingDirectory)); }
+            set { Property(nameof(WorkingDirectory), value); }
         }
 
         public string Parameters
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Parameters"] != null)
-                    )
-                    return m_objXmlNode.Attributes["Parameters"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Parameters"] != null)
-                    )
-                    m_objXmlNode.Attributes["Parameters"]!.Value = value;
-            }
+            get { return Property(nameof(Parameters)); }
+            set { Property(nameof(Parameters), value); }
         }
 
         public Environment Environment
@@ -182,104 +119,35 @@ namespace AppLaunchMenu.DataModels
 
         public bool IsReservable
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["IsReservable"] != null)
-                    )
-                    return m_objXmlNode.Attributes["IsReservable"]!.Value.Equals("true", StringComparison.CurrentCultureIgnoreCase);
-
-                return false;
-            }
-            set
-            {
-                if ((m_objXmlDocument != null)
-                    && (m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    )
-                {
-                    if (m_objXmlNode.Attributes["IsReservable"] == null)
-                    {
-                        XmlAttribute objXmlAttribute = m_objXmlDocument.CreateAttribute("IsReservable");
-                        objXmlAttribute.Value = value ? "true" : "false";
-                        m_objXmlNode.Attributes.Append(objXmlAttribute);
-                    }
-                    else
-                        m_objXmlNode.Attributes["IsReservable"]!.Value = value ? "true" : "false";
-                }
-            }
+            get { return Property(nameof(IsReservable)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
+            set { Property(nameof(IsReservable), value ? "true" : "false"); }
         }
 
         public string ReservationDescription
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["ReservationDescription"] != null)
-                    )
-                    return m_objXmlNode.Attributes["ReservationDescription"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["ReservationDescription"] != null)
-                    )
-                    m_objXmlNode.Attributes["ReservationDescription"]!.Value = value;
-            }
+            get { return Property(nameof(ReservationDescription)); }
+            set { Property(nameof(ReservationDescription), value); }
         }
 
         public DateTimeOffset ReservationDate
         {
-            get
-            {
+            get {
                 try
                 {
-                    if ((m_objXmlNode != null)
-                        && (m_objXmlNode.Attributes != null)
-                        && (m_objXmlNode.Attributes["ReservationDate"] != null)
-                        )
-                        return DateTime.Parse(m_objXmlNode.Attributes["ReservationDate"]!.Value);
+                    return DateTime.Parse(Property(nameof(ReservationDate)));
                 }
                 catch
                 { }
 
                 return DateTime.Today;
             }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["ReservationDate"] != null)
-                    )
-                    m_objXmlNode.Attributes["ReservationDate"]!.Value = value.ToString("yyyy-MM-dd"); ;
-            }
+            set { Property(nameof(ReservationDate), value.ToString("yyyy-MM-dd")); }
         }
 
         public string ReservationOwner
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["ReservationOwner"] != null)
-                    )
-                    return m_objXmlNode.Attributes["ReservationOwner"]!.Value;
-
-                return "";
-            }
-            set
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["ReservationOwner"] != null)
-                    )
-                    m_objXmlNode.Attributes["ReservationOwner"]!.Value = value;
-            }
+            get { return Property(nameof(ReservationOwner)); }
+            set { Property(nameof(ReservationOwner), value); }
         }
 
         public override DataModelBase[] Items

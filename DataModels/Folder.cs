@@ -110,33 +110,8 @@ namespace AppLaunchMenu.DataModels
 
         public bool Expanded
         {
-            get
-            {
-                if ((m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    && (m_objXmlNode.Attributes["Expanded"] != null)
-                    )
-                    return m_objXmlNode.Attributes["Expanded"]!.Value.Equals("true", StringComparison.CurrentCultureIgnoreCase);
-
-                return false;
-            }
-            set
-            {
-                if ((m_objXmlDocument != null)
-                    && (m_objXmlNode != null)
-                    && (m_objXmlNode.Attributes != null)
-                    )
-                {
-                    if (m_objXmlNode.Attributes["Expanded"] == null)
-                    {
-                        XmlAttribute objXmlAttribute = m_objXmlDocument.CreateAttribute("Expanded");
-                        objXmlAttribute.Value = value ? "true" : "false";
-                        m_objXmlNode.Attributes.Append(objXmlAttribute);
-                    }
-                    else
-                        m_objXmlNode.Attributes["Expanded"]!.Value = value ? "true" : "false";
-                }
-            }
+            get { return Property(nameof(Expanded)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
+            set { Property(nameof(Expanded), value ? "true" : "false"); }
         }
 
         public override DataModelBase[] Items
