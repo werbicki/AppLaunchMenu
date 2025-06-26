@@ -199,6 +199,8 @@ namespace AppLaunchMenu
 
         private async void Execute(DataModels.Application p_objApplication)
         {
+            // TODO: Process Variables where Prompt=True
+
             if (ShowEnvironment)
             {
                 MainWindow objNewWindow = new MainWindow();
