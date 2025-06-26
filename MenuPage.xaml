@@ -11,6 +11,7 @@
         mc:Ignorable="d"
         Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
         x:Name="ParentPage"
+        Loaded="ParentPage_Loaded"
         >
 
     <Page.Resources>
@@ -21,7 +22,7 @@
             <TreeViewItem
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item}" 
-                    IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
+                    IsExpanded="{Binding IsExpanded, Mode=OneWay}"
                     ContextRequested="TreeViewItem_FolderContextMenu"
                     >
                 <RelativePanel>
@@ -39,7 +40,7 @@
                             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnNewFolderContextMenu"
                             >
-                        <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE710;"/>
+                        <Image Width="12" Height="12" Source="../Assets/e710.png"/>
                     </Button>
                     <Button x:Name="m_objDeleteButton" 
                             Margin="5,0,0,0"
@@ -47,7 +48,7 @@
                             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnDeleteClick"
                             >
-                        <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE894;"/>
+                        <Image Width="12" Height="12" Source="../Assets/e711.png"/>
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
@@ -83,7 +84,7 @@
                             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnNewApplicationContextMenu"
                             >
-                            <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE710;"/>
+                            <Image Width="12" Height="12" Source="../Assets/e710.png"/>
                         </Button>
                         <Button x:Name="m_objDeleteButton" 
                             RelativePanel.RightOf="m_objNewButton"
@@ -91,7 +92,7 @@
                             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnDeleteClick"
                             >
-                            <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE894;"/>
+                            <Image Width="12" Height="12" Source="../Assets/e711.png"/>
                         </Button>
                     </RelativePanel>
                     <toolkit:GridSplitter x:Name="m_objTreeListView"
@@ -109,6 +110,7 @@
                             Width="120" 
                             Margin="5,0,5,0"
                             Text="{x:Bind ReservationDescription, Mode=TwoWay}" 
+                            ToolTipService.ToolTip="{x:Bind ReservationDescription, Mode=OneWay}"
                             IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
                             TextWrapping="NoWrap" 
                             />
@@ -154,7 +156,7 @@
                             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnNewEnvironmentContextMenu"
                             >
-                        <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE710;"/>
+                        <Image Width="12" Height="12" Source="../Assets/e710.png"/>
                     </Button>
                     <Button x:Name="m_objDeleteButton" 
                             RelativePanel.RightOf="m_objNewButton"
@@ -162,7 +164,7 @@
                             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnDeleteClick"
                             >
-                        <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE894;"/>
+                        <Image Width="12" Height="12" Source="../Assets/e711.png"/>
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
@@ -189,7 +191,7 @@
                             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnDeleteClick"
                             >
-                        <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE894;"/>
+                        <Image Width="12" Height="12" Source="../Assets/e711.png"/>
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
@@ -244,7 +246,7 @@
                     VerticalScrollMode="Enabled"
                     VerticalScrollBarVisibility="Auto"
                     >
-                <TreeView x:Name="Apps" 
+                <TreeView x:Name="m_objTreeView" 
                     VerticalAlignment="Top" 
                     HorizontalAlignment="Left"
                     Margin="0,12,0,0"
@@ -261,7 +263,7 @@
                 Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                 Click="OnNewFolderContextMenu"
                 >
-                <FontIcon FontFamily="Segoe Fluent Icons" FontSize="11" Glyph="&#xE710;"/>
-            </Button>
+            <Image Width="12" Height="12" Source="../Assets/e710.png"/>
+        </Button>
         </Grid>
 </Page>

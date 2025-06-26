@@ -37,6 +37,7 @@ namespace AppLaunchMenu
         private LaunchMenu m_objLaunchMenu;
         private readonly MenuViewModel m_objMenuViewModel;
         private bool m_blnDragDropEnabled = true;
+        private bool m_blnLoaded = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -57,6 +58,15 @@ namespace AppLaunchMenu
             this.DataContext = m_objMenuViewModel;
 
             m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
+        }
+
+        private void ParentPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!m_blnLoaded)
+            {
+                m_blnLoaded = true;
+                TreeViewItemWidth = new GridLength(m_objTreeView.ActualWidth);
+            }
         }
 
         private void LaunchMenu_PropertyChanged(object? sender, PropertyChangedEventArgs e)

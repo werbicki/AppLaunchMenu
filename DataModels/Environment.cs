@@ -161,9 +161,9 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
-        private void Initialize(XmlDocument m_objDocument, XmlNode? p_objReferenceNode, XmlNode? p_objParent)
+        private void Initialize(XmlDocument p_objDocument, XmlNode? p_objReferenceNode, XmlNode? p_objParent)
         {
-            XmlNode? objRoot = m_objDocument.DocumentElement;
+            XmlNode? objRoot = p_objDocument.DocumentElement;
 
             if (objRoot != null)
             {
@@ -180,9 +180,12 @@ namespace AppLaunchMenu.DataModels
                     if (objApplication != null)
                         objNode = objApplication.ParentNode;
 
-                    while ((objNode != null) && (objNode.Name != MenuList.ElementName))
+                    while (objNode != null)
                     {
-                        if ((objNode.Name == Folder.ElementName) || (objNode.Name == Menu.ElementName))
+                        if ((objNode.Name == MenuList.ElementName)
+                            || (objNode.Name == Menu.ElementName)
+                            || (objNode.Name == Folder.ElementName)
+                            )
                             objMenuAndFolders.Insert(0, objNode);
 
                         objNode = objNode.ParentNode;

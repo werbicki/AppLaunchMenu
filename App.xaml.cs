@@ -20,6 +20,7 @@ namespace AppLaunchMenu
     public partial class App : Application
     {
         static private MainWindow? m_objWindow;
+        private string m_strMenuFilePath = AppDomain.CurrentDomain.BaseDirectory + AppDomain.CurrentDomain.FriendlyName + ".menu";
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -27,6 +28,12 @@ namespace AppLaunchMenu
         /// </summary>
         public App()
         {
+            this.InitializeComponent();
+        }
+
+        public App(string p_strMenuFilePath)
+        {
+            m_strMenuFilePath = p_strMenuFilePath;
             this.InitializeComponent();
         }
 
@@ -43,24 +50,8 @@ namespace AppLaunchMenu
         {
             List<MenuFile> objMenuFiles = new List<MenuFile>();
 
-            string[] arrArguments = Environment.GetCommandLineArgs();
-            if (arrArguments.Length > 1)
-            {
-                for (int intArgument = 1; intArgument < arrArguments.Length; intArgument++)
-                {
-                    FileInfo objFileInfo = new FileInfo(arrArguments[1]);
-                    if (objFileInfo.Exists)
-                    {
-                        MenuFile objMenuFile = new MenuFile(objFileInfo.FullName);
-                        objMenuFiles.Add(objMenuFile);
-                    }
-                }
-            }
-            else
-            {
-                MenuFile objMenuFile = new MenuFile(AppDomain.CurrentDomain.BaseDirectory + AppDomain.CurrentDomain.FriendlyName + ".menu");
-                objMenuFiles.Add(objMenuFile);
-            }
+            MenuFile objMenuFile = new MenuFile(m_strMenuFilePath);
+            objMenuFiles.Add(objMenuFile);
 
             if (objMenuFiles.Count > 0)
             {

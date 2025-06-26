@@ -20,7 +20,7 @@
                 TextWrapping="NoWrap" 
                 Margin="5,5,5,15" 
                 />
-        <TextBlock Text="Expand by default?" 
+        <TextBlock Text="Is expanded by default?" 
                 Margin="5,5,5,0" 
                 />
         <CheckBox IsChecked="{Binding Expanded, Mode=TwoWay}" 
