@@ -40,6 +40,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.14.0" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250513003" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Menus\Endur_Sample.xml">
