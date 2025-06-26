@@ -81,7 +81,9 @@ namespace AppLaunchMenu
 
         private async void OkButton_Click(object sender, RoutedEventArgs p_objArgs)
         {
-            if (m_objApplication != null)
+            if ((m_objApplication != null)
+                && (m_objEnvironment != null)
+                )
             {
                 try
                 {
@@ -91,7 +93,7 @@ namespace AppLaunchMenu
                 }
                 catch (Exception e)
                 {
-                    ContentDialog objErrorDialog = new ContentDialog
+                    ContentDialog objErrorDialog = new()
                     {
                         XamlRoot = this.Content.XamlRoot,
                         Title = "AppLaunchMenu",

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppLaunchMenu.DataAccess;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
@@ -8,13 +9,13 @@ namespace AppLaunchMenu.DataModels
 {
     public class Menu : Folder
     {
-        public Menu(XmlDocument p_objXmlDocument, XmlNode p_objMenuNode)
-            : base(p_objXmlDocument, p_objMenuNode)
+        public Menu(MenuFile p_objMenuFile, XmlNode p_objMenuNode)
+            : base(p_objMenuFile, p_objMenuNode)
         {
         }
 
-        public Menu(XmlDocument p_objXmlDocument, string p_strName)
-            : base(p_objXmlDocument, p_strName)
+        public Menu(MenuFile p_objMenuFile, string p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 

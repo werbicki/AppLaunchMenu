@@ -5,7 +5,7 @@
     },
     "AppLaunchMenu (Unpackaged)": {
       "commandName": "Project",
-      "commandLineArgs": "$(SolutionDir)Menus\\Endur_Sample.xml"
+      "commandLineArgs": "$(SolutionDir)Menus\\Endur_Advanced.xml"
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppLaunchMenu.DataAccess;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -13,13 +14,13 @@ namespace AppLaunchMenu.DataModels
     {
         DataModelCollection<Variable> m_objVariables;
 
-        public Environment(XmlDocument p_objXmlDocument, XmlNode p_objEnvironmentNode)
-             : base(p_objXmlDocument, p_objEnvironmentNode)
+        public Environment(MenuFile p_objMenuFile, XmlNode p_objEnvironmentNode)
+             : base(p_objMenuFile, p_objEnvironmentNode)
         {
-            m_objVariables = new(p_objXmlDocument, null);
+            m_objVariables = new(p_objMenuFile, null);
 
-            if (p_objXmlDocument != null)
-                Initialize(p_objXmlDocument, p_objXmlDocument, p_objEnvironmentNode.ParentNode);
+            if (p_objMenuFile != null)
+                Initialize(p_objMenuFile.XmlDocument, p_objMenuFile.XmlDocument, p_objEnvironmentNode.ParentNode);
         }
 
         internal static string ElementName
@@ -76,7 +77,7 @@ namespace AppLaunchMenu.DataModels
                             if (blnInclude)
                             {
                                 if (objItemNode.Name == Variable.ElementName)
-                                    objItems.Add(new Variable(m_objXmlDocument, objItemNode));
+                                    objItems.Add(new Variable(m_objMenuFile, objItemNode));
                             }
                         }
                     }
@@ -199,7 +200,7 @@ namespace AppLaunchMenu.DataModels
                     Initialize(objIncludedNodes, objVariables);
                 }
 
-                m_objVariables = new DataModelCollection<Variable>(m_objXmlDocument, objIncludedNodes);
+                m_objVariables = new DataModelCollection<Variable>(m_objMenuFile, objIncludedNodes);
 
                 if (p_objReferenceNode != null)
                     ExpandVariables(p_objReferenceNode);

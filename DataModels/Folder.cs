@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppLaunchMenu.DataAccess;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -7,13 +8,13 @@ namespace AppLaunchMenu.DataModels
 {
     public class Folder : DataModelBase
     {
-        public Folder(XmlDocument p_objXmlDocument, XmlNode p_objFolderNode)
-            : base(p_objXmlDocument, p_objFolderNode)
+        public Folder(MenuFile p_objMenuFile, XmlNode p_objFolderNode)
+            : base(p_objMenuFile, p_objFolderNode)
         {
         }
 
-        public Folder(XmlDocument p_objXmlDocument, string p_strName)
-            : base(p_objXmlDocument, p_strName)
+        public Folder(MenuFile p_objMenuFile, string p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 
@@ -31,14 +32,14 @@ namespace AppLaunchMenu.DataModels
         {
             if (m_objXmlNode != null)
             {
-                XmlElement? objFolderElement = m_objXmlDocument.CreateElement(Folder.ElementName);
-                XmlAttribute? objFolderNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                XmlElement? objFolderElement = m_objMenuFile.XmlDocument.CreateElement(Folder.ElementName);
+                XmlAttribute? objFolderNameAttribute = m_objMenuFile.XmlDocument.CreateAttribute("Name");
                 if ((objFolderElement != null) && (objFolderNameAttribute != null))
                 {
                     objFolderNameAttribute.Value = p_strFolderName;
                     objFolderElement.Attributes.Append(objFolderNameAttribute);
 
-                    return new Folder(m_objXmlDocument, objFolderElement);
+                    return new Folder(m_objMenuFile, objFolderElement);
                 }
             }
 
@@ -49,14 +50,14 @@ namespace AppLaunchMenu.DataModels
         {
             if (m_objXmlNode != null)
             {
-                XmlElement? objApplicationElement = m_objXmlDocument.CreateElement(Application.ElementName);
-                XmlAttribute? objApplicationNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                XmlElement? objApplicationElement = m_objMenuFile.XmlDocument.CreateElement(Application.ElementName);
+                XmlAttribute? objApplicationNameAttribute = m_objMenuFile.XmlDocument.CreateAttribute("Name");
                 if ((objApplicationElement != null) && (objApplicationNameAttribute != null))
                 {
                     objApplicationNameAttribute.Value = p_strApplicationName;
                     objApplicationElement.Attributes.Append(objApplicationNameAttribute);
 
-                    return new Application(m_objXmlDocument, objApplicationElement);
+                    return new Application(m_objMenuFile, objApplicationElement);
                 }
             }
 
@@ -65,22 +66,22 @@ namespace AppLaunchMenu.DataModels
 
         internal Environment CreateEnvironment()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
-            return new Environment(m_objXmlDocument, objEnvironmentElement);
+            XmlElement objEnvironmentElement = m_objMenuFile.XmlDocument.CreateElement(Environment.ElementName);
+            return new Environment(m_objMenuFile, objEnvironmentElement);
         }
 
         internal Variable? CreateVariable(String p_strVariableName)
         {
             if (m_objXmlNode != null)
             {
-                XmlElement? objVariableElement = m_objXmlDocument.CreateElement(Variable.ElementName);
-                XmlAttribute? objVariableNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                XmlElement? objVariableElement = m_objMenuFile.XmlDocument.CreateElement(Variable.ElementName);
+                XmlAttribute? objVariableNameAttribute = m_objMenuFile.XmlDocument.CreateAttribute("Name");
                 if ((objVariableElement != null) && (objVariableNameAttribute != null))
                 {
                     objVariableNameAttribute.Value = p_strVariableName;
                     objVariableElement.Attributes.Append(objVariableNameAttribute);
 
-                    return new Variable(m_objXmlDocument, objVariableElement);
+                    return new Variable(m_objMenuFile, objVariableElement);
                 }
             }
 
@@ -137,11 +138,11 @@ namespace AppLaunchMenu.DataModels
                             if (blnInclude)
                             {
                                 if (objItemNode.Name == Folder.ElementName)
-                                    objItems.Add(new Folder(m_objXmlDocument, objItemNode));
+                                    objItems.Add(new Folder(m_objMenuFile, objItemNode));
                                 else if (objItemNode.Name == Application.ElementName)
-                                    objItems.Add(new Application(m_objXmlDocument, objItemNode));
+                                    objItems.Add(new Application(m_objMenuFile, objItemNode));
                                 else if (objItemNode.Name == Environment.ElementName)
-                                    objItems.Add(new Environment(m_objXmlDocument, objItemNode));
+                                    objItems.Add(new Environment(m_objMenuFile, objItemNode));
                             }
                         }
                     }
@@ -173,7 +174,7 @@ namespace AppLaunchMenu.DataModels
                             */
 
                             if (blnInclude)
-                                objFolders.Add(new Folder(m_objXmlDocument, objFolderNode));
+                                objFolders.Add(new Folder(m_objMenuFile, objFolderNode));
                         }
                     }
                 }
@@ -204,7 +205,7 @@ namespace AppLaunchMenu.DataModels
                             */
 
                             if (blnInclude)
-                                objApplications.Add(new Application(m_objXmlDocument, objApplicationNode));
+                                objApplications.Add(new Application(m_objMenuFile, objApplicationNode));
                         }
                     }
                 }
@@ -228,7 +229,7 @@ namespace AppLaunchMenu.DataModels
                     return objEnvironment;
                 }
                 else
-                    return new Environment(m_objXmlDocument, objEnvironmentNode);
+                    return new Environment(m_objMenuFile, objEnvironmentNode);
             }
         }
     }

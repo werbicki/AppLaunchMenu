@@ -11,13 +11,13 @@ namespace AppLaunchMenu.DataModels
     {
         ObservableCollection<Menu> m_objMenu = new ObservableCollection<Menu>();
 
-        public MenuList(XmlDocument p_objXmlDocument, XmlNode p_objMenuNode)
-            : base(p_objXmlDocument, p_objMenuNode)
+        public MenuList(MenuFile p_objMenuFile, XmlNode p_objMenuNode)
+            : base(p_objMenuFile, p_objMenuNode)
         {
         }
 
-        public MenuList(XmlDocument p_objXmlDocument, string p_strName)
-            : base(p_objXmlDocument, p_strName)
+        public MenuList(MenuFile p_objMenuFile, string p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 
@@ -33,8 +33,8 @@ namespace AppLaunchMenu.DataModels
 
         private Environment CreateEnvironment()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
-            return new Environment(m_objXmlDocument, objEnvironmentElement);
+            XmlElement objEnvironmentElement = m_objMenuFile.XmlDocument.CreateElement(Environment.ElementName);
+            return new Environment(m_objMenuFile, objEnvironmentElement);
         }
 
         internal override void Insert(DataModelBase p_objObject, int p_intIndex)
@@ -56,17 +56,17 @@ namespace AppLaunchMenu.DataModels
             {
                 List<Menu> objMenus = [];
 
-                if (m_objXmlDocument != null)
+                if (m_objMenuFile != null)
                 {
-                    XmlNode? objRoot = m_objXmlDocument.DocumentElement;
-                    XmlNodeList? objMenusNode = null;
+                    XmlNode? objRoot = m_objMenuFile.XmlDocument.DocumentElement;
+                    XmlNodeList? objMenuListNode = null;
 
                     if (objRoot != null)
-                        objMenusNode = objRoot.SelectNodes("/" + MenuFile.ElementName + "/" + MenuList.ElementName);
+                        objMenuListNode = objRoot.SelectNodes("/" + MenuFile.ElementName + "/" + MenuList.ElementName);
 
-                    if (objMenusNode != null)
+                    if (objMenuListNode != null)
                     {
-                        foreach (XmlNode objMenuNode in objMenusNode)
+                        foreach (XmlNode objMenuNode in objMenuListNode)
                         {
                             bool blnInclude = true;
 
@@ -85,7 +85,7 @@ namespace AppLaunchMenu.DataModels
                                 if (objNodes != null)
                                 {
                                     foreach (XmlNode objNode in objNodes)
-                                        objMenus.Add(new Menu(m_objXmlDocument, objNode));
+                                        objMenus.Add(new Menu(m_objMenuFile, objNode));
                                 }
                             }
                         }
@@ -111,7 +111,7 @@ namespace AppLaunchMenu.DataModels
                     return objEnvironment;
                 }
                 else
-                    return new Environment(m_objXmlDocument, objEnvironmentNode);
+                    return new Environment(m_objMenuFile, objEnvironmentNode);
             }
         }
     }

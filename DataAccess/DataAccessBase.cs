@@ -10,36 +10,19 @@ using Windows.Media.Audio;
 
 namespace AppLaunchMenu.DataModels
 {
-    public abstract class DataModelBase : IComparable
+    public abstract class DataAccessBase : IComparable
     {
-        protected MenuFile m_objMenuFile;
-        protected XmlNode m_objXmlNode;
+        protected XmlDocument m_objXmlDocument;
+        protected XmlNode? m_objXmlNode;
 
-        protected DataModelBase(MenuFile p_objMenuFile, XmlNode p_objNode)
+        protected DataAccessBase(XmlDocument p_objXmlDocument)
         {
-            m_objMenuFile = p_objMenuFile;
-            m_objXmlNode = p_objNode;
+            m_objXmlDocument = p_objXmlDocument;
         }
 
-        protected DataModelBase(MenuFile p_objMenuFile, string p_strName)
+        internal XmlDocument XmlDocument
         {
-            m_objMenuFile = p_objMenuFile;
-
-            m_objXmlNode = CreateNode();
-
-            if (!string.IsNullOrEmpty(p_strName))
-            {
-                XmlAttribute objNameAttribute = m_objMenuFile.XmlDocument.CreateAttribute("Name");
-                objNameAttribute.Value = p_strName;
-                m_objXmlNode.Attributes?.Append(objNameAttribute);
-            }
-
-            Name = p_strName;
-        }
-
-        internal XmlNode XmlNode
-        {
-            get { return m_objXmlNode; }
+            get { return m_objXmlDocument; }
         }
 
         protected abstract string _ElementName
@@ -49,7 +32,7 @@ namespace AppLaunchMenu.DataModels
 
         protected XmlNode CreateNode()
         {
-            return m_objMenuFile.XmlDocument.CreateNode("element", _ElementName, "");
+            return m_objXmlDocument.CreateNode("element", _ElementName, "");
         }
 
         internal virtual void Insert(DataModelBase p_objObject, int p_intIndex)
@@ -64,50 +47,46 @@ namespace AppLaunchMenu.DataModels
 
         protected bool HasProperty(string p_strPropertyName)
         {
-            if (m_objXmlNode != null
-                && m_objXmlNode.Attributes != null
-                && m_objXmlNode.Attributes[p_strPropertyName] != null
+            if (m_objXmlDocument != null
+                && m_objXmlDocument.Attributes != null
+                && m_objXmlDocument.Attributes[p_strPropertyName] != null
                 )
-                return !string.IsNullOrEmpty(m_objXmlNode.Attributes[p_strPropertyName]!.Value);
+                return !string.IsNullOrEmpty(m_objXmlDocument.Attributes[p_strPropertyName]!.Value);
 
             return false;
         }
 
         protected string Property(string p_strPropertyName)
         {
-            if (m_objXmlNode != null
-                && m_objXmlNode.Attributes != null
-                && m_objXmlNode.Attributes[p_strPropertyName] != null
+            if (m_objXmlDocument != null
+                && m_objXmlDocument.Attributes != null
+                && m_objXmlDocument.Attributes[p_strPropertyName] != null
                 )
-                return m_objXmlNode.Attributes[p_strPropertyName]!.Value;
+                return m_objXmlDocument.Attributes[p_strPropertyName]!.Value;
 
             return "";
         }
 
         protected void Property(string p_strPropertyName, string value)
         {
-            if ((m_objMenuFile != null)
-                && (m_objXmlNode != null)
-                && (m_objXmlNode.Attributes != null)
+            if ((m_objXmlDocument != null)
+                && (m_objXmlDocument.Attributes != null)
                 )
             {
-                if ((m_objXmlNode.Attributes[p_strPropertyName] == null)
+                if ((m_objXmlDocument.Attributes[p_strPropertyName] == null)
                     && (!string.IsNullOrEmpty(value))
                     )
                 {
-                    XmlAttribute objXmlAttribute = m_objMenuFile.XmlDocument.CreateAttribute(p_strPropertyName);
+                    XmlAttribute objXmlAttribute = m_objXmlDocument.CreateAttribute(p_strPropertyName);
                     objXmlAttribute.Value = value;
-                    m_objXmlNode.Attributes.Append(objXmlAttribute);
+                    m_objXmlDocument.Attributes.Append(objXmlAttribute);
                 }
                 else
                 {
                     if (string.IsNullOrEmpty(value))
-                    {
-                        XmlElement objXmlElement = (XmlElement)m_objXmlNode;
-                        objXmlElement.RemoveAttribute(p_strPropertyName);
-                    }
+                        m_objXmlDocument.DocumentElement?.RemoveAttribute(p_strPropertyName);
                     else
-                        m_objXmlNode.Attributes[p_strPropertyName]!.Value = value;
+                        m_objXmlDocument.Attributes[p_strPropertyName]!.Value = value;
                 }
             }
         }
@@ -120,12 +99,12 @@ namespace AppLaunchMenu.DataModels
 
         protected string CData()
         {
-            if ((m_objXmlNode != null)
-                && (m_objXmlNode.ChildNodes.Count > 0)
-                && (m_objXmlNode.ChildNodes[0] is XmlCDataSection)
+            if ((m_objXmlDocument != null)
+                && (m_objXmlDocument.ChildNodes.Count > 0)
+                && (m_objXmlDocument.ChildNodes[0] is XmlCDataSection)
                 )
             {
-                XmlCDataSection? objCDataSection = m_objXmlNode.ChildNodes[0] as XmlCDataSection;
+                XmlCDataSection? objCDataSection = m_objXmlDocument.ChildNodes[0] as XmlCDataSection;
                 if (objCDataSection != null)
                 {
                     string? strValue = objCDataSection.Value;

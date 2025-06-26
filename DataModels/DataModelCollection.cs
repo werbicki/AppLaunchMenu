@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppLaunchMenu.DataAccess;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -8,17 +9,18 @@ namespace AppLaunchMenu.DataModels
 {
     public class DataModelCollection<T> : IEnumerable<T>
     {
-        protected XmlDocument? m_objXmlDocument;
+        protected MenuFile m_objMenuFile;
         protected List<T> m_objNodes = [];
 
-        public DataModelCollection(XmlDocument? p_objXmlDocument, List<XmlNode>? p_objNodes)
+        public DataModelCollection(MenuFile p_objMenuFile, List<XmlNode>? p_objNodes)
         {
-            m_objXmlDocument = p_objXmlDocument;
+            m_objMenuFile = p_objMenuFile;
 
             if (p_objNodes != null)
                 Initialize(p_objNodes);
         }
 
+        /*
         public DataModelCollection(XmlNodeList? p_objNodes)
         {
             List <XmlNode> objNodes = [];
@@ -31,6 +33,7 @@ namespace AppLaunchMenu.DataModels
                 Initialize(objNodes);
             }
         }
+        */
 
         protected void Initialize(List<XmlNode> p_objNodes)
         {
@@ -38,7 +41,7 @@ namespace AppLaunchMenu.DataModels
 
             for (int i = 0; i < p_objNodes.Count; i++)
             {
-                T? objItem = (T?)Activator.CreateInstance(typeof(T), m_objXmlDocument, p_objNodes[i]);
+                T? objItem = (T?)Activator.CreateInstance(typeof(T), m_objMenuFile, p_objNodes[i]);
 
                 if (objItem != null)
                     m_objNodes.Add(objItem);

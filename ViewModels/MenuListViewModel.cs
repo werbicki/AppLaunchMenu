@@ -19,16 +19,16 @@ namespace AppLaunchMenu.ViewModels
         public MenuListViewModel(LaunchMenu p_objLaunchMenu)
         {
             m_objLaunchMenu = p_objLaunchMenu;
-            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.Menus.Environment);
+            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.MenuList.Environment);
         }
 
         public MenuListViewModel(LaunchMenu p_objLaunchMenu, MenuFile p_objMenuFile)
         {
             m_objLaunchMenu = p_objLaunchMenu;
             m_objMenuFile = p_objMenuFile;
-            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.Menus.Environment);
+            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.MenuList.Environment);
 
-            DataModels.Menu[] objMenus = m_objMenuFile.Menus.Menus;
+            DataModels.Menu[] objMenus = m_objMenuFile.MenuList.Menus;
             m_objMenus = [.. (from objMenu in objMenus
                  select new MenuViewModel(p_objLaunchMenu, this, objMenu))
                 .ToList()];
@@ -77,7 +77,7 @@ namespace AppLaunchMenu.ViewModels
 
             m_objMenus.Clear();
 
-            foreach (DataModels.Menu objMenu in m_objMenuFile.Menus.Menus)
+            foreach (DataModels.Menu objMenu in m_objMenuFile.MenuList.Menus)
                 m_objMenus.Add(new MenuViewModel(p_objLaunchMenu, this, objMenu));
 
             OnPropertyChanged(nameof(Menus));

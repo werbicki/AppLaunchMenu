@@ -1,0 +1,154 @@
+<AppLaunchMenu SecurityGroup="Everyone">
+	<ConfigList>
+		<Config Name="Endur_Config" Language="C#">
+			<![CDATA[
+WriteLine($"# Endur configuration file");
+
+for each (var objVariable in Environment)			
+	WriteLine($"set {objVariable.Name} = {objVariable.ExpandedValue}");
+			]]>
+		</Config>
+		<Config Name="Endur_Spread" Language="C#">
+			<![CDATA[
+WriteLine($"# Spread configuration file
+
+# Global Options
+
+# (Deprecated) MaxSessionMessages = 3000
+# (Deprecated) MaxSessionsAllowed = 600
+OnlyLeaveMemberships = True
+EventLogFile = {Environment("OLF_ENVIRONMENT_PATH")}\Logs\spread\spread_%h.log
+EventTimeStamp = "[%a %d %b %Y %H:%M:%S]");
+
+; Segment-level Options
+
+Spread_Segment 127.0.0.1:{Environment("OLF_ECOM_PORT")} {
+	{Environment("AB_ECOM_EXTERNAL_DAEMON")}	10.246.124.9
+}
+Spread_Segment 127.0.0.1:30803 {
+	{Environment("AB_ECOM_EXTERNAL_DAEMON1")}	10.246.124.116
+}
+");
+			]]>
+		</Config>
+		<Config Name="Endur_STunnel" Language="C#">
+			<![CDATA[
+WriteLine($"; STunnel configuration file
+
+; Global Options
+
+; Use it for client mode
+client = yes
+sslVersionMin = TLSv1.2
+sslVersionMax = TLSv1.2
+options = NO_SSLv2
+options = NO_SSLv3
+
+; Service-level Options
+
+[Endur_{Environment("OLF_ENVIRONMENT")}]
+accept = {Environment("AB_ICE_GATEWAY_STUNNEL_PORT")}
+connect = fixtc-a1.ice.com:443
+; 158.224.35.15
+TIMEOUTclose = 0
+
+; Debugging (may be useful for troubleshooting)
+debug = 7
+output = {Environment("OLF_ENVIRONMENT_PATH")}\Logs\stunnel\stunnel_1.log
+");
+			]]>
+		</Config>
+	</ConfigList>
+	<MenuList>
+		<Environment Name="Common">
+			<Variable Group="FileSystem" Name="OLF_MENU_FILE" Description="The file location of this Menu file." Value="\\%OLF_FILESHARE%\Environments\Endur_Sample.xml" />
+			<Variable Group="FileSystem" Name="INSTALL_BASE" Value="C:\Applications" />
+			<Variable Group="FileSystem" Name="OLF_FILESHARE" Value="\\fileshare\endur_nonprod" />
+			<Variable Group="Application" Name="OLF_VERSION" Value="V24_0_05272020_BUILD_1095" />
+			<Variable Group="FileSystem" Name="OLF_BIN" Value="%INSTALL_BASE%\Endur\%OLF_VERSION%\bin" />
+			<Variable Group="Database" Name="AB_DB_TYPE" Value="mssqlu:17" />
+			<Variable Group="Database" Name="AB_LOGON_SERVER" Value="db-server" />
+			<Variable Group="Database" Name="AB_LOGON_DATABASE" Value="Endur_%OLF_ENVIRONMENT%" />
+			<Variable Group="Database" Name="AB_LOGON_SA" Value="administrator" />
+			<Variable Group="Database" Name="AB_LOGON_USER" Value="%USERNAME%" />
+			<Variable Group="Database" Name="AB_UNICODE_ENABLE" Value="True" />
+			<Variable Group="Messaging" Name="AB_ECOM_LOCAL" Value="ECOM_IPC" />
+			<Variable Group="Messaging" Name="AB_ECOM_EXTERNAL" Value="ECOM_SPREAD" />
+			<Variable Group="Messaging" Name="AB_ECOM_EXTERNAL_DAEMON" Value="ecom-server1:%OLF_ECOM_PORT%" />
+			<Variable Group="Messaging" Name="AB_ECOM_EXTERNAL_DAEMON1" Value="ecom-server2:%OLF_ECOM_PORT%" />
+			<Variable Group="Messaging" Name="AB_ECOM_USER_WEIGHTED_CONN" Value="TRUE" />
+			<Variable Group="Authentication" Name="AB_SESSION_MANAGEMENT_USER" Value="--Encrypted Session Key---" />
+			<Variable Group="Authentication" Name="AB_AD_DOMAIN_VERIFY" Value="domain" />
+			<Variable Group="Authentication" Name="AB_AD_AUTHENTICATION_LOGIN" Value="ON_SILENT_SIGN_ON" />
+			<Variable Group="Authentication" Name="AB_AD_NAME_TYPE_FORMAT" Value="ADS_NAME_TYPE_NT4" />
+			<Variable Group="FileSystem" Name="OLF_ENVIRONMENT_PATH" Value="%OLF_FILESHARE%\Environments\%OLF_ENVIRONMENT%" />
+			<Variable Group="FileSystem" Name="AB_SYSDIR" Value="%OLF_ENVIRONMENT_PATH%\SysDir\" />
+			<Variable Group="FileSystem" Name="AB_OUTDIR" Value="%OLF_ENVIRONMENT_PATH%\OutDir\" />
+			<Variable Group="FileSystem" Name="AB_USERDIR" Value="%OLF_ENVIRONMENT_PATH%\UserDir\" />
+			<Variable Group="FileSystem" Name="AB_CRYSTAL_DIR" Value="%OLF_ENVIRONMENT_PATH%\ReportDir\" />
+			<Variable Group="FileSystem" Name="AB_HELP_DIR" Value="%OLF_FILESHARE%\Software\Endur_HelpFiles\OLF_UserGuide_csh.htm" />
+			<Variable Group="APM" Name="AB_APM_PATH" Value="%OLF_BIN%\apm" />
+			<Variable Group="APM" Name="AB_APM_OPG_PATH" Value="/User/%USERNAME%/APM" />
+			<Variable Group="APM" Name="AB_APM_UPG_PATH" Value="/User/%USERNAME%/APM" />
+			<Variable Group="APM" Name="AB_APM_DISABLE_STATISTICS" Value="True" />
+			<Variable Group="APM" Name="AB_APM_CONNECT_TIMEOUT" Value="180" />
+			<Variable Group="APM" Name="AB_APM_DIRNODE_TIMEOUT" Value="60" />
+			<Variable Group="APM" Name="AB_APM_DATA_PATH" Value="%OLF_ENVIRONMENT_PATH%\APM\APM_Pages" />
+			<Variable Group="APM" Name="AB_APM_LOG_PATH" Value="%OLF_ENVIRONMENT_PATH%\APM\APM_Logs" />
+			<Variable Group="APM" Name="AB_APM_CONFIG_PATH" Value="%OLF_ENVIRONMENT_PATH%\APM\APM_Config" />
+			<Variable Group="APM" Name="AB_APM_STATISTICS_PATH" Value="%OLF_ENVIRONMENT_PATH%\APM\APM_Logs" />
+			<Variable Group="Java" Name="JAVA_HOME" Value="%INSTALL_BASE%\AdoptOpenJDK\openj9_0_21_0" />
+			<Variable Group="Java" Name="JRE_HOME" Value="%INSTALL_BASE%\AdoptOpenJDK\openj9_0_21_0\jre" />
+			<Variable Group="Java" Name="AB_JRE_HOME" Value="%JRE_HOME%" />
+			<Variable Group="Crystal" Name="CRYSTAL_HOME" Value="C:\Program Files (x86)\Crystal Reports Viewer\SAP Crystal Reports viewer" />
+			<Variable Group="Development" Name="ECLIPSE_HOME" Value="%INSTALL_BASE%\Eclipse\eclispe-java-2022-03-win32-x86_64" />
+			<Variable Group="Development" Name="AB_JAVA_IDE_VMARGS" Value="-Duser.home=%OLF_FILESHARE%\Staging\%USERNAME% -Dorg.clispe.equinox.p2.reconciler.dropins.directory=%OLF_BIN%\otk\openjvs\lib -Dhttps.protocols=TLSv1.2" />
+			<Variable Group="Development" Name="AB_JAVA_IDE" Value="%ECLIPSE_HOME%\eclipse.exe" />
+			<Variable Group="Development" Name="AB_ENABLE_PLUGIN_DEBUGGING" Value="True" />
+			<Variable Group="FileSystem" Name="PATH" Value="%OLF_BIN%;%JAVA_HOME%\bin;AB_JAVA_IDE%;%PATH%" />
+		</Environment>
+		<Menu Name="Openlink Endur">
+			<Folder Name="Openlink Endur" Expanded="True">
+				<Application Name="Development01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Config="Endur_Config" ConfigFilePath="C:\Dev\Endur_%OLF_ENVIRONMENT%.cfg" IsReservable="True">
+					<Environment Name="Common">
+						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Dev01" />
+						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="14003" />
+						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_red" />
+					</Environment>
+				</Application>
+				<Application Name="Test01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
+					<Environment Name="Common">
+						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Test01" />
+						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="15003" />
+						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_green" />
+					</Environment>
+				</Application>
+				<Application Name="UAT01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
+					<Environment Name="Common">
+						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="UAT01" />
+						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="16003" />
+						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_orange" />
+					</Environment>
+				</Application>
+			</Folder>
+			<Folder Name="Help Resources" Expanded="True">
+				<Environment Name="Browser">
+					<Variable Group="Application" Name="IE_HOME" Value="C:\Program Files\Internet Explorer" />
+				</Environment>
+				<Application Name="V24 User Guide" Executable="iexplore.exe" Parameters="file:%AB_HELP_DIR%" WorkingDirectory="%IE_HOME%" />
+			</Folder>
+		</Menu>
+		<Menu Name="Development">
+			<Environment Name="Development">
+				<Variable Group="Development" Name="AB_VISUAL_STUDIO_PRO_HOME" Value="C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE" />
+				<Variable Group="Development" Name="AB_JAVA_WORKSPACE" Value="%OLF_FILESHARE%\Staging\%USERNAME%\workspace" />
+			</Environment>
+			<Folder Name="Endur Development" Expanded="True">
+				<Application Name="Eclipse 2022-03" Executable="eclipse.exe" Parameters="-install %AB_ECLIPSE_HOME% -configuration %OLF_FILESHARE%\Staging\%USERNAME%\.eclipse2 -data %AB_JAVA_WORKSPACE% -vm %JAVA_HOME%\bin\javaw.exe -eclispe.keyring %FILESHRE_NONPROD\Staging\%USERNAME%\.eclipse\org.eclipse.equinox.security\secure_storage -vmargs %AB_JAVA_IDE_VMARGS%" WorkingDirectory="%ECLIPSE_HOME%" />
+				<Environment>
+					<Variable Group="Development" Name="AB_ECLIPSE_HOME" Value="%INSTALL_BASE%\Eclipse\eclispe-java-2022-03-win32-x86_64" />
+				</Environment>
+			</Folder>
+		</Menu>
+	</MenuList>
+</AppLaunchMenu>

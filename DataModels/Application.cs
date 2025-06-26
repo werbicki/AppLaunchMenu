@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using AppLaunchMenu.DataAccess;
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,13 +12,13 @@ namespace AppLaunchMenu.DataModels
 {
     public class Application : DataModelBase
     {
-        public Application(XmlDocument p_objXmlDocument, XmlNode p_objApplicationNode)
-            : base(p_objXmlDocument, p_objApplicationNode)
+        public Application(MenuFile p_objMenuFile, XmlNode p_objApplicationNode)
+            : base(p_objMenuFile, p_objApplicationNode)
         {
         }
 
-        public Application(XmlDocument p_objXmlDocument, string p_strName)
-            : base(p_objXmlDocument, p_strName)
+        public Application(MenuFile p_objMenuFile, string p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 
@@ -33,20 +34,20 @@ namespace AppLaunchMenu.DataModels
 
         private Environment CreateEnvironment()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
-            return new Environment(m_objXmlDocument, objEnvironmentElement);
+            XmlElement objEnvironmentElement = m_objMenuFile.XmlDocument.CreateElement(Environment.ElementName);
+            return new Environment(m_objMenuFile, objEnvironmentElement);
         }
 
         internal Variable? CreateVariable(String p_strVariableName)
         {
-            XmlElement? objVariableElement = m_objXmlDocument.CreateElement(Variable.ElementName);
-            XmlAttribute? objVariableNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+            XmlElement? objVariableElement = m_objMenuFile.XmlDocument.CreateElement(Variable.ElementName);
+            XmlAttribute? objVariableNameAttribute = m_objMenuFile.XmlDocument.CreateAttribute("Name");
             if ((objVariableElement != null) && (objVariableNameAttribute != null))
             {
                 objVariableNameAttribute.Value = p_strVariableName;
                 objVariableElement.Attributes.Append(objVariableNameAttribute);
 
-                return new Variable(m_objXmlDocument, objVariableElement);
+                return new Variable(m_objMenuFile, objVariableElement);
             }
 
             return null;
@@ -98,6 +99,18 @@ namespace AppLaunchMenu.DataModels
             set { Property(nameof(Parameters), value); }
         }
 
+        public string Config
+        {
+            get { return Property(nameof(Parameters)); }
+            set { Property(nameof(Parameters), value); }
+        }
+
+        public string ConfigFilePath
+        {
+            get { return Property(nameof(Parameters)); }
+            set { Property(nameof(Parameters), value); }
+        }
+
         public Environment Environment
         {
             get
@@ -113,7 +126,7 @@ namespace AppLaunchMenu.DataModels
                     return objEnvironment;
                 }
                 else
-                    return new Environment(m_objXmlDocument, objEnvironmentNode);
+                    return new Environment(m_objMenuFile, objEnvironmentNode);
             }
         }
 
@@ -173,7 +186,7 @@ namespace AppLaunchMenu.DataModels
                             if (blnInclude)
                             {
                                 if (objItemNode.Name == Environment.ElementName)
-                                    objItems.Add(new Environment(m_objXmlDocument, objItemNode));
+                                    objItems.Add(new Environment(m_objMenuFile, objItemNode));
                             }
                         }
                     }
@@ -244,7 +257,7 @@ namespace AppLaunchMenu.DataModels
             return strParameters;
         }
 
-        public bool Execute(Environment? p_objEnvironment)
+        public bool Execute(Environment p_objEnvironment)
         {
             bool blnResult;
 
@@ -256,6 +269,18 @@ namespace AppLaunchMenu.DataModels
 
                 if (objWorkingDirectory.Exists)
                 {
+                    string strConfig = Config;
+                    string strConfigFilePath = ConfigFilePath;
+
+                    if ((!string.IsNullOrEmpty(strConfig))
+                        && (!string.IsNullOrEmpty(strConfigFilePath))
+                        )
+                    {
+                        Config? objConfig = m_objMenuFile.ConfigList.GetConfigByName(strConfig);
+                        if (objConfig != null)
+                            objConfig.WriteConfig(p_objEnvironment, strConfigFilePath);
+                    }
+
                     try
                     {
                         Process objProcess = new();

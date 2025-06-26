@@ -8,18 +8,18 @@ using System.Xml;
 
 namespace AppLaunchMenu.DataAccess
 {
-    public class MenuFile : DataModelBase
+    public class MenuFile : DataAccessBase
     {
         string? m_strFilename;
 
         public MenuFile()
-            : base(new XmlDocument(), string.Empty)
+            : base(new XmlDocument())
         {
             CreateFile("New LaunchMenu");
         }
 
         public MenuFile(string p_strFilename)
-            : base(new XmlDocument(), string.Empty)
+            : base(new XmlDocument())
         {
             FileInfo objFileInfo = new FileInfo(p_strFilename);
 
@@ -181,7 +181,7 @@ namespace AppLaunchMenu.DataAccess
                     objMenuElement.Attributes.Append(objMenuNameAttribute);
                     objMenusNode[0]?.AppendChild(objMenuElement);
 
-                    return new Menu(m_objXmlDocument, objMenuElement);
+                    return new Menu(this, objMenuElement);
                 }
             }
 
@@ -209,28 +209,53 @@ namespace AppLaunchMenu.DataAccess
                 throw new ArgumentException();
         }
 
-        private MenuList CreateMenus()
+        private MenuList CreateMenuList()
         {
             XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(MenuList.ElementName);
-            return new MenuList(m_objXmlDocument, objEnvironmentElement);
+            return new MenuList(this, objEnvironmentElement);
         }
 
-        public MenuList Menus
+        private ConfigList CreateConfigList()
+        {
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(ConfigList.ElementName);
+            return new ConfigList(this, objEnvironmentElement);
+        }
+
+        public MenuList MenuList
         {
             get
             {
-                XmlNode? objMenusNode = m_objXmlNode.SelectSingleNode("/" + ElementName + "/" + MenuList.ElementName);
+                XmlNode? objMenuListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + MenuList.ElementName);
 
-                if (objMenusNode == null)
+                if (objMenuListNode == null)
                 {
-                    MenuList objMenus = CreateMenus();
+                    MenuList objMenuList = CreateMenuList();
 
-                    Insert(objMenus, 0);
+                    Insert(objMenuList, 0);
 
-                    return objMenus;
+                    return objMenuList;
                 }
                 else
-                    return new MenuList(m_objXmlDocument, objMenusNode);
+                    return new MenuList(this, objMenuListNode);
+            }
+        }
+
+        public ConfigList ConfigList
+        {
+            get
+            {
+                XmlNode? objConfigListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + ConfigList.ElementName);
+
+                if (objConfigListNode == null)
+                {
+                    ConfigList objConfigList = CreateConfigList();
+
+                    Insert(objConfigList, 0);
+
+                    return objConfigList;
+                }
+                else
+                    return new ConfigList(this, objConfigListNode);
             }
         }
 
