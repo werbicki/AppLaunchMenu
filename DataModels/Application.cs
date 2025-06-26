@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Input;
 using System.Xml;
@@ -101,14 +102,14 @@ namespace AppLaunchMenu.DataModels
 
         public string Config
         {
-            get { return Property(nameof(Parameters)); }
-            set { Property(nameof(Parameters), value); }
+            get { return Property(nameof(Config)); }
+            set { Property(nameof(Config), value); }
         }
 
         public string ConfigFilePath
         {
-            get { return Property(nameof(Parameters)); }
-            set { Property(nameof(Parameters), value); }
+            get { return Property(nameof(ConfigFilePath)); }
+            set { Property(nameof(ConfigFilePath), value); }
         }
 
         public Environment Environment
@@ -203,7 +204,7 @@ namespace AppLaunchMenu.DataModels
                 string strDirectory = WorkingDirectory;
             
                 if (p_objEnvironment != null)
-                    strDirectory = p_objEnvironment.ExpandVariable(WorkingDirectory);
+                    strDirectory = p_objEnvironment.ExpandVariable(strDirectory);
 
                 if (strDirectory.Length > 0)
                 {
@@ -247,6 +248,26 @@ namespace AppLaunchMenu.DataModels
             return string.Empty;
         }
 
+        public string GetConfigFilePath(Environment? p_objEnvironment)
+        {
+            if (!String.IsNullOrEmpty(ConfigFilePath))
+            {
+                string strConfigFilePath = ConfigFilePath;
+
+                if (p_objEnvironment != null)
+                    strConfigFilePath = p_objEnvironment.ExpandVariable(strConfigFilePath);
+
+                if (strConfigFilePath.Length > 0)
+                    strConfigFilePath = strConfigFilePath.Replace("\\", "/");
+                else
+                    strConfigFilePath = string.Empty;
+
+                return strConfigFilePath;
+            }
+
+            return string.Empty;
+        }
+
         public string GetParameters(Environment? p_objEnvironment)
         {
             string strParameters = Parameters;
@@ -269,8 +290,8 @@ namespace AppLaunchMenu.DataModels
 
                 if (objWorkingDirectory.Exists)
                 {
-                    string strConfig = Config;
-                    string strConfigFilePath = ConfigFilePath;
+                    string strConfig = p_objEnvironment.ExpandVariable(Config);
+                    string strConfigFilePath = GetConfigFilePath(p_objEnvironment);
 
                     if ((!string.IsNullOrEmpty(strConfig))
                         && (!string.IsNullOrEmpty(strConfigFilePath))
@@ -278,7 +299,18 @@ namespace AppLaunchMenu.DataModels
                     {
                         Config? objConfig = m_objMenuFile.ConfigList.GetConfigByName(strConfig);
                         if (objConfig != null)
+                        {
+                            Variable objConfigFilePathVariable = new(m_objMenuFile, "ConfigFilePath");
+                            objConfigFilePathVariable.Value = ConfigFilePath;
+                            objConfigFilePathVariable.ExpandedValue = strConfigFilePath;
+
                             objConfig.WriteConfig(p_objEnvironment, strConfigFilePath);
+
+                            if (p_objEnvironment.Contains(objConfigFilePathVariable))
+                                p_objEnvironment.Remove(objConfigFilePathVariable);
+
+                            p_objEnvironment.Insert(objConfigFilePathVariable, 0);
+                        }
                     }
 
                     try

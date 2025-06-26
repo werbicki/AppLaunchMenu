@@ -48,6 +48,11 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
+        public void Clear()
+        {
+            m_objNodes.Clear();
+        }
+
         public int Count
         {
             get

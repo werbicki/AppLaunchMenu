@@ -19,8 +19,7 @@ namespace AppLaunchMenu.DataModels
         {
             m_objVariables = new(p_objMenuFile, null);
 
-            if (p_objMenuFile != null)
-                Initialize(p_objMenuFile.XmlDocument, p_objMenuFile.XmlDocument, p_objEnvironmentNode.ParentNode);
+            Initialize(m_objMenuFile.XmlDocument, m_objMenuFile.XmlDocument, XmlNode.ParentNode);
         }
 
         internal static string ElementName
@@ -41,6 +40,8 @@ namespace AppLaunchMenu.DataModels
                     m_objXmlNode?.InsertBefore(p_objObject.XmlNode, m_objXmlNode?.ChildNodes[p_intIndex]);
                 else
                     m_objXmlNode?.AppendChild(p_objObject.XmlNode);
+
+                Initialize(m_objMenuFile.XmlDocument, m_objMenuFile.XmlDocument, XmlNode.ParentNode);
             }
             else
                 throw new ArgumentException();
@@ -52,6 +53,20 @@ namespace AppLaunchMenu.DataModels
                 p_objObject.XmlNode?.ParentNode?.RemoveChild(p_objObject.XmlNode);
             else
                 throw new ArgumentException();
+        }
+
+        public string this[string p_strName]
+        {
+            get
+            {
+                foreach (Variable objVariable in m_objVariables)
+                {
+                    if (objVariable.Name == p_strName)
+                        return objVariable.ExpandedValue;
+                }
+
+                return string.Empty;
+            }
         }
 
         public override DataModelBase[] Items
@@ -164,6 +179,8 @@ namespace AppLaunchMenu.DataModels
         private void Initialize(XmlDocument p_objDocument, XmlNode? p_objReferenceNode, XmlNode? p_objParent)
         {
             XmlNode? objRoot = p_objDocument.DocumentElement;
+
+            m_objVariables.Clear();
 
             if (objRoot != null)
             {

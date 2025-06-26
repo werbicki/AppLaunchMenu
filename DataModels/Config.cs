@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Scripting;
 
 namespace AppLaunchMenu.DataModels
 {
-    internal class ScriptingHost
+    public class ScriptingHost
     {
         private Environment m_objEnvironment;
         private string m_strConfigFilePath;
@@ -27,12 +27,17 @@ namespace AppLaunchMenu.DataModels
             m_objStreamWriter = new StreamWriter(m_strConfigFilePath);
         }
 
-        internal Environment Environment
+        internal void Close()
+        {
+            m_objStreamWriter.Close();
+        }
+
+        public Environment Environment
         {
             get { return m_objEnvironment; }
         }
 
-        internal void WriteLine(string p_strLine)
+        public void WriteLine(string p_strLine)
         {
             m_objStreamWriter.WriteLine(p_strLine);
         }
@@ -74,15 +79,18 @@ namespace AppLaunchMenu.DataModels
         {
             ScriptingHost objScriptingHost = new(p_objEnvironment, p_strConfigFilePath);
 
-            string strCode = "void WriteConfig() { " + Script + "; } return WriteConfig();";
+            string strCode = "void WriteConfig() { " + Script + "; } WriteConfig();";
 
             try
             {
                 CSharpScript.EvaluateAsync(strCode, globals: objScriptingHost);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                throw new InvalidOperationException(e.Message);
             }
+
+            objScriptingHost.Close();
 
             return false;
         }

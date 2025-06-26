@@ -48,6 +48,12 @@ namespace AppLaunchMenu.DataModels
             set { Property(nameof(Value), value); }
         }
 
+        public bool Prompt
+        {
+            get { return Property(nameof(Prompt)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
+            set { Property(nameof(Prompt), value ? "true" : "false"); }
+        }
+
         public string ExpandedValue
         {
             get
