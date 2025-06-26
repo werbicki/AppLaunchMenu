@@ -33,7 +33,7 @@ Spread_Segment 127.0.0.1:30803 {{
 		</Config>
 		<Config Name="Endur_STunnel" Language="C#">
 			<![CDATA[
-WriteLine($"; STunnel configuration file
+WriteLine($@"; STunnel configuration file
 
 ; Global Options
 
