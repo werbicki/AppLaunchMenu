@@ -1,14 +1,14 @@
 <AppLaunchMenu SecurityGroup="Everyone">
-	<ConfigList>
-		<Config Name="Endur_Config" Language="C#">
+	<ScriptList>
+		<Script Name="Endur_Config" Language="C#">
 			<![CDATA[
 WriteLine($"# Endur configuration file");
 
 foreach (var objVariable in Environment)			
 	WriteLine($"set {objVariable.Name} = {objVariable.ExpandedValue}");
 			]]>
-		</Config>
-		<Config Name="Endur_Spread" Language="C#">
+		</Script>
+		<Script Name="Endur_Spread" Language="C#">
 			<![CDATA[
 WriteLine($@"# Spread configuration file
 
@@ -30,8 +30,8 @@ Spread_Segment 127.0.0.1:30803 {{
 }}
 ");
 			]]>
-		</Config>
-		<Config Name="Endur_STunnel" Language="C#">
+		</Script>
+		<Script Name="Endur_STunnel" Language="C#">
 			<![CDATA[
 WriteLine($@"; STunnel configuration file
 
@@ -57,8 +57,35 @@ debug = 7
 output = {Environment["OLF_ENVIRONMENT_PATH"]}\Logs\stunnel\stunnel_1.log
 ");
 			]]>
-		</Config>
-	</ConfigList>
+		</Script>
+		<Script Name="GetCurrentDate" Language="C#">
+			<![CDATA[
+HttpClient objHttpClient = new HttpClient();
+string strDateTime = DateTime.Today.ToString("yyyy-MM-dd");
+
+try
+{
+    string url = "http://worldtimeapi.org/api/timezone/Etc/UTC";
+    HttpResponseMessage objHttpResponseMessage = await objHttpClient.GetAsync(url);
+
+    objHttpResponseMessage.EnsureSuccessStatusCode();
+
+    string objRsponseBody = await objHttpResponseMessage.Content.ReadAsStringAsync();
+
+    // Deserialize only the datetime field
+    using JsonDocument objJsonDocument = JsonDocument.Parse(objRsponseBody);
+    JsonElement objJsonElementRoot = objJsonDocument.RootElement;
+    strDateTime = DateTime.Parse(objJsonElementRoot.GetProperty("datetime").GetString()!).ToString("yyyy-MM-dd");
+}
+catch (HttpRequestException e)
+{
+    Exception(e.Message);
+}
+
+return strDateTime;
+			]]>
+		</Script>
+	</ScriptList>
 	<MenuList>
 		<Environment Name="Common">
 			<Variable Group="FileSystem" Name="OLF_MENU_FILE" Description="The file location of this Menu file." Value="\\%OLF_FILESHARE%\Environments\Endur_Sample.xml" />
@@ -109,21 +136,21 @@ output = {Environment["OLF_ENVIRONMENT_PATH"]}\Logs\stunnel\stunnel_1.log
 		</Environment>
 		<Menu Name="Openlink Endur">
 			<Folder Name="Openlink Endur" Expanded="True">
-				<Application Name="Development01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Config="Endur_Config" ConfigFilePath="C:\Dev\Endur_%OLF_ENVIRONMENT%.cfg" IsReservable="True">
+				<Application Name="Development01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Config="{Endur_Config}" ConfigFilePath="C:\Dev\Endur_%OLF_ENVIRONMENT%.cfg" IsReservable="True" ReservationDate="{GetCurrentDate}">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Dev01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="14003" />
 						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_red" />
 					</Environment>
 				</Application>
-				<Application Name="Test01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
+				<Application Name="Test01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" IsReservable="True" ReservationDate="{GetCurrentDate}">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Test01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="15003" />
 						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_green" />
 					</Environment>
 				</Application>
-				<Application Name="UAT01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
+				<Application Name="UAT01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" IsReservable="True" ReservationDate="{GetCurrentDate}">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="UAT01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="16003" />
@@ -135,7 +162,7 @@ output = {Environment["OLF_ENVIRONMENT_PATH"]}\Logs\stunnel\stunnel_1.log
 				<Environment Name="Browser">
 					<Variable Group="Application" Name="IE_HOME" Value="C:\Program Files\Internet Explorer" />
 				</Environment>
-				<Application Name="V24 User Guide" Executable="iexplore.exe" Parameters="file:%AB_HELP_DIR%" WorkingDirectory="%IE_HOME%" />
+				<Application Name="V24 User Guide" ExecutablePath="iexplore.exe" Parameters="file:%AB_HELP_DIR%" WorkingDirectory="%IE_HOME%" IsReservable="True" ReservationDate="{GetCurrentDate}" />
 			</Folder>
 		</Menu>
 		<Menu Name="Development">
@@ -144,7 +171,7 @@ output = {Environment["OLF_ENVIRONMENT_PATH"]}\Logs\stunnel\stunnel_1.log
 				<Variable Group="Development" Name="AB_JAVA_WORKSPACE" Value="%OLF_FILESHARE%\Staging\%USERNAME%\workspace" />
 			</Environment>
 			<Folder Name="Endur Development" Expanded="True">
-				<Application Name="Eclipse 2022-03" Executable="eclipse.exe" Parameters="-install %AB_ECLIPSE_HOME% -configuration %OLF_FILESHARE%\Staging\%USERNAME%\.eclipse2 -data %AB_JAVA_WORKSPACE% -vm %JAVA_HOME%\bin\javaw.exe -eclispe.keyring %FILESHRE_NONPROD\Staging\%USERNAME%\.eclipse\org.eclipse.equinox.security\secure_storage -vmargs %AB_JAVA_IDE_VMARGS%" WorkingDirectory="%ECLIPSE_HOME%" />
+				<Application Name="Eclipse 2022-03" ExecutablePath="eclipse.exe" Parameters="-install %AB_ECLIPSE_HOME% -configuration %OLF_FILESHARE%\Staging\%USERNAME%\.eclipse2 -data %AB_JAVA_WORKSPACE% -vm %JAVA_HOME%\bin\javaw.exe -eclispe.keyring %FILESHRE_NONPROD\Staging\%USERNAME%\.eclipse\org.eclipse.equinox.security\secure_storage -vmargs %AB_JAVA_IDE_VMARGS%" WorkingDirectory="%ECLIPSE_HOME%" />
 				<Environment>
 					<Variable Group="Development" Name="AB_ECLIPSE_HOME" Value="%INSTALL_BASE%\Eclipse\eclispe-java-2022-03-win32-x86_64" />
 				</Environment>

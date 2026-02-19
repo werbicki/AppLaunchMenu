@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.Dialogs;
 using AppLaunchMenu.Helper;
 using AppLaunchMenu.ViewModels;
 using Microsoft.UI.Xaml;
@@ -35,23 +36,33 @@ namespace AppLaunchMenu
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainWindow : Window
+    public sealed partial class MainWindow : WindowNotifyPropertyChanged
     {
+        private MenuFile m_objMenuFile;
         private bool m_blnCloseRequested = false;
-
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
 
         public MainWindow(MenuFile p_objMenuFile)
         {
+            m_objMenuFile = p_objMenuFile;
+            m_objMenuFile.DataChanged += MenuFile_DataChanged;
+
             InitializeComponent();
-            this.Closed += MainWindow_Closed;
+            RootElement.DataContext = this;
+
+            // Hides the default system title bar and replaces the  system title bar with the WinUI TitleBar control. 
+            ExtendsContentIntoTitleBar = true;
+            SetTitleBar(TitleBar);
 
             WindowHelper.CenterOnScreen(this, new Size(600, 700));
 
+            this.Closed += MainWindow_Closed;
+
             Navigate(typeof(LaunchMenu), p_objMenuFile);
+        }
+
+        private void MenuFile_DataChanged(object? sender, DataModels.DataAccessBase.DataChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(AppTitle));
         }
 
         // Wraps a call to rootFrame.Navigate to give the Page a way to know which NavigationRootPage is navigating.
@@ -63,7 +74,8 @@ namespace AppLaunchMenu
                 MainWindow = this,
                 Parameter = targetPageArguments
             };
-            ContentFrame.Navigate(pageType, args, navigationTransitionInfo);
+
+            InnerFrame.Navigate(pageType, args, navigationTransitionInfo);
         }
 
         private async void MainWindow_Closed(object sender, WindowEventArgs args)
@@ -72,25 +84,25 @@ namespace AppLaunchMenu
             {
                 args.Handled = true;
 
-                ContentDialog objExitDialog = new ContentDialog
+                ModalDialog objExitDialog = new ModalDialog()
                 {
-                    XamlRoot = this.Content.XamlRoot,
-                    Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-                    //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
+                    //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                    //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme,
                     Title = "Exit AppLaunchMenu?",
-                    Content = "Would you like to exit AppLaunchMenu?",
-                    CloseButtonText = "OK",
-                    PrimaryButtonText = "Cancel",
+                    Message = "Would you like to exit AppLaunchMenu?",
+                    CloseButtonText = "Cancel",
+                    PrimaryButtonText = "OK",
                     DefaultButton = ContentDialogButton.Primary
                 };
 
-                ContentDialogResult objResult = await objExitDialog.ShowAsync();
+                ContentDialogResult objDialogResult = await objExitDialog.ShowAsync();
 
-                if (objResult != ContentDialogResult.Primary)
+                if (objDialogResult == ContentDialogResult.Primary)
                 {
                     m_blnCloseRequested = true;
                     Application.Current.Exit();
                 }
+
             }
         }
 
@@ -100,8 +112,9 @@ namespace AppLaunchMenu
             Application.Current.Exit();
         }
 
-        private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+        private String AppTitle
         {
+            get { return "AppLaunchMenu - " + m_objMenuFile.Filename + (m_objMenuFile.IsDirty ? "*" : ""); }
         }
     }
 

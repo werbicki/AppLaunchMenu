@@ -31,9 +31,11 @@ namespace AppLaunchMenu
             this.InitializeComponent();
         }
 
-        public App(string p_strMenuFilePath)
+        public App(FileInfo? p_objMenuFilePath)
         {
-            m_strMenuFilePath = p_strMenuFilePath;
+            if (p_objMenuFilePath != null)
+                m_strMenuFilePath = p_objMenuFilePath.FullName;
+
             this.InitializeComponent();
         }
 

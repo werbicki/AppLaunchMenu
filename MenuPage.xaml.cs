@@ -17,11 +17,13 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 using static System.Net.Mime.MediaTypeNames;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -60,12 +62,44 @@ namespace AppLaunchMenu
             m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
         }
 
+        private double GetTreeViewItemWidth(ObservableCollection<TreeViewItemViewModel> p_objChildren, double p_dblWidth = 0)
+        {
+            double dblWidth = p_dblWidth;
+
+            foreach (TreeViewItemViewModel objTreeVieweItemViewModel in p_objChildren)
+            {
+                TreeViewItem? objTreeViewItem = (TreeViewItem)m_objTreeView.ContainerFromItem(objTreeVieweItemViewModel);
+                if (objTreeViewItem != null)
+                {
+                    object objRelativePanel = objTreeViewItem.Content;
+                    if ((objRelativePanel != null)
+                        && ((objRelativePanel.GetType().Equals(typeof(RelativePanel)))
+                            || (objRelativePanel.GetType().GetTypeInfo().IsSubclassOf(typeof(RelativePanel)))
+                        ))
+                    {
+                        double dblContentWidth = 20;
+
+                        foreach (var item in ((RelativePanel)objRelativePanel).Children)
+                            dblContentWidth += item.DesiredSize.Width;
+
+                        if (dblContentWidth > dblWidth)
+                            dblWidth = dblContentWidth;
+                    }
+                }
+
+                dblWidth = GetTreeViewItemWidth(objTreeVieweItemViewModel.Children, dblWidth);
+            }
+
+            return dblWidth;
+        }
+
         private void ParentPage_Loaded(object sender, RoutedEventArgs e)
         {
             if (!m_blnLoaded)
             {
                 m_blnLoaded = true;
-                TreeViewItemWidth = new GridLength(m_objTreeView.ActualWidth);
+
+                TreeViewItemWidth = new GridLength(GetTreeViewItemWidth(m_objMenuViewModel.Children));
             }
         }
 
@@ -151,54 +185,7 @@ namespace AppLaunchMenu
             m_objVariableContextMenu.Hide();
         }
 
-        private void TreeViewItem_FolderContextMenu(UIElement sender, ContextRequestedEventArgs args)
-        {
-            if (sender is TreeViewItem objItem)
-            {
-                FlyoutShowOptions objFlyoutShowOptions = new FlyoutShowOptions();
-                objFlyoutShowOptions.ShowMode = FlyoutShowMode.Standard;
-                m_objFolderContextMenuEdit.Tag = objItem.DataContext;
-                m_objFolderContextMenuDelete.Tag = objItem.DataContext;
-                m_objFolderContextMenu.ShowAt(sender, objFlyoutShowOptions);
-            }
-        }
-
-        private void TreeViewItem_ApplicationContextMenu(UIElement sender, ContextRequestedEventArgs args)
-        {
-            if (sender is TreeViewItem objItem)
-            {
-                FlyoutShowOptions objFlyoutShowOptions = new FlyoutShowOptions();
-                objFlyoutShowOptions.ShowMode = FlyoutShowMode.Standard;
-                m_objApplicationContextMenuEdit.Tag = objItem.DataContext;
-                m_objApplicationContextMenuDelete.Tag = objItem.DataContext;
-                m_objApplicationContextMenu.ShowAt(sender, objFlyoutShowOptions);
-            }
-        }
-
-        private void TreeViewItem_EnvironmentContextMenu(UIElement sender, ContextRequestedEventArgs args)
-        {
-            if (sender is TreeViewItem objItem)
-            {
-                FlyoutShowOptions objFlyoutShowOptions = new FlyoutShowOptions();
-                objFlyoutShowOptions.ShowMode = FlyoutShowMode.Standard;
-                m_objEnvironmentContextMenuDelete.Tag = objItem.DataContext;
-                m_objEnvironmentContextMenu.ShowAt(sender, objFlyoutShowOptions);
-            }
-        }
-
-        private void TreeViewItem_VariableContextMenu(UIElement sender, ContextRequestedEventArgs args)
-        {
-            if (sender is TreeViewItem objItem)
-            {
-                FlyoutShowOptions objFlyoutShowOptions = new FlyoutShowOptions();
-                objFlyoutShowOptions.ShowMode = FlyoutShowMode.Standard;
-                m_objVariableContextMenuEdit.Tag = objItem.DataContext;
-                m_objVariableContextMenuDelete.Tag = objItem.DataContext;
-                m_objVariableContextMenu.ShowAt(sender, objFlyoutShowOptions);
-            }
-        }
-
-        static int m_intCount = 0;
+        private static int m_intCount = 0;
 
         private void OnNewFolderContextMenu(object sender, RoutedEventArgs e)
         {
@@ -230,27 +217,27 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objItem = (TreeViewItemViewModel)objButton.DataContext;
-                    if (objItem != null)
+                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    if (objTreeViewItemViewModel != null)
                     {
                         FolderViewModel? objFolderViewModel = m_objMenuViewModel?.CreateFolder("New Folder " + m_intCount++);
                         if (objFolderViewModel != null)
                         {
-                            PromptDialog objDialog = new()
+                            ModalDialog objNewFolderDialog = new ModalDialog()
                             {
-                                XamlRoot = this.Content.XamlRoot,
-                                Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                                //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                                 //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
                                 Title = "New",
-                                Content = new FolderDialogContent(objFolderViewModel),
+                                Page = new FolderDialogContent(objFolderViewModel),
                                 CloseButtonText = "OK",
                                 PrimaryButtonText = "Cancel",
                                 DefaultButton = ContentDialogButton.Primary,
                             };
 
-                            ContentDialogResult objContentDialogResult = await objDialog.ShowAsync();
+                            ContentDialogResult objContentDialogResult = await objNewFolderDialog.ShowAsync();
+
                             if (objContentDialogResult == ContentDialogResult.None)
-                                objItem.Children.Add(objFolderViewModel);
+                                objTreeViewItemViewModel.Children.Add(objFolderViewModel);
                         }
                     }
                 }
@@ -266,27 +253,27 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objItem = (TreeViewItemViewModel)objButton.DataContext;
-                    if (objItem != null)
+                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    if (objTreeViewItemViewModel != null)
                     {
                         ApplicationViewModel? objApplicationViewModel = m_objMenuViewModel?.CreateApplication("New Application " + m_intCount++);
                         if (objApplicationViewModel != null)
                         {
-                            PromptDialog objDialog = new()
+                            ModalDialog objNewApplicationDialog = new ModalDialog()
                             {
-                                XamlRoot = this.Content.XamlRoot,
-                                Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                                //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                                 //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
                                 Title = "New",
-                                Content = new ApplicationDialogContent(objApplicationViewModel),
+                                Page = new ApplicationDialogContent(objApplicationViewModel),
                                 CloseButtonText = "OK",
                                 PrimaryButtonText = "Cancel",
                                 DefaultButton = ContentDialogButton.Primary,
                             };
 
-                            ContentDialogResult objContentDialogResult = await objDialog.ShowAsync();
+                            ContentDialogResult objContentDialogResult = await objNewApplicationDialog.ShowAsync();
+
                             if (objContentDialogResult == ContentDialogResult.None)
-                                objItem.Children.Add(objApplicationViewModel);
+                                objTreeViewItemViewModel.Children.Add(objApplicationViewModel);
                         }
                     }
                 }
@@ -302,39 +289,43 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objItem = (TreeViewItemViewModel)objButton.DataContext;
-                    if (objItem != null)
+                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    if (objTreeViewItemViewModel != null)
                     {
                         VariableViewModel? objVariableViewModel = null;
 
                         {
-                            if (objItem is FolderViewModel objFolderViewModel)
+                            if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
                                 objVariableViewModel = objFolderViewModel.CreateVariable("New Variable " + m_intCount++);
-                            else if (objItem is ApplicationViewModel objApplicationViewModel)
+                            else if (objTreeViewItemViewModel is ApplicationViewModel objApplicationViewModel)
                                 objVariableViewModel = objApplicationViewModel.CreateVariable("New Variable " + m_intCount++);
+                            else
+                                throw new ArgumentException();
                         }
 
                         if (objVariableViewModel != null)
                         {
-                            PromptDialog objDialog = new()
+                            ModalDialog objNewVariableDialog = new ModalDialog()
                             {
-                                XamlRoot = this.Content.XamlRoot,
-                                Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                                //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                                 //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
                                 Title = "New",
-                                Content = new VariableDialogContent(objVariableViewModel),
+                                Page = new VariableDialogContent(objVariableViewModel),
                                 CloseButtonText = "OK",
                                 PrimaryButtonText = "Cancel",
                                 DefaultButton = ContentDialogButton.Primary,
                             };
 
-                            ContentDialogResult objContentDialogResult = await objDialog.ShowAsync();
+                            ContentDialogResult objContentDialogResult = await objNewVariableDialog.ShowAsync();
+
                             if (objContentDialogResult == ContentDialogResult.None)
                             {
-                                if (objItem is FolderViewModel objFolderViewModel)
+                                if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
                                     objFolderViewModel.Environment.Variables.Add(objVariableViewModel);
-                                else if (objItem is ApplicationViewModel objApplicationViewModel)
+                                else if (objTreeViewItemViewModel is ApplicationViewModel objApplicationViewModel)
                                     objApplicationViewModel.Environment.Variables.Add(objVariableViewModel);
+                                else
+                                    throw new ArgumentException();
                             }
                         }
                     }
@@ -351,31 +342,32 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objItem = (TreeViewItemViewModel)objButton.Tag;
-                    if (objItem != null)
+                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    if (objTreeViewItemViewModel != null)
                     {
-                        PromptDialog objRenameDialog = new()
+                        ModalDialog objRenameDialog = new ModalDialog()
                         {
-                            XamlRoot = this.Content.XamlRoot,
-                            Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                            //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                             //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
-                            Title = "Edit",
-                            DefaultButton = ContentDialogButton.Close,
-                            //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
+                            Title = "Rename",
+                            CloseButtonText = "OK",
+                            PrimaryButtonText = "Cancel",
+                            DefaultButton = ContentDialogButton.Primary,
                         };
 
-                        if (objItem is FolderViewModel)
-                            objRenameDialog.Content = new FolderDialogContent((FolderViewModel)objItem);
-                        else if (objItem is ApplicationViewModel)
-                            objRenameDialog.Content = new ApplicationDialogContent((ApplicationViewModel)objItem);
-                        else if (objItem is VariableViewModel)
-                            objRenameDialog.Content = new VariableDialogContent((VariableViewModel)objItem);
+                        if (objTreeViewItemViewModel is FolderViewModel)
+                            objRenameDialog.Page = new FolderDialogContent((FolderViewModel)objTreeViewItemViewModel);
+                        else if (objTreeViewItemViewModel is ApplicationViewModel)
+                            objRenameDialog.Page = new ApplicationDialogContent((ApplicationViewModel)objTreeViewItemViewModel);
+                        else if (objTreeViewItemViewModel is VariableViewModel)
+                            objRenameDialog.Page = new VariableDialogContent((VariableViewModel)objTreeViewItemViewModel);
                         else
                             throw new ArgumentException();
 
                         ContentDialogResult objContentDialogResult = await objRenameDialog.ShowAsync();
+
                         if (objContentDialogResult == ContentDialogResult.None)
-                            objButton.DataContext = objItem;
+                            objButton.DataContext = objTreeViewItemViewModel;
                     }
                 }
             }
@@ -390,58 +382,50 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel? objItem = (TreeViewItemViewModel)objButton.Tag;
-                    if (objItem != null)
+                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    if (objTreeViewItemViewModel != null)
                     {
-                        ContentDialog objExitDialog = new ContentDialog
+                        ModalDialog objDeleteDialog = new ModalDialog
                         {
-                            XamlRoot = this.Content.XamlRoot,
-                            Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                            //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                             //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
                             Title = "Delete",
-                            Content = "Would you like to delete '" + objItem.Name + "'",
+                            Message = "Would you like to delete '" + objTreeViewItemViewModel.Name + "'",
                             CloseButtonText = "OK",
                             PrimaryButtonText = "Cancel",
                             DefaultButton = ContentDialogButton.Primary
                         };
 
-                        ContentDialogResult objResult = await objExitDialog.ShowAsync();
+                        ContentDialogResult objResult = await objDeleteDialog.ShowAsync();
+
                         if (objResult != ContentDialogResult.Primary)
-                            objItem?.Parent?.Children.Remove(objItem);
+                            objTreeViewItemViewModel?.Parent?.Children.Remove(objTreeViewItemViewModel);
                     }
                 }
             }
             else if (e.OriginalSource is Button)
             {
                 Button objButton = (Button)e.OriginalSource;
-                if (objButton.Parent is RelativePanel)
+                if (objButton.DataContext != null)
                 {
-                    RelativePanel objRelativePanel = (RelativePanel)objButton.Parent;
-                    if (objRelativePanel.Parent is TreeViewItem)
+                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    if (objTreeViewItemViewModel != null)
                     {
-                        TreeViewItem objTreeViewItem = (TreeViewItem)objRelativePanel.Parent;
-                        if (objTreeViewItem.Tag != null)
+                        ModalDialog objDeleteDialog = new ModalDialog
                         {
-                            TreeViewItemViewModel? objItem = (TreeViewItemViewModel)objTreeViewItem.Tag;
-                            if (objItem != null)
-                            {
-                                ContentDialog objExitDialog = new ContentDialog
-                                {
-                                    XamlRoot = this.Content.XamlRoot,
-                                    Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
-                                    //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
-                                    Title = "Delete",
-                                    Content = "Would you like to delete '" + objItem.Name + "'",
-                                    CloseButtonText = "OK",
-                                    PrimaryButtonText = "Cancel",
-                                    DefaultButton = ContentDialogButton.Primary
-                                };
+                            //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                            //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
+                            Title = "Delete",
+                            Message = "Would you like to delete '" + objTreeViewItemViewModel.Name + "'",
+                            CloseButtonText = "OK",
+                            PrimaryButtonText = "Cancel",
+                            DefaultButton = ContentDialogButton.Primary
+                        };
 
-                                ContentDialogResult objResult = await objExitDialog.ShowAsync();
-                                if (objResult != ContentDialogResult.Primary)
-                                    objItem?.Parent?.Children.Remove(objItem);
-                            }
-                        }
+                        ContentDialogResult objResult = await objDeleteDialog.ShowAsync();
+
+                        if (objResult != ContentDialogResult.Primary)
+                            objTreeViewItemViewModel?.Parent?.Children.Remove(objTreeViewItemViewModel);
                     }
                 }
             }

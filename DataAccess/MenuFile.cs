@@ -10,7 +10,18 @@ namespace AppLaunchMenu.DataAccess
 {
     public class MenuFile : DataAccessBase
     {
-        string? m_strFilename;
+        public delegate void FileChangedEventHandler(object? sender, DataChangedEventArgs e);
+        public event FileChangedEventHandler? FileChanged;
+
+        protected virtual void OnFileChanged()
+        {
+            var eventHandler = FileChanged;
+            if (eventHandler != null)
+                eventHandler(this, new DataChangedEventArgs());
+        }
+
+        private string? m_strFilename;
+        private FileSystemWatcher m_objFileSystemWatcher = new FileSystemWatcher();
 
         public MenuFile()
             : base(new XmlDocument())
@@ -32,6 +43,19 @@ namespace AppLaunchMenu.DataAccess
             {
                 CreateFile(p_strFilename);
                 m_strFilename = p_strFilename;
+            }
+        }
+
+        public String Filename
+        {
+            get
+            {
+                if (m_strFilename != null)
+                {
+                    FileInfo objFileInfo = new FileInfo(m_strFilename);
+                    return objFileInfo.Name;
+                }
+                return "Menu";
             }
         }
 
@@ -63,6 +87,7 @@ namespace AppLaunchMenu.DataAccess
                 try
                 {
                     m_objXmlDocument.Save(m_strFilename);
+                    IsDirty = false;
                 }
                 catch (XmlException e)
                 {
@@ -84,25 +109,20 @@ namespace AppLaunchMenu.DataAccess
 
         protected bool CreateFile(string p_strDocument)
         {
-            XmlDocument? objDocument = null;
-
             try
             {
-                objDocument ??= new XmlDocument();
-
-                XmlElement objLaunchMenuElement = objDocument.CreateElement(ElementName);
-                XmlElement objMenusElement = objDocument.CreateElement(MenuList.ElementName);
+                XmlElement objLaunchMenuElement = m_objXmlDocument.CreateElement(ElementName);
+                XmlElement objMenusElement = m_objXmlDocument.CreateElement(MenuList.ElementName);
                 objLaunchMenuElement.AppendChild(objMenusElement);
-                objDocument.AppendChild(objLaunchMenuElement);
+                m_objXmlDocument.AppendChild(objLaunchMenuElement);
             }
             catch (Exception)
             {
             }
 
-            if (objDocument != null)
+            if (m_objXmlDocument != null)
             {
                 m_strFilename = p_strDocument;
-                m_objXmlDocument = objDocument;
 
                 XmlNode? objNode = m_objXmlDocument.SelectSingleNode(ElementName);
                 if (objNode != null)
@@ -117,20 +137,21 @@ namespace AppLaunchMenu.DataAccess
         protected bool ReadFile(string p_strFilename)
         {
             FileInfo objFileInfo = new(p_strFilename);
-            XmlDocument? objDocument = null;
 
             if (objFileInfo.Exists)
             {
                 bool blnLoaded = false;
                 int intRetries = 3;
 
+                m_objXmlDocument.NodeChanged -= XmlDocument_NodeChanged;
+                m_objXmlDocument.NodeInserted -= XmlDocument_NodeChanged;
+                m_objXmlDocument.NodeRemoved -= XmlDocument_NodeChanged;
+
                 while (intRetries > 0)
                 {
                     try
                     {
-                        objDocument ??= new XmlDocument();
-
-                        objDocument.Load(objFileInfo.FullName);
+                        m_objXmlDocument.Load(objFileInfo.FullName);
 
                         blnLoaded = true;
                         intRetries = 0;
@@ -146,13 +167,34 @@ namespace AppLaunchMenu.DataAccess
                     }
                 }
 
-                if (blnLoaded && objDocument != null)
+                if (blnLoaded)
                 {
-                    m_objXmlDocument = objDocument;
+                    m_objXmlDocument.NodeChanged += XmlDocument_NodeChanged;
+                    m_objXmlDocument.NodeInserted += XmlDocument_NodeChanged;
+                    m_objXmlDocument.NodeRemoved += XmlDocument_NodeChanged;
 
                     XmlNode? objNode = m_objXmlDocument.SelectSingleNode(ElementName);
                     if (objNode != null)
                         m_objXmlNode = objNode;
+
+                    String? strPath = Path.GetDirectoryName(objFileInfo.FullName);
+                    if (strPath != null)
+                        m_objFileSystemWatcher.Path = strPath;
+
+                    m_objFileSystemWatcher.Filter = Path.GetFileName(objFileInfo.FullName);
+
+                    m_objFileSystemWatcher.NotifyFilter = NotifyFilters.Attributes
+                                 | NotifyFilters.CreationTime
+                                 | NotifyFilters.DirectoryName
+                                 | NotifyFilters.FileName
+                                 | NotifyFilters.LastAccess
+                                 | NotifyFilters.LastWrite
+                                 | NotifyFilters.Security
+                                 | NotifyFilters.Size;
+                    m_objFileSystemWatcher.Changed += FileSystemWatcher_Changed;
+                    m_objFileSystemWatcher.EnableRaisingEvents = true;
+
+                    IsDirty = false;
 
                     return true;
                 }
@@ -161,6 +203,11 @@ namespace AppLaunchMenu.DataAccess
             }
 
             return false;
+        }
+
+        private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            OnFileChanged();
         }
 
         internal Menu? AddMenu(string p_strMenuName)
@@ -215,10 +262,10 @@ namespace AppLaunchMenu.DataAccess
             return new MenuList(this, objEnvironmentElement);
         }
 
-        private ConfigList CreateConfigList()
+        private ScriptList CreateConfigList()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(ConfigList.ElementName);
-            return new ConfigList(this, objEnvironmentElement);
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(ScriptList.ElementName);
+            return new ScriptList(this, objEnvironmentElement);
         }
 
         public MenuList MenuList
@@ -240,22 +287,22 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        public ConfigList ConfigList
+        public ScriptList ConfigList
         {
             get
             {
-                XmlNode? objConfigListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + ConfigList.ElementName);
+                XmlNode? objConfigListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + ScriptList.ElementName);
 
                 if (objConfigListNode == null)
                 {
-                    ConfigList objConfigList = CreateConfigList();
+                    ScriptList objConfigList = CreateConfigList();
 
                     Insert(objConfigList, 0);
 
                     return objConfigList;
                 }
                 else
-                    return new ConfigList(this, objConfigListNode);
+                    return new ScriptList(this, objConfigListNode);
             }
         }
 

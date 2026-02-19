@@ -49,21 +49,21 @@
 		</Environment>
 		<Menu Name="Openlink Endur">
 			<Folder Name="Openlink Endur" Expanded="True">
-				<Application Name="Development01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" IsReservable="True">
+				<Application Name="Development01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" IsReservable="True">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Dev01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="14003" />
 						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_red" />
 					</Environment>
 				</Application>
-				<Application Name="Test01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
+				<Application Name="Test01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Test01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="15003" />
 						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_green" />
 					</Environment>
 				</Application>
-				<Application Name="UAT01" Executable="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
+				<Application Name="UAT01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="UAT01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="16003" />
@@ -75,7 +75,7 @@
 				<Environment Name="Browser">
 					<Variable Group="Application" Name="IE_HOME" Value="C:\Program Files\Internet Explorer" />
 				</Environment>
-				<Application Name="V24 User Guide" Executable="iexplore.exe" Parameters="file:%AB_HELP_DIR%" WorkingDirectory="%IE_HOME%" />
+				<Application Name="V24 User Guide" ExecutablePath="iexplore.exe" Parameters="file:%AB_HELP_DIR%" WorkingDirectory="%IE_HOME%" />
 			</Folder>
 		</Menu>
 		<Menu Name="Development">
@@ -84,7 +84,7 @@
 				<Variable Group="Development" Name="AB_JAVA_WORKSPACE" Value="%OLF_FILESHARE%\Staging\%USERNAME%\workspace" />
 			</Environment>
 			<Folder Name="Endur Development" Expanded="True">
-				<Application Name="Eclipse 2022-03" Executable="eclipse.exe" Parameters="-install %AB_ECLIPSE_HOME% -configuration %OLF_FILESHARE%\Staging\%USERNAME%\.eclipse2 -data %AB_JAVA_WORKSPACE% -vm %JAVA_HOME%\bin\javaw.exe -eclispe.keyring %FILESHRE_NONPROD\Staging\%USERNAME%\.eclipse\org.eclipse.equinox.security\secure_storage -vmargs %AB_JAVA_IDE_VMARGS%" WorkingDirectory="%ECLIPSE_HOME%" />
+				<Application Name="Eclipse 2022-03" ExecutablePath="eclipse.exe" Parameters="-install %AB_ECLIPSE_HOME% -configuration %OLF_FILESHARE%\Staging\%USERNAME%\.eclipse2 -data %AB_JAVA_WORKSPACE% -vm %JAVA_HOME%\bin\javaw.exe -eclispe.keyring %FILESHRE_NONPROD\Staging\%USERNAME%\.eclipse\org.eclipse.equinox.security\secure_storage -vmargs %AB_JAVA_IDE_VMARGS%" WorkingDirectory="%ECLIPSE_HOME%" />
 				<Environment>
 					<Variable Group="Development" Name="AB_ECLIPSE_HOME" Value="%INSTALL_BASE%\Eclipse\eclispe-java-2022-03-win32-x86_64" />
 				</Environment>

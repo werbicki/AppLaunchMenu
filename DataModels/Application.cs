@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Windows.Input;
 using System.Xml;
 
@@ -82,10 +84,10 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
-        public string Executable
+        public string ExecutablePath
         {
-            get { return Property(nameof(Executable)); }
-            set { Property(nameof(Executable), value); }
+            get { return Property(nameof(ExecutablePath)); }
+            set { Property(nameof(ExecutablePath), value); }
         }
 
         public string WorkingDirectory
@@ -100,10 +102,10 @@ namespace AppLaunchMenu.DataModels
             set { Property(nameof(Parameters), value); }
         }
 
-        public string Config
+        public string ConfigScript
         {
-            get { return Property(nameof(Config)); }
-            set { Property(nameof(Config), value); }
+            get { return Property(nameof(ConfigScript)); }
+            set { Property(nameof(ConfigScript), value); }
         }
 
         public string ConfigFilePath
@@ -226,12 +228,12 @@ namespace AppLaunchMenu.DataModels
             try
             {
                 DirectoryInfo objWorkingDirectory = new(GetWorkingDirectory(p_objEnvironment));
-                if (!String.IsNullOrEmpty(Executable))
+                if (!String.IsNullOrEmpty(ExecutablePath))
                 {
-                    FileInfo objExecutable = new(Executable);
+                    FileInfo objExecutable = new(ExecutablePath);
 
                     if (p_objEnvironment != null)
-                        objExecutable = new(p_objEnvironment.ExpandVariable(Executable));
+                        objExecutable = new(p_objEnvironment.ExpandVariable(ExecutablePath));
 
                     FileInfo objFullPath;
 
@@ -278,10 +280,8 @@ namespace AppLaunchMenu.DataModels
             return strParameters;
         }
 
-        public bool Execute(Environment p_objEnvironment)
+        public void Execute(Environment p_objEnvironment)
         {
-            bool blnResult;
-
             FileInfo objFullPath = new(GetExecutablePath(p_objEnvironment));
 
             if (objFullPath.Exists)
@@ -290,21 +290,23 @@ namespace AppLaunchMenu.DataModels
 
                 if (objWorkingDirectory.Exists)
                 {
-                    string strConfig = p_objEnvironment.ExpandVariable(Config);
+                    string strConfig = p_objEnvironment.ExpandVariable(ConfigScript);
                     string strConfigFilePath = GetConfigFilePath(p_objEnvironment);
 
                     if ((!string.IsNullOrEmpty(strConfig))
                         && (!string.IsNullOrEmpty(strConfigFilePath))
                         )
                     {
-                        Config? objConfig = m_objMenuFile.ConfigList.GetConfigByName(strConfig);
+                        Script? objConfig = m_objMenuFile.ConfigList.GetScriptByName(strConfig);
                         if (objConfig != null)
                         {
                             Variable objConfigFilePathVariable = new(m_objMenuFile, "ConfigFilePath");
                             objConfigFilePathVariable.Value = ConfigFilePath;
                             objConfigFilePathVariable.ExpandedValue = strConfigFilePath;
 
-                            objConfig.WriteConfig(p_objEnvironment, strConfigFilePath);
+                            ScriptingHostConfigFile objScriptingHost = new(p_objEnvironment, strConfigFilePath);
+                            objConfig.RunScriptVoid(objScriptingHost);
+                            objScriptingHost.Close();
 
                             if (p_objEnvironment.Contains(objConfigFilePathVariable))
                                 p_objEnvironment.Remove(objConfigFilePathVariable);
@@ -347,7 +349,7 @@ namespace AppLaunchMenu.DataModels
                         objProcessStartInfo.Arguments = GetParameters(p_objEnvironment);
 
                         objProcess.StartInfo = objProcessStartInfo;
-                        blnResult = objProcess.Start();
+                        //blnResult = objProcess.Start();
                     }
                     catch (Exception e)
                     {
@@ -359,8 +361,6 @@ namespace AppLaunchMenu.DataModels
             }
             else
                 throw new InvalidOperationException("File '" + objFullPath.FullName + "' does not exist!");
-
-            return blnResult;
         }
     }
 }

@@ -23,7 +23,7 @@
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item}" 
                     IsExpanded="{Binding IsExpanded, Mode=OneWay}"
-                    ContextRequested="TreeViewItem_FolderContextMenu"
+                    ContextFlyout="{StaticResource m_objFolderContextMenu}"
                     >
                 <RelativePanel>
                     <Image x:Name="FolderImage"
@@ -57,7 +57,8 @@
             <TreeViewItem
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item, Mode=OneWay}" 
-                    ContextRequested="TreeViewItem_ApplicationContextMenu"
+                    ContextFlyout="{StaticResource m_objApplicationContextMenu}"
+                
                     AllowFocusOnInteraction="True"
                     >
                 <Grid HorizontalAlignment="Left" 
@@ -138,7 +139,7 @@
             <TreeViewItem
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item, Mode=OneWay}" 
-                    ContextRequested="TreeViewItem_EnvironmentContextMenu"
+                    ContextFlyout="{StaticResource m_objEnvironmentContextMenu}"
                     Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                     >
                 <RelativePanel>
@@ -173,7 +174,7 @@
             <TreeViewItem
                     ItemsSource="{x:Bind Children}"
                     Tag="{x:Bind Item, Mode=OneWay}" 
-                    ContextRequested="TreeViewItem_VariableContextMenu"
+                    ContextFlyout="{StaticResource m_objVariableContextMenu}"
                     Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}}"
                     >
                 <RelativePanel>

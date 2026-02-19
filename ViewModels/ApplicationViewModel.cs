@@ -69,10 +69,10 @@ namespace AppLaunchMenu.ViewModels
 
         public string Executable
         {
-            get { return m_objApplication.Executable; }
+            get { return m_objApplication.ExecutablePath; }
             set
             {
-                m_objApplication.Executable = value;
+                m_objApplication.ExecutablePath = value;
                 OnPropertyChanged(nameof(Executable));
             }
         }

@@ -3,8 +3,11 @@ using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
 using System;
 using System.CommandLine;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,14 +16,22 @@ namespace AppLaunchMenu
     public class Program
     {
         [STAThread]
-        static async Task Main(string[] args)
+        [UnsupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows10.0.18362")]
+        static Task Main(string[] args)
         {
+            Argument<FileInfo> menuArgument = new("menu")
+            {
+                Description = "The file to read and display on the console"
+            };
+
             var rootCommand = new RootCommand("AppLaunchMenu");
-            var menuArgument = new Argument<string>("menu", "A path to a valid menu file.");
+            rootCommand.Arguments.Add(menuArgument);
 
-            rootCommand.Add(menuArgument);
-
-            rootCommand.SetHandler((p_strMenuFilePath) =>
+            ParseResult parseResult = rootCommand.Parse(args);
+            if ((parseResult.Errors.Count == 0)
+                && (parseResult.GetValue(menuArgument) is FileInfo objMenuFile)
+                )
             {
                 WinRT.ComWrappersSupport.InitializeComWrappers();
                 bool isRedirect = DecideRedirection();
@@ -31,16 +42,20 @@ namespace AppLaunchMenu
                     {
                         var context = new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread());
                         SynchronizationContext.SetSynchronizationContext(context);
-                        _ = (p_strMenuFilePath is null ? new App() : new App(p_strMenuFilePath));
+                        _ = new App(objMenuFile);
                     });
                 }
             }
-            , menuArgument
-            );
+            foreach (ParseError parseError in parseResult.Errors)
+            {
+                Console.Error.WriteLine(parseError.Message);
+            }
 
-            await rootCommand.InvokeAsync(args);
+            return Task.CompletedTask;
         }
 
+        [UnsupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows10.0.18362")]
         private static bool DecideRedirection()
         {
             bool isRedirect = false;
@@ -81,6 +96,8 @@ namespace AppLaunchMenu
 
         // Do the redirection on another thread, and use a non-blocking
         // wait method to wait for the redirection to complete.
+        [UnsupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows10.0.18362")]
         public static void RedirectActivationTo(AppActivationArguments args, AppInstance keyInstance)
         {
             redirectEventHandle = CreateEvent(IntPtr.Zero, true, false, null);

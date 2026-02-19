@@ -2,6 +2,8 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Text;
 using System.Xml;
@@ -12,12 +14,39 @@ namespace AppLaunchMenu.DataModels
 {
     public abstract class DataAccessBase : IComparable
     {
+        public class DataChangedEventArgs : EventArgs
+        {
+            public DataChangedEventArgs()
+            {
+            }
+        }
+
+        public delegate void DataChangedEventHandler(object? sender, DataChangedEventArgs e);
+        public event DataChangedEventHandler? DataChanged;
+
+        protected virtual void OnDataChanged()
+        {
+            var eventHandler = DataChanged;
+            if (eventHandler != null)
+                eventHandler(this, new DataChangedEventArgs());
+        }
+
         protected XmlDocument m_objXmlDocument;
         protected XmlNode? m_objXmlNode;
+        protected bool m_blnIsDirty = false;
 
         protected DataAccessBase(XmlDocument p_objXmlDocument)
         {
             m_objXmlDocument = p_objXmlDocument;
+
+            m_objXmlDocument.NodeChanged += XmlDocument_NodeChanged;
+            m_objXmlDocument.NodeInserted += XmlDocument_NodeChanged;
+            m_objXmlDocument.NodeRemoved += XmlDocument_NodeChanged;
+        }
+
+        protected void XmlDocument_NodeChanged(object sender, XmlNodeChangedEventArgs e)
+        {
+            IsDirty = true;
         }
 
         internal XmlDocument XmlDocument
@@ -47,47 +76,65 @@ namespace AppLaunchMenu.DataModels
 
         protected bool HasProperty(string p_strPropertyName)
         {
-            if (m_objXmlDocument != null
-                && m_objXmlDocument.Attributes != null
-                && m_objXmlDocument.Attributes[p_strPropertyName] != null
+            if (m_objXmlNode != null
+                && m_objXmlNode.Attributes != null
+                && m_objXmlNode.Attributes[p_strPropertyName] != null
                 )
-                return !string.IsNullOrEmpty(m_objXmlDocument.Attributes[p_strPropertyName]!.Value);
+                return !string.IsNullOrEmpty(m_objXmlNode.Attributes[p_strPropertyName]!.Value);
 
             return false;
         }
 
         protected string Property(string p_strPropertyName)
         {
-            if (m_objXmlDocument != null
-                && m_objXmlDocument.Attributes != null
-                && m_objXmlDocument.Attributes[p_strPropertyName] != null
+            if (m_objXmlNode != null
+                && m_objXmlNode.Attributes != null
+                && m_objXmlNode.Attributes[p_strPropertyName] != null
                 )
-                return m_objXmlDocument.Attributes[p_strPropertyName]!.Value;
+                return m_objXmlNode.Attributes[p_strPropertyName]!.Value;
 
             return "";
         }
 
         protected void Property(string p_strPropertyName, string value)
         {
-            if ((m_objXmlDocument != null)
-                && (m_objXmlDocument.Attributes != null)
+            if ((m_objXmlNode != null)
+                && (m_objXmlNode.Attributes != null)
                 )
             {
-                if ((m_objXmlDocument.Attributes[p_strPropertyName] == null)
+                if ((m_objXmlNode.Attributes[p_strPropertyName] == null)
                     && (!string.IsNullOrEmpty(value))
                     )
                 {
                     XmlAttribute objXmlAttribute = m_objXmlDocument.CreateAttribute(p_strPropertyName);
-                    objXmlAttribute.Value = value;
-                    m_objXmlDocument.Attributes.Append(objXmlAttribute);
+
+                    if (objXmlAttribute.Value != value)
+                    {
+                        objXmlAttribute.Value = value;
+                        m_objXmlNode.Attributes.Append(objXmlAttribute);
+
+                        IsDirty = true;
+                    }
                 }
                 else
                 {
                     if (string.IsNullOrEmpty(value))
-                        m_objXmlDocument.DocumentElement?.RemoveAttribute(p_strPropertyName);
+                        m_objXmlNode.Attributes.RemoveNamedItem(p_strPropertyName);
                     else
-                        m_objXmlDocument.Attributes[p_strPropertyName]!.Value = value;
+                        m_objXmlNode.Attributes[p_strPropertyName]!.Value = value;
+
+                    IsDirty = true;
                 }
+            }
+        }
+
+        public bool IsDirty
+        {
+            get { return m_blnIsDirty; }
+            internal set
+            {
+                m_blnIsDirty = value;
+                OnDataChanged();
             }
         }
 

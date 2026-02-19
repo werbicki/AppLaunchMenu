@@ -1,10 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.DataModels;
+using AppLaunchMenu.Dialogs;
+using AppLaunchMenu.Helper;
+using AppLaunchMenu.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -12,14 +10,18 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using AppLaunchMenu.Helper;
-using AppLaunchMenu.ViewModels;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Windows.UI;
-using Windows.Devices.Enumeration;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
-using AppLaunchMenu.DataAccess;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Devices.Enumeration;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using Windows.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -37,7 +39,6 @@ namespace AppLaunchMenu
         private bool m_blnShowEnvironment = false;
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
         private string m_strStatusText = "";
-        private int m_intSelectedMenu = 0;
         private bool m_blnEditMode = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -51,9 +52,11 @@ namespace AppLaunchMenu
 
         public LaunchMenu()
         {
-            m_objMenusViewModel = new(this);
-
             InitializeComponent();
+
+            m_objMenusViewModel = new MenuListViewModel(this);
+
+            m_objMenusViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
 
             StatusText = "Hostname: " + System.Environment.MachineName + ", Username: " + System.Environment.UserDomainName + "\\" + System.Environment.UserName;
         }
@@ -65,18 +68,48 @@ namespace AppLaunchMenu
             m_objMenuFile = p_objMenuFile;
             m_objMenusViewModel = new MenuListViewModel(this, m_objMenuFile);
 
+            m_objMenuFile.FileChanged += MenuFile_FileChanged;
+            m_objMenusViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
+
             StatusText = "Hostname: " + System.Environment.MachineName + ", Username: " + System.Environment.UserDomainName + "\\" + System.Environment.UserName;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             MainWindowPageArgs args = (MainWindowPageArgs)e.Parameter;
+
             if (args.Parameter != null)
+            {
                 m_objMenuFile = (MenuFile)args.Parameter;
+
+                m_objMenuFile.FileChanged += MenuFile_FileChanged;
+            }
+
             if (m_objMenuFile != null)
+            {
                 m_objMenusViewModel = new MenuListViewModel(this, m_objMenuFile);
 
+                m_objMenusViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
+            }
+
             base.OnNavigatedTo(e);
+        }
+
+        private void MenuFile_FileChanged(object? sender, DataAccessBase.DataChangedEventArgs e)
+        {
+        }
+
+        private void MenusViewModel_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "CanEdit")
+            {
+                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(EditMode));
+            }
+            else if (e.PropertyName == "Menus")
+                OnPropertyChanged(nameof(Menus));
+            else if (e.PropertyName == "SelectedMenu")
+                OnPropertyChanged(nameof(SelectedMenu));
         }
 
         private bool CanEdit
@@ -115,21 +148,8 @@ namespace AppLaunchMenu
 
         public MenuViewModel? SelectedMenu
         {
-            get
-            {
-                if ((Menus.Count > 0) && (m_intSelectedMenu < Menus.Count))
-                    return Menus[m_intSelectedMenu];
-                return null;
-            }
-            set
-            {
-                if (value != null)
-                {
-                    m_intSelectedMenu = Menus.IndexOf(value);
-
-                    OnPropertyChanged(nameof(SelectedMenu));
-                }
-            }
+            get { return m_objMenusViewModel.SelectedMenu; }
+            set { m_objMenusViewModel.SelectedMenu = value; }
         }
 
         public DataModels.Application? SelectedApplication
@@ -150,6 +170,8 @@ namespace AppLaunchMenu
                 }
                 else
                     CommandLine = "Select an application from the list and press the 'Launch' button.";
+
+                OnPropertyChanged(nameof(SelectedApplication));
             }
         }
 
@@ -162,6 +184,8 @@ namespace AppLaunchMenu
             set
             {
                 m_blnShowEnvironment = value;
+
+                OnPropertyChanged(nameof(ShowEnvironment));
             }
         }
 
@@ -175,6 +199,8 @@ namespace AppLaunchMenu
             {
                 m_strCommandLine = value;
                 m_objCommandLine.Text = m_strCommandLine;
+
+                OnPropertyChanged(nameof(CommandLine));
             }
         }
 
@@ -188,6 +214,8 @@ namespace AppLaunchMenu
             {
                 m_strStatusText = value;
                 m_objStatusText.Text = m_strStatusText;
+
+                OnPropertyChanged(nameof(StatusText));
             }
         }
 
@@ -199,22 +227,28 @@ namespace AppLaunchMenu
 
         private async void Execute(DataModels.Application p_objApplication)
         {
-            // TODO: Process Variables where Prompt=True
+            bool blnExecute = true;
 
             if (ShowEnvironment)
             {
-                MainWindow objNewWindow = new MainWindow();
-                objNewWindow.Title = p_objApplication.Name;
+                ModalDialog objEnvironmentReviewDialog = new ModalDialog()
+                {
+                    //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                    //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme,
+                    Title = p_objApplication.Name,
+                    IsResizable = true,
+                    Page = new EnvironmentReview(p_objApplication),
+                    CloseButtonText = "Cancel",
+                    PrimaryButtonText = "OK",
+                    DefaultButton = ContentDialogButton.Primary
+                };
+                ContentDialogResult objDialogResult = await objEnvironmentReviewDialog.ShowAsync();
 
-                // Navigate to the first page, configuring the new page
-                // by passing required information as a navigation parameter
-                objNewWindow.Navigate(typeof(EnvironmentReview), p_objApplication);
-
-                // Ensure the new MainWindow is active
-                WindowHelper.CenterOnScreen(objNewWindow, new Size(1200, 800));
-                objNewWindow.Activate();
+                if (objDialogResult != ContentDialogResult.Primary)
+                    blnExecute = false;
             }
-            else
+
+            if (blnExecute)
             {
                 try
                 {
@@ -222,17 +256,15 @@ namespace AppLaunchMenu
                 }
                 catch (Exception e)
                 {
-                    ContentDialog objErrorDialog = new ContentDialog
+                    ModalDialog objErrorDialog = new ModalDialog
                     {
-                        XamlRoot = this.Content.XamlRoot,
-                        Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                        //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                         //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
                         Title = "AppLaunchMenu",
-                        Content = e.Message,
+                        Message = e.Message,
                         CloseButtonText = "OK",
                         DefaultButton = ContentDialogButton.None
                     };
-
                     ContentDialogResult objResult = await objErrorDialog.ShowAsync();
                 }
             }
@@ -255,13 +287,12 @@ namespace AppLaunchMenu
 
         private async void Help_Click(object sender, RoutedEventArgs e)
         {
-            ContentDialog objAboutDialog = new ContentDialog
+            ModalDialog objAboutDialog = new ModalDialog
             {
-                XamlRoot = this.Content.XamlRoot,
-                Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                 //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
                 Title = "AppLaunchMenu",
-                Content = "App Launch Menu",
+                Message = "App Launch Menu",
                 CloseButtonText = "OK",
                 DefaultButton = ContentDialogButton.None
             };

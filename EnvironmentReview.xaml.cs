@@ -29,7 +29,6 @@ namespace AppLaunchMenu
     /// </summary>
     public sealed partial class EnvironmentReview : Page
     {
-        private MainWindow? m_objMainWindow;
         private DataModels.Application? m_objApplication;
         private DataModels.Environment? m_objEnvironment;
         private EnvironmentViewModel? m_objEnvironmentViewModel;
@@ -50,20 +49,6 @@ namespace AppLaunchMenu
             m_objEnvironmentTable.DataContext = m_objEnvironmentViewModel;
         }
 
-        protected override void OnNavigatedTo(NavigationEventArgs e)
-        {
-            MainWindowPageArgs objMainWindowPageArgs = (MainWindowPageArgs)e.Parameter;
-            m_objMainWindow = objMainWindowPageArgs.MainWindow;
-            m_objApplication = (DataModels.Application?)objMainWindowPageArgs.Parameter;
-            m_objEnvironment = m_objApplication?.Environment;
-            if (m_objEnvironment != null)
-                m_objEnvironmentViewModel = new EnvironmentViewModel(null, m_objEnvironment);
-
-            m_objEnvironmentTable.DataContext = m_objEnvironmentViewModel;
-
-            base.OnNavigatedTo(e);
-        }
-
         public ObservableCollection<VariableViewModel> Variables
         {
             get
@@ -71,39 +56,6 @@ namespace AppLaunchMenu
                 if (m_objEnvironmentViewModel != null)
                     return m_objEnvironmentViewModel.Variables;
                 return [];
-            }
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            m_objMainWindow?.Close();
-        }
-
-        private async void OkButton_Click(object sender, RoutedEventArgs p_objArgs)
-        {
-            if ((m_objApplication != null)
-                && (m_objEnvironment != null)
-                )
-            {
-                try
-                {
-                    m_objApplication.Execute(m_objEnvironment);
-
-                    m_objMainWindow?.Close();
-                }
-                catch (Exception e)
-                {
-                    ContentDialog objErrorDialog = new()
-                    {
-                        XamlRoot = this.Content.XamlRoot,
-                        Title = "AppLaunchMenu",
-                        Content = e.Message,
-                        CloseButtonText = "OK",
-                        DefaultButton = ContentDialogButton.None
-                    };
-
-                    ContentDialogResult objResult = await objErrorDialog.ShowAsync();
-                }
             }
         }
     }

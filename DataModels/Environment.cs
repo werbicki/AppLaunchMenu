@@ -336,26 +336,47 @@ namespace AppLaunchMenu.DataModels
             String strString = System.Environment.ExpandEnvironmentVariables(p_strString);
             int intOffset = 0;
 
-            Match objMatch = Regex.Match(strString, "%[^%]+%");
+            Match objMatch = Regex.Match(strString, "%[^%]+%|{([^}]|}})+}");
             while (objMatch.Success)
             {
-                String strName = objMatch.Value.Substring(1, objMatch.Value.Length - 2);
+                String strMatch = objMatch.Value;
                 bool blnMatch = false;
 
-                if (!strName.StartsWith("xpath:", StringComparison.CurrentCultureIgnoreCase))
+                if (strMatch.StartsWith("%"))
                 {
-                    for (int i = 0; (!blnMatch) && (i < m_objVariables.Count); i++)
-                    {
-                        if ((m_objVariables.Item(i) != null)
-                            && (m_objVariables.Item(i)!.Value != p_strString)
-                            && (m_objVariables.Item(i)!.Name == strName)
-                            )
-                        {
-                            strString = strString.Remove(intOffset + objMatch.Index, objMatch.Length);
-                            strString = strString.Insert(intOffset + objMatch.Index, m_objVariables.Item(i)!.ExpandedValue);
+                    string strName = strMatch.Substring(1, strMatch.Length - 2);
 
-                            blnMatch = true;
+                    if (!strName.StartsWith("xpath:", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        for (int i = 0; (!blnMatch) && (i < m_objVariables.Count); i++)
+                        {
+                            if ((m_objVariables.Item(i) != null)
+                                && (m_objVariables.Item(i)!.Value != p_strString)
+                                && (m_objVariables.Item(i)!.Name == strName)
+                                )
+                            {
+                                strString = strString.Remove(intOffset + objMatch.Index, objMatch.Length);
+                                strString = strString.Insert(intOffset + objMatch.Index, m_objVariables.Item(i)!.ExpandedValue);
+
+                                blnMatch = true;
+                            }
                         }
+                    }
+                }
+                else if (strMatch.StartsWith("{"))
+                {
+                    string strScript = strMatch.Substring(1, strMatch.Length - 2);
+
+                    Script? objScript = m_objMenuFile.ConfigList.GetScriptByName(strScript);
+                    if (objScript != null)
+                    {
+                        ScriptingHost objScriptingHost = new(this);
+                        string strResult = objScript.RunScriptString(objScriptingHost);
+
+                        strString = strString.Remove(intOffset + objMatch.Index, objMatch.Length);
+                        strString = strString.Insert(intOffset + objMatch.Index, strResult);
+
+                        blnMatch = true;
                     }
                 }
 
