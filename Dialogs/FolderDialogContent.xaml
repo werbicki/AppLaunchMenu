@@ -1,41 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
-        x:Class="AppLaunchMenu.Dialogs.FolderDialogContent"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="using:AppLaunchMenu.Dialogs"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewmodels="using:AppLaunchMenu.ViewModels"
-        d:DataContext="{d:DesignInstance Type=viewmodels:FolderViewModel}"
-        mc:Ignorable="d"
-        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-        Width="200"
-        >
+    x:Class="AppLaunchMenu.Dialogs.FolderDialogContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:AppLaunchMenu.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:AppLaunchMenu.ViewModels"
+    Width="200"
+    d:DataContext="{d:DesignInstance Type=viewmodels:FolderViewModel}"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    mc:Ignorable="d">
 
-    <StackPanel 
-            HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch"
-            >
-        
-        <TextBlock 
-                Text="Name" 
-                Margin="5,5,5,0" 
-                />
+    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        <TextBlock Margin="5,5,5,0" Text="Name" />
         <TextBox
-                Text="{Binding Name, Mode=TwoWay}" 
-                TextWrapping="NoWrap" 
-                Margin="5,5,5,15" 
-                />
-        <TextBlock 
-                Text="Is expanded by default?" 
-                Margin="5,5,5,0" 
-                />
-        <CheckBox 
-                IsChecked="{Binding Expanded, Mode=TwoWay}" 
-                Content="Expanded" 
-                Margin="5,5,5,5" 
-                />
-        
+            Margin="5,5,5,15"
+            Text="{Binding Name, Mode=TwoWay}"
+            TextWrapping="NoWrap" />
+        <TextBlock Margin="5,5,5,0" Text="Is expanded by default?" />
+        <CheckBox
+            Margin="5,5,5,5"
+            Content="Expanded"
+            IsChecked="{Binding Expanded, Mode=TwoWay}" />
+
     </StackPanel>
 </Page>

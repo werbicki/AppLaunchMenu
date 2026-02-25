@@ -1,25 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Page
+<?xml version="1.0" encoding="utf-8" ?>
+<local:PageNotifyPropertyChanged
     x:Class="AppLaunchMenu.LaunchMenu"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:AppLaunchMenu"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local1="using:AppLaunchMenu.ViewModels"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:AppLaunchMenu"
+    xmlns:local1="using:AppLaunchMenu.ViewModels"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     AllowFocusOnInteraction="False"
-    >
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    mc:Ignorable="d">
 
-    <Page.Resources>
+    <local:PageNotifyPropertyChanged.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-    </Page.Resources>
+    </local:PageNotifyPropertyChanged.Resources>
 
-    <Grid HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch"
-            >
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -28,62 +25,80 @@
 
         <MenuBar x:Name="m_objMenuBar" Grid.Row="0">
             <MenuBarItem Title="File">
-                <MenuFlyoutItem x:Name="m_mnuReload" Text="Reload" Click="Reload_Click"/>
-                <MenuFlyoutItem x:Name="m_mnuSave" Text="Save" Click="Save_Click"/>
-                <ToggleMenuFlyoutItem x:Name="m_mnuShowEnvironmentOnLaunch" Text="Show Environment on Launch" IsChecked="{x:Bind ShowEnvironment, Mode=TwoWay}"/>
-                <ToggleMenuFlyoutItem x:Name="m_mnuEditMode" Text="Edit Mode" Visibility="{x:Bind CanEdit, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" IsChecked="{x:Bind EditMode, Mode=TwoWay}"/>
-                <MenuFlyoutSeparator/>
-                <MenuFlyoutItem x:Name="m_mnuExit" Text="Exit" Click="Exit_Click"/>
+                <MenuFlyoutItem
+                    x:Name="m_mnuReload"
+                    Click="Reload_Click"
+                    Text="Reload" />
+                <MenuFlyoutItem
+                    x:Name="m_mnuSave"
+                    Click="Save_Click"
+                    Text="Save" />
+                <ToggleMenuFlyoutItem
+                    x:Name="m_mnuShowEnvironmentOnLaunch"
+                    IsChecked="{x:Bind ShowEnvironment, Mode=TwoWay}"
+                    Text="Show Environment on Launch" />
+                <ToggleMenuFlyoutItem
+                    x:Name="m_mnuEditMode"
+                    IsChecked="{x:Bind EditMode, Mode=TwoWay}"
+                    Text="Edit Mode"
+                    Visibility="{x:Bind CanEdit, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem
+                    x:Name="m_mnuExit"
+                    Click="Exit_Click"
+                    Text="Exit" />
             </MenuBarItem>
 
             <MenuBarItem Title="Help">
-                <MenuFlyoutItem x:Name="m_mnuHelp" Text="About" Click="Help_Click"/>
+                <MenuFlyoutItem
+                    x:Name="m_mnuHelp"
+                    Click="Help_Click"
+                    Text="About" />
             </MenuBarItem>
         </MenuBar>
 
-        <TabView x:Name="m_objMenus"
-                Grid.Row="1"
-                VerticalAlignment="Stretch"
-                Margin="5,5,5,5" 
-                TabItemsSource="{x:Bind Menus, Mode=OneWay}"
-                SelectedItem="{x:Bind SelectedMenu, Mode=TwoWay}" 
-                AddTabButtonClick="Menus_AddMenu"
-                TabCloseRequested="Menus_RemoveMenu"
-                IsAddTabButtonVisible="{x:Bind EditMode, Mode=OneWay}"
-                >
+        <TabView
+            x:Name="m_objMenus"
+            Grid.Row="1"
+            Margin="5,5,5,5"
+            VerticalAlignment="Stretch"
+            AddTabButtonClick="Menus_AddMenu"
+            IsAddTabButtonVisible="{x:Bind EditMode, Mode=OneWay}"
+            SelectedItem="{x:Bind SelectedMenu, Mode=TwoWay}"
+            TabCloseRequested="Menus_RemoveMenu"
+            TabItemsSource="{x:Bind Menus, Mode=OneWay}">
             <TabView.TabItemTemplate>
                 <DataTemplate x:DataType="local1:MenuViewModel">
-                    <TabViewItem Header="{x:Bind Name, Mode=OneWay}"
-                            IconSource="{x:Bind Icon, Mode=OneWay}"
-                            Content="{x:Bind MenuPage, Mode=OneWay}" 
-                            IsClosable="{x:Bind EditMode, Mode=OneWay}"
-                            />
+                    <TabViewItem
+                        Content="{x:Bind MenuPage, Mode=OneWay}"
+                        Header="{x:Bind Name, Mode=OneWay}"
+                        IconSource="{x:Bind Icon, Mode=OneWay}"
+                        IsClosable="{x:Bind EditMode, Mode=OneWay}" />
                 </DataTemplate>
-            </TabView.TabItemTemplate >
+            </TabView.TabItemTemplate>
         </TabView>
 
         <StackPanel Grid.Row="2">
-            <TextBlock x:Name="m_objCommandLine" 
-                 VerticalAlignment="Bottom"
-                 Height="55"
-                 Margin="5,0,5,0" 
-                 Text="{x:Bind CommandLine}"
-                 IsTextSelectionEnabled="True"
-                 TextWrapping="Wrap"
-                 FontSize="12"/>
-            <Button x:Name="m_objLaunchButton" 
-                HorizontalAlignment="Right" 
-                VerticalAlignment="Bottom" 
-                Height="35" 
-                Width="80" 
+            <TextBlock
+                x:Name="m_objCommandLine"
+                Height="55"
+                Margin="5,0,5,0"
+                VerticalAlignment="Bottom"
+                FontSize="12"
+                IsTextSelectionEnabled="True"
+                Text="{x:Bind CommandLine}"
+                TextWrapping="Wrap" />
+            <Button
+                x:Name="m_objLaunchButton"
+                Width="80"
+                Height="35"
                 Margin="0,5,15,5"
-                Content="Launch"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
                 Click="LaunchButton_Click"
-                />
-            <TextBlock x:Name="m_objStatusText"
-                Text="{x:Bind StatusText, Mode=OneWay}"
-                />
+                Content="Launch" />
+            <TextBlock x:Name="m_objStatusText" Text="{x:Bind StatusText, Mode=OneWay}" />
         </StackPanel>
     </Grid>
-    
-</Page>
+
+</local:PageNotifyPropertyChanged>

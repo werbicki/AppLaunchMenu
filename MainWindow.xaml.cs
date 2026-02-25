@@ -53,7 +53,8 @@ namespace AppLaunchMenu
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(TitleBar);
 
-            WindowHelper.CenterOnScreen(this, new Size(600, 700));
+            ResizeClient(new Size(800, 700));
+            CenterWindow();
 
             this.Closed += MainWindow_Closed;
 

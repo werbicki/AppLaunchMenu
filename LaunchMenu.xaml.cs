@@ -31,7 +31,7 @@ namespace AppLaunchMenu
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class LaunchMenu : Page, INotifyPropertyChanged
+    public sealed partial class LaunchMenu : PageNotifyPropertyChanged
     {
         private MenuFile m_objMenuFile = new();
         private MenuListViewModel m_objMenusViewModel;
@@ -40,15 +40,6 @@ namespace AppLaunchMenu
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
         private string m_strStatusText = "";
         private bool m_blnEditMode = false;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            var eventHandler = PropertyChanged;
-            if (eventHandler != null)
-                eventHandler(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         public LaunchMenu()
         {

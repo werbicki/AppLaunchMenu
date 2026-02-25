@@ -34,21 +34,12 @@ namespace AppLaunchMenu
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MenuPage : Page, INotifyPropertyChanged
+    public partial class MenuPage : PageNotifyPropertyChanged
     {
         private LaunchMenu m_objLaunchMenu;
         private readonly MenuViewModel m_objMenuViewModel;
         private bool m_blnDragDropEnabled = true;
         private bool m_blnLoaded = false;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            var eventHandler = PropertyChanged;
-            if (eventHandler != null)
-                eventHandler(this, new PropertyChangedEventArgs(propertyName));
-        }
 
         public MenuPage(LaunchMenu p_objLaunchMenu, MenuViewModel p_objMenuViewModel)
         {
@@ -57,7 +48,8 @@ namespace AppLaunchMenu
 
             this.InitializeComponent();
 
-            this.DataContext = m_objMenuViewModel;
+            this.DataContext = this;
+            m_objTreeView.DataContext = m_objMenuViewModel;
 
             m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
         }
@@ -77,7 +69,7 @@ namespace AppLaunchMenu
                             || (objRelativePanel.GetType().GetTypeInfo().IsSubclassOf(typeof(RelativePanel)))
                         ))
                     {
-                        double dblContentWidth = 20;
+                        double dblContentWidth = 100;
 
                         foreach (var item in ((RelativePanel)objRelativePanel).Children)
                             dblContentWidth += item.DesiredSize.Width;
@@ -126,9 +118,9 @@ namespace AppLaunchMenu
         {
             get
             {
-                if (!EditMode)
-                    return false;
-                return m_blnDragDropEnabled;
+                if (EditMode)
+                    return m_blnDragDropEnabled;
+                return false;
             }
             set
             {
@@ -429,6 +421,39 @@ namespace AppLaunchMenu
                     }
                 }
             }
+        }
+
+        private void TreeViewItem_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            if (EditMode)
+            {
+                if (sender is TreeViewItem objTreeViewItem)
+                {
+                    if (args.TryGetPosition(sender, out Point objPoint))
+                    {
+                        var objFlyoutShowOptions = new FlyoutShowOptions()
+                        {
+                            Placement = FlyoutPlacementMode.Right,
+                            Position = objPoint
+                        };
+
+                        TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)m_objTreeView.ItemFromContainer(objTreeViewItem);
+
+                        if (objTreeViewItemViewModel is FolderViewModel)
+                            m_objFolderContextMenu.ShowAt(sender, objFlyoutShowOptions);
+                        else if (objTreeViewItemViewModel is ApplicationViewModel)
+                            m_objApplicationContextMenu.ShowAt(sender, objFlyoutShowOptions);
+                        else if (objTreeViewItemViewModel is EnvironmentViewModel)
+                            m_objEnvironmentContextMenu.ShowAt(sender, objFlyoutShowOptions);
+                        else if (objTreeViewItemViewModel is VariableViewModel)
+                            m_objVariableContextMenu.ShowAt(sender, objFlyoutShowOptions);
+                        else
+                            throw new ArgumentException();
+                    }
+                }
+            }
+            else
+                args.Handled = true;
         }
 
         private void m_objTreeListView_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)

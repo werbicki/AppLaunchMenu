@@ -31,10 +31,7 @@ namespace AppLaunchMenu.Dialogs
 {
     public partial class ModalDialog : WindowNotifyPropertyChanged
     {
-        private Window? m_objParentWindow = null;
         private OverlappedPresenter? m_objOverlappedPresenter = null;
-        private bool m_blnCentered = true;
-        private Page? m_objInnerPage = null;
         private TaskCompletionSource<bool> m_objDialogResultTrigger = new TaskCompletionSource<bool>();
         private ContentDialogResult m_objDialogResult = ContentDialogResult.None;
         private ContentDialogButton m_objDefaultButton = ContentDialogButton.None;
@@ -46,81 +43,21 @@ namespace AppLaunchMenu.Dialogs
         public ModalDialog()
         {
             this.InitializeComponent();
-            RootElement.DataContext = this;
 
             AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
 
-            m_objOverlappedPresenter = OverlappedPresenter.CreateForDialog();
-
-            // Set this modal window's owner (the main application window).
-            // The main window can be retrieved from App.xaml.cs if it's set as a static property.
             if (App.MainWindow != null)
-            {
-                m_objParentWindow = App.MainWindow;
                 SetWindowOwner(owner: App.MainWindow);
-            }
 
-            // Make the window modal (blocks interaction with the owner window until closed).
+            m_objOverlappedPresenter = OverlappedPresenter.CreateForDialog();
             m_objOverlappedPresenter.IsModal = true;
-
-            // Apply the presenter settings to the AppWindow.
             AppWindow.SetPresenter(m_objOverlappedPresenter);
 
-            // Center the window on the screen.
             CenterWindow();
 
-            Closed += ModalWindow_Closed;
-        }
+            OuterFrame.DataContext = this;
 
-        // Sets the owner window of the modal window.
-        private void SetWindowOwner(Window owner)
-        {
-            // Get the HWND (window handle) of the owner window (main window).
-            IntPtr ownerHwnd = WindowNative.GetWindowHandle(owner);
-
-            // Get the HWND of the AppWindow (modal window).
-            IntPtr ownedHwnd = Win32Interop.GetWindowFromWindowId(AppWindow.Id);
-
-            // Set the owner window using SetWindowLongPtr for 64-bit systems
-            // or SetWindowLong for 32-bit systems.
-            if (IntPtr.Size == 8) // Check if the system is 64-bit
-            {
-                NativeMethods.SetWindowLongPtr(ownedHwnd, -8, ownerHwnd); // -8 = GWLP_HWNDPARENT
-            }
-            else // 32-bit system
-            {
-                NativeMethods.SetWindowLong(ownedHwnd, -8, ownerHwnd); // -8 = GWL_HWNDPARENT
-            }
-        }
-
-        private void ResizeClient(Size p_objSize)
-        {
-            AppWindow.ResizeClient(new SizeInt32((int)p_objSize.Width, (int)p_objSize.Height));
-
-            if (m_blnCentered)
-                CenterWindow();
-        }
-
-        private void CenterWindow()
-        {
-            if (m_objParentWindow != null)
-                AppWindow.Move(new PointInt32(m_objParentWindow.AppWindow.Position.X + (m_objParentWindow.AppWindow.Size.Width - AppWindow.Size.Width) / 2, m_objParentWindow.AppWindow.Position.Y + (m_objParentWindow.AppWindow.Size.Height - AppWindow.Size.Height) / 2));
-            else
-            {
-                RectInt32? objDisplayArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest)?.WorkArea;
-                if (objDisplayArea != null)
-                    AppWindow.Move(new PointInt32((objDisplayArea.Value.Width - AppWindow.Size.Width) / 2, (objDisplayArea.Value.Height - AppWindow.Size.Height) / 2));
-            }
-        }
-
-        public async Task<ContentDialogResult> ShowAsync()
-        {
-            AppWindow.Show();
-            Activate();
-
-            await m_objDialogResultTrigger.Task;
-
-            return DialogResult;
+            Closed += ModalDialog_Closed;
         }
 
         public bool IsResizable
@@ -132,14 +69,6 @@ namespace AppLaunchMenu.Dialogs
             }
         }
 
-        public bool IsCentered
-        {
-            set
-            {
-                m_blnCentered = value;
-            }
-        }
-
         public new UIElement Content
         {
             get
@@ -148,14 +77,13 @@ namespace AppLaunchMenu.Dialogs
             }
             set
             {
-                base.Content = value;
+                OuterFrame.Content = value;
 
-                FrameworkElement objElement = (FrameworkElement)value;
-                objElement.SizeChanged += RootElement_SizeChanged;
+                OuterFrame.InvalidateMeasure();
+                //OuterFrame.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                OuterFrame.SizeChanged += Frame_SizeChanged;
 
-                value.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-                AppWindow.ResizeClient(new SizeInt32((int)value.DesiredSize.Width, (int)value.DesiredSize.Height));
+                ResizeClient(OuterFrame.DesiredSize);
             }
         }
 
@@ -163,12 +91,14 @@ namespace AppLaunchMenu.Dialogs
         {
             set
             {
-                m_objInnerPage = value;
-                InnerFrame.Content = m_objInnerPage;
+                InnerFrame.Content = value;
                 OnPropertyChanged(nameof(Page));
 
-                RootElement.InvalidateMeasure();
-                AppWindow.ResizeClient(new SizeInt32((int)RootElement.DesiredSize.Width, (int)RootElement.DesiredSize.Height));
+                OuterFrame.InvalidateMeasure();
+                //OuterFrame.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                InnerFrame.SizeChanged += Frame_SizeChanged;
+
+                ResizeClient(OuterFrame.DesiredSize);
             }
         }
 
@@ -183,28 +113,12 @@ namespace AppLaunchMenu.Dialogs
                 m_strMessage = value;
                 OnPropertyChanged(nameof(Message));
 
-                RootElement.InvalidateMeasure();
-                AppWindow.ResizeClient(new SizeInt32((int)RootElement.DesiredSize.Width, (int)RootElement.DesiredSize.Height));
-            }
-        }
+                InnerMessage.Text = m_strMessage;
 
-        //
-        // Summary:
-        //     Gets or sets an instance Style that is applied for this object during layout
-        //     and rendering.
-        //
-        // Returns:
-        //     The applied style for the object, if present; otherwise, null. The default for
-        //     a default-constructed FrameworkElement is null.
-        public Style Style
-        {
-            get
-            {
-                return RootElement.Style;
-            }
-            set
-            {
-                RootElement.Style = value;
+                OuterFrame.InvalidateMeasure();
+                OuterFrame.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+                ResizeClient(OuterFrame.DesiredSize);
             }
         }
 
@@ -230,14 +144,6 @@ namespace AppLaunchMenu.Dialogs
             set
             {
                 m_objDefaultButton = value;
-            }
-        }
-
-        private Style PrimaryButtonStyle
-        {
-            get
-            {
-                return (DefaultButton == ContentDialogButton.Primary ? (Style)RootElement.Resources["AccentButtonStyle"] : (Style)RootElement.Resources["DefaultButtonStyle"]);
             }
         }
 
@@ -331,36 +237,45 @@ namespace AppLaunchMenu.Dialogs
             }
         }
 
-        private void ModalWindow_Closed(object sender, WindowEventArgs args)
+        public async Task<ContentDialogResult> ShowAsync()
         {
-            // Reactivate the main application window when the modal window closes.
+            AppWindow.Show();
+
+            await m_objDialogResultTrigger.Task;
+
+            return DialogResult;
+        }
+
+        private void ModalDialog_Closed(object sender, WindowEventArgs args)
+        {
             if (App.MainWindow != null)
                 App.MainWindow.Activate();
         }
 
-        private void ModalWindow_Loaded(object sender, RoutedEventArgs e)
+        private void Frame_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //InnerFrame.Height = InnerPage.ActualHeight;
-            //InnerFrame.Width = InnerPage.ActualWidth;
+            InnerFrame.SizeChanged -= Frame_SizeChanged;
+
+            ResizeClient(InnerFrame.DesiredSize);
         }
 
         private void PrimaryButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
 
             DialogResult = ContentDialogResult.Primary;
         }
 
         private void SecondaryButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
 
             DialogResult = ContentDialogResult.Secondary;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
 
             DialogResult = ContentDialogResult.None;
         }
@@ -384,20 +299,6 @@ namespace AppLaunchMenu.Dialogs
 
                 e.Handled = true;
             }
-        }
-
-        private void RootElement_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            ResizeClient(Content.DesiredSize);
-        }
-
-        private void Window_Activated(object sender, WindowActivatedEventArgs args)
-        {
-        }
-
-        private void Window_SizeChanged(object sender, WindowSizeChangedEventArgs args)
-        {
-
         }
     }
 }

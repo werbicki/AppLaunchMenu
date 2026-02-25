@@ -1,6 +1,7 @@
 ﻿GetCurrentPackageFullName
 GetModuleHandle
 GetDpiForWindow
+SetWindowLongPtr
 CallWindowProc
 GetCurrentThreadId
 SetWindowsHookEx
@@ -14,3 +15,5 @@ GetCurrentThreadId
 IsDebuggerPresent
 DebugBreak
 GetActiveWindow
+WM_GETMINMAXINFO
+MINMAXINFO

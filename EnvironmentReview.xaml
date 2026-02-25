@@ -1,66 +1,51 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Page x:Name="EnvironmentReviewPage"
-        x:Class="AppLaunchMenu.EnvironmentReview"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="using:AppLaunchMenu"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-        xmlns:local1="using:AppLaunchMenu.ViewModels"
-        mc:Ignorable="d"
-        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-        Width="1200"
-        Height="800"
-        >
+<?xml version="1.0" encoding="utf-8" ?>
+<local:PageNotifyPropertyChanged
+    x:Class="AppLaunchMenu.EnvironmentReview"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:AppLaunchMenu"
+    xmlns:local1="using:AppLaunchMenu.ViewModels"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="EnvironmentReviewPage"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    mc:Ignorable="d">
 
-    <Grid HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch"
-            >
-        
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <controls:DataGrid x:Name="m_objEnvironmentTable"
-                Grid.Row="0"
-                HorizontalAlignment="Stretch" 
-                VerticalAlignment="Stretch"
-                ItemsSource="{x:Bind Variables}"
-                AutoGenerateColumns="False"
-                GridLinesVisibility="All"
-                AlternatingRowBackground="LightGray"
-                HeadersVisibility="Column"
-                >
-            
+        <controls:DataGrid
+            x:Name="m_objEnvironmentTable"
+            Grid.Row="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            AlternatingRowBackground="LightGray"
+            AutoGenerateColumns="False"
+            GridLinesVisibility="All"
+            HeadersVisibility="Column"
+            ItemsSource="{x:Bind Variables}">
+
             <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn 
-                        Header="Name" 
-                        Binding="{Binding Name}"
-                        />
-                <controls:DataGridTextColumn 
-                        Header="Group" 
-                        Binding="{Binding Group}"
-                        />
-                <controls:DataGridTextColumn 
-                        Header="Value" 
-                        Binding="{Binding Value}"
-                        />
-                <controls:DataGridTextColumn 
-                        Header="Expanded Value" 
-                        Binding="{Binding ExpandedValue}" 
-                        IsReadOnly="True"
-                        />
+                <controls:DataGridTextColumn Binding="{Binding Name}" Header="Name" />
+                <controls:DataGridTextColumn Binding="{Binding Group}" Header="Group" />
+                <controls:DataGridTextColumn Binding="{Binding Value}" Header="Value" />
+                <controls:DataGridTextColumn
+                    Binding="{Binding ExpandedValue}"
+                    Header="Expanded Value"
+                    IsReadOnly="True" />
             </controls:DataGrid.Columns>
-            
+
             <controls:DataGrid.RowGroupHeaderStyles>
-                <!-- Override the default Style for groups headers -->
+                <!--  Override the default Style for groups headers  -->
                 <Style TargetType="controls:DataGridRowGroupHeader">
                     <Setter Property="Background" Value="LightGray" />
                 </Style>
             </controls:DataGrid.RowGroupHeaderStyles>
         </controls:DataGrid>
-        
+
     </Grid>
-</Page>
+</local:PageNotifyPropertyChanged>
