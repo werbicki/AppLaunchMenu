@@ -1,11 +1,16 @@
 ﻿using AppLaunchMenu.DataAccess;
+using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Security.Principal;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
+using Windows.Devices.Power;
 using Windows.Media.Audio;
 
 namespace AppLaunchMenu.DataModels
@@ -62,7 +67,7 @@ namespace AppLaunchMenu.DataModels
             throw new NotImplementedException();
         }
 
-        protected bool HasProperty(string p_strPropertyName)
+        protected bool HasXmlAttribute(string p_strPropertyName)
         {
             if (m_objXmlNode != null
                 && m_objXmlNode.Attributes != null
@@ -73,7 +78,7 @@ namespace AppLaunchMenu.DataModels
             return false;
         }
 
-        protected string Property(string p_strPropertyName)
+        protected string GetXmlAttribute(string p_strPropertyName)
         {
             if (m_objXmlNode != null
                 && m_objXmlNode.Attributes != null
@@ -84,7 +89,7 @@ namespace AppLaunchMenu.DataModels
             return "";
         }
 
-        protected void Property(string p_strPropertyName, string value)
+        protected void SetXmlAttribute(string p_strPropertyName, string value)
         {
             if ((m_objMenuFile != null)
                 && (m_objXmlNode != null)
@@ -112,13 +117,7 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
-        public string Name
-        {
-            get { return Property(nameof(Name)); }
-            set { Property(nameof(Name), value); }
-        }
-
-        protected string CData()
+        protected string GetXmlCData()
         {
             if ((m_objXmlNode != null)
                 && (m_objXmlNode.ChildNodes.Count > 0)
@@ -135,6 +134,140 @@ namespace AppLaunchMenu.DataModels
             }
 
             return "";
+        }
+
+        public string Name
+        {
+            get { return GetXmlAttribute(nameof(Name)); }
+            set { SetXmlAttribute(nameof(Name), value); }
+        }
+
+        public string SecurityGroup
+        {
+            get { return GetXmlAttribute(nameof(SecurityGroup)); }
+            set { SetXmlAttribute(nameof(SecurityGroup), value); }
+        }
+
+        public bool Accessible
+        {
+            get { return MemberOf(SecurityGroup); }
+        }
+
+        public string CloudAccount
+        {
+            get { return GetXmlAttribute(nameof(CloudAccount)); }
+            set { SetXmlAttribute(nameof(CloudAccount), value); }
+        }
+
+        public string Domain
+        {
+            get { return GetXmlAttribute(nameof(Domain)); }
+            set { SetXmlAttribute(nameof(Domain), value); }
+        }
+
+        public string Subnet
+        {
+            get { return GetXmlAttribute(nameof(Subnet)); }
+            set { SetXmlAttribute(nameof(Subnet), value); }
+        }
+
+        public string Hostname
+        {
+            get { return GetXmlAttribute(nameof(Hostname)); }
+            set { SetXmlAttribute(nameof(Hostname), value); }
+        }
+
+        private static string GetCloudAccountName()
+        {
+            string strAccountName = "Local";
+
+            try
+            {
+                if (RoleEnvironment.IsAvailable)
+                    strAccountName = RoleEnvironment.CurrentRoleInstance.Id;
+                /*
+                else
+                {
+                    AmazonS3Client objAmazonS3Client = new AmazonS3Client();
+                    strAccountName = objAmazonS3Client.Config.RegionEndpoint);
+                }
+                */
+            }
+            catch (Exception)
+            {
+            }
+
+            return strAccountName;
+        }
+
+        private static string[] GetAllLocalIPv4(NetworkInterfaceType p_objNetworkInterfaceType)
+        {
+            List<string> arrAddresses = new List<string>();
+
+            foreach (NetworkInterface objNetworkInterface in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if ((objNetworkInterface.NetworkInterfaceType == p_objNetworkInterfaceType) && (objNetworkInterface.OperationalStatus == OperationalStatus.Up))
+                {
+                    foreach (UnicastIPAddressInformation objUnicastIPAddressInformation in objNetworkInterface.GetIPProperties().UnicastAddresses)
+                    {
+                        if (objUnicastIPAddressInformation.Address.AddressFamily == AddressFamily.InterNetwork)
+                        {
+                            arrAddresses.Add(objUnicastIPAddressInformation.Address.ToString());
+                        }
+                    }
+                }
+            }
+
+            return arrAddresses.ToArray();
+        }
+
+        private bool Matches(string p_strPattern, string[] p_strValues)
+        {
+            bool blnResult = false;
+
+            foreach (string strValue in p_strValues)
+                blnResult = blnResult || Matches(p_strPattern, strValue);
+
+            return blnResult;
+        }
+
+        private bool Matches(string p_strPattern, string p_strValue)
+        {
+            bool blnResult = true;
+
+            if (!string.IsNullOrWhiteSpace(p_strPattern))
+            {
+                if (p_strPattern == p_strValue)
+                    blnResult = true;
+                else
+                {
+                    try
+                    {
+                        Regex objRegex = new Regex(p_strPattern, RegexOptions.None);
+
+                        // Assume it is a Regex and try to match first
+                        blnResult = objRegex.IsMatch(p_strValue);
+                    }
+                    catch (ArgumentException)
+                    {
+                        blnResult = false;
+                    }
+                }
+            }
+
+            return blnResult;
+        }
+
+        public bool Visible
+        {
+            get
+            {
+                return Matches(CloudAccount, GetCloudAccountName())
+                    && Matches(Domain, System.Environment.UserDomainName)
+                    && Matches(Hostname, GetAllLocalIPv4(NetworkInterfaceType.Ethernet))
+                    && Matches(Hostname, System.Environment.MachineName)
+                    ;
+            }
         }
 
         public virtual DataModelBase[] Items

@@ -7,23 +7,23 @@ using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class ScriptList : DataModelBase
+    public class ScriptListing : DataModelBase
     {
         ObservableCollection<Menu> m_objMenu = new ObservableCollection<Menu>();
 
-        public ScriptList(MenuFile p_objMenuFile, XmlNode p_objMenuNode)
+        public ScriptListing(MenuFile p_objMenuFile, XmlNode p_objMenuNode)
             : base(p_objMenuFile, p_objMenuNode)
         {
         }
 
-        public ScriptList(MenuFile p_objMenuFile, string p_strName)
+        public ScriptListing(MenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, p_strName)
         {
         }
 
         internal static string ElementName
         {
-            get { return nameof(ScriptList); }
+            get { return nameof(ScriptListing); }
         }
 
         protected override string _ElementName
@@ -43,7 +43,7 @@ namespace AppLaunchMenu.DataModels
                     XmlNodeList? objConfigListNode = null;
 
                     if (objRoot != null)
-                        objConfigListNode = objRoot.SelectNodes("/" + MenuFile.ElementName + "/" + ScriptList.ElementName);
+                        objConfigListNode = objRoot.SelectNodes("/" + MenuFile.ElementName + "/" + ScriptListing.ElementName);
 
                     if (objConfigListNode != null)
                     {
@@ -87,7 +87,7 @@ namespace AppLaunchMenu.DataModels
                 XmlNode? objConfigListNode = null;
 
                 if (objRoot != null)
-                    objConfigListNode = objRoot.SelectSingleNode("/" + MenuFile.ElementName + "/" + ScriptList.ElementName + "/" + Script.ElementName + "[@Name='" + p_strConfig + "']");
+                    objConfigListNode = objRoot.SelectSingleNode("/" + MenuFile.ElementName + "/" + ScriptListing.ElementName + "/" + Script.ElementName + "[@Name='" + p_strConfig + "']");
 
                 if (objConfigListNode != null)
                     objConfig = new Script(m_objMenuFile, objConfigListNode);

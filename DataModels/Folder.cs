@@ -111,8 +111,8 @@ namespace AppLaunchMenu.DataModels
 
         public bool Expanded
         {
-            get { return Property(nameof(Expanded)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
-            set { Property(nameof(Expanded), value ? "true" : "false"); }
+            get { return GetXmlAttribute(nameof(Expanded)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
+            set { SetXmlAttribute(nameof(Expanded), value ? "true" : "false"); }
         }
 
         public override DataModelBase[] Items

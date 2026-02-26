@@ -69,49 +69,67 @@ namespace AppLaunchMenu.DataModels
                 throw new ArgumentException();
         }
 
-        public string SecurityGroup
-        {
-            get { return Property(nameof(SecurityGroup)); }
-            set { Property(nameof(SecurityGroup), value); }
-        }
-
-        public bool CanAccess
-        {
-            get
-            {
-                //TODO: Checked for CanEdit and override to make visible
-                return MemberOf(SecurityGroup);
-            }
-        }
-
         public string ExecutablePath
         {
-            get { return Property(nameof(ExecutablePath)); }
-            set { Property(nameof(ExecutablePath), value); }
+            get { return GetXmlAttribute(nameof(ExecutablePath)); }
+            set { SetXmlAttribute(nameof(ExecutablePath), value); }
         }
 
         public string WorkingDirectory
         {
-            get { return Property(nameof(WorkingDirectory)); }
-            set { Property(nameof(WorkingDirectory), value); }
+            get { return GetXmlAttribute(nameof(WorkingDirectory)); }
+            set { SetXmlAttribute(nameof(WorkingDirectory), value); }
         }
 
         public string Parameters
         {
-            get { return Property(nameof(Parameters)); }
-            set { Property(nameof(Parameters), value); }
+            get { return GetXmlAttribute(nameof(Parameters)); }
+            set { SetXmlAttribute(nameof(Parameters), value); }
         }
 
         public string ConfigScript
         {
-            get { return Property(nameof(ConfigScript)); }
-            set { Property(nameof(ConfigScript), value); }
+            get { return GetXmlAttribute(nameof(ConfigScript)); }
+            set { SetXmlAttribute(nameof(ConfigScript), value); }
         }
 
         public string ConfigFilePath
         {
-            get { return Property(nameof(ConfigFilePath)); }
-            set { Property(nameof(ConfigFilePath), value); }
+            get { return GetXmlAttribute(nameof(ConfigFilePath)); }
+            set { SetXmlAttribute(nameof(ConfigFilePath), value); }
+        }
+
+        public bool Reservable
+        {
+            get { return GetXmlAttribute(nameof(Reservable)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
+            set { SetXmlAttribute(nameof(Reservable), value ? "true" : "false"); }
+        }
+
+        public string ReservationDescription
+        {
+            get { return GetXmlAttribute(nameof(ReservationDescription)); }
+            set { SetXmlAttribute(nameof(ReservationDescription), value); }
+        }
+
+        public DateTimeOffset ReservationDate
+        {
+            get {
+                try
+                {
+                    return DateTime.Parse(GetXmlAttribute(nameof(ReservationDate)));
+                }
+                catch
+                { }
+
+                return DateTime.Today;
+            }
+            set { SetXmlAttribute(nameof(ReservationDate), value.ToString("yyyy-MM-dd")); }
+        }
+
+        public string ReservationOwner
+        {
+            get { return GetXmlAttribute(nameof(ReservationOwner)); }
+            set { SetXmlAttribute(nameof(ReservationOwner), value); }
         }
 
         public Environment Environment
@@ -131,39 +149,6 @@ namespace AppLaunchMenu.DataModels
                 else
                     return new Environment(m_objMenuFile, objEnvironmentNode);
             }
-        }
-
-        public bool IsReservable
-        {
-            get { return Property(nameof(IsReservable)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
-            set { Property(nameof(IsReservable), value ? "true" : "false"); }
-        }
-
-        public string ReservationDescription
-        {
-            get { return Property(nameof(ReservationDescription)); }
-            set { Property(nameof(ReservationDescription), value); }
-        }
-
-        public DateTimeOffset ReservationDate
-        {
-            get {
-                try
-                {
-                    return DateTime.Parse(Property(nameof(ReservationDate)));
-                }
-                catch
-                { }
-
-                return DateTime.Today;
-            }
-            set { Property(nameof(ReservationDate), value.ToString("yyyy-MM-dd")); }
-        }
-
-        public string ReservationOwner
-        {
-            get { return Property(nameof(ReservationOwner)); }
-            set { Property(nameof(ReservationOwner), value); }
         }
 
         public override DataModelBase[] Items

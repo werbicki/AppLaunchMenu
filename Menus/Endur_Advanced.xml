@@ -1,5 +1,5 @@
 <AppLaunchMenu SecurityGroup="Everyone">
-	<ScriptList>
+	<ScriptListing>
 		<Script Name="Endur_Config" Language="C#">
 			<![CDATA[
 WriteLine($"# Endur configuration file");
@@ -85,7 +85,7 @@ catch (HttpRequestException e)
 return strDateTime;
 			]]>
 		</Script>
-	</ScriptList>
+	</ScriptListing>
 	<MenuList>
 		<Environment Name="Common">
 			<Variable Group="FileSystem" Name="OLF_MENU_FILE" Description="The file location of this Menu file." Value="\\%OLF_FILESHARE%\Environments\Endur_Sample.xml" />
@@ -136,21 +136,21 @@ return strDateTime;
 		</Environment>
 		<Menu Name="Openlink Endur">
 			<Folder Name="Openlink Endur" Expanded="True">
-				<Application Name="Development01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Config="{Endur_Config}" ConfigFilePath="C:\Dev\Endur_%OLF_ENVIRONMENT%.cfg" IsReservable="True" ReservationDate="{GetCurrentDate}">
+				<Application Name="Development01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Config="{Endur_Config}" ConfigFilePath="C:\Dev\Endur_%OLF_ENVIRONMENT%.cfg" Reservable="True" ReservationDate="{GetCurrentDate}">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Dev01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="14003" />
 						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_red" />
 					</Environment>
 				</Application>
-				<Application Name="Test01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" IsReservable="True" ReservationDate="{GetCurrentDate}">
+				<Application Name="Test01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Reservable="True" ReservationDate="{GetCurrentDate}">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Test01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="15003" />
 						<Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_green" />
 					</Environment>
 				</Application>
-				<Application Name="UAT01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" IsReservable="True" ReservationDate="{GetCurrentDate}">
+				<Application Name="UAT01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Reservable="True" ReservationDate="{GetCurrentDate}">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="UAT01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="16003" />

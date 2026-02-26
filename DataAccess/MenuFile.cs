@@ -262,10 +262,10 @@ namespace AppLaunchMenu.DataAccess
             return new MenuList(this, objEnvironmentElement);
         }
 
-        private ScriptList CreateConfigList()
+        private ScriptListing CreateConfigList()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(ScriptList.ElementName);
-            return new ScriptList(this, objEnvironmentElement);
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(ScriptListing.ElementName);
+            return new ScriptListing(this, objEnvironmentElement);
         }
 
         public MenuList MenuList
@@ -287,22 +287,22 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        public ScriptList ConfigList
+        public ScriptListing ConfigList
         {
             get
             {
-                XmlNode? objConfigListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + ScriptList.ElementName);
+                XmlNode? objConfigListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + ScriptListing.ElementName);
 
                 if (objConfigListNode == null)
                 {
-                    ScriptList objConfigList = CreateConfigList();
+                    ScriptListing objConfigList = CreateConfigList();
 
                     Insert(objConfigList, 0);
 
                     return objConfigList;
                 }
                 else
-                    return new ScriptList(this, objConfigListNode);
+                    return new ScriptListing(this, objConfigListNode);
             }
         }
 

@@ -102,12 +102,12 @@ namespace AppLaunchMenu.DataModels
 
         protected string Language        
         {
-            get { return Property(nameof(Language)); }
+            get { return GetXmlAttribute(nameof(Language)); }
         }
 
         protected string Code
         {
-            get { return CData(); }
+            get { return GetXmlCData(); }
         }
 
         internal void RunScriptVoid(IScriptingHost p_objScriptingHost)

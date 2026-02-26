@@ -32,44 +32,38 @@ namespace AppLaunchMenu.DataModels
 
         public string Description
         {
-            get { return Property(nameof(Description)); }
-            set { Property(nameof(Description), value); }
+            get { return GetXmlAttribute(nameof(Description)); }
+            set { SetXmlAttribute(nameof(Description), value); }
         }
 
         public string Group
         {
-            get { return Property(nameof(Group)); }
-            set { Property(nameof(Group), value); }
+            get { return GetXmlAttribute(nameof(Group)); }
+            set { SetXmlAttribute(nameof(Group), value); }
         }
 
         public string Value
         {
-            get { return Property(nameof(Value)); }
-            set { Property(nameof(Value), value); }
+            get { return GetXmlAttribute(nameof(Value)); }
+            set { SetXmlAttribute(nameof(Value), value); }
         }
 
         public bool Prompt
         {
-            get { return Property(nameof(Prompt)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
-            set { Property(nameof(Prompt), value ? "true" : "false"); }
-        }
-
-        public string ExpandedValue
-        {
-            get
-            {
-                return m_strExpandedValue;
-            }
-            set
-            {
-                m_strExpandedValue = value;
-            }
+            get { return GetXmlAttribute(nameof(Prompt)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
+            set { SetXmlAttribute(nameof(Prompt), value ? "true" : "false"); }
         }
 
         public string Validation
         {
-            get { return Property(nameof(Validation)); }
-            set { Property(nameof(Validation), value); }
+            get { return GetXmlAttribute(nameof(Validation)); }
+            set { SetXmlAttribute(nameof(Validation), value); }
+        }
+
+        public string ExpandedValue
+        {
+            get { return m_strExpandedValue; }
+            set { m_strExpandedValue = value; }
         }
     }
 }

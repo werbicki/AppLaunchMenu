@@ -104,10 +104,10 @@ namespace AppLaunchMenu.ViewModels
 
         public bool IsReservable
         {
-            get { return m_objApplication.IsReservable; }
+            get { return m_objApplication.Reservable; }
             set
             {
-                m_objApplication.IsReservable = value;
+                m_objApplication.Reservable = value;
                 OnPropertyChanged(nameof(IsReservable));
             }
         }

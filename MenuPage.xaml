@@ -1,18 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
-<local:PageNotifyPropertyChanged x:Class="AppLaunchMenu.MenuPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:local="using:AppLaunchMenu"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local1="using:AppLaunchMenu.ViewModels"
-        xmlns:converters="using:CommunityToolkit.WinUI.Converters"
-        xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
-        mc:Ignorable="d"
-        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-        x:Name="ParentPage"
-        Loaded="ParentPage_Loaded"
-        >
+<?xml version="1.0" encoding="utf-8" ?>
+<local:PageNotifyPropertyChanged
+    x:Class="AppLaunchMenu.MenuPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:AppLaunchMenu"
+    xmlns:local1="using:AppLaunchMenu.ViewModels"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
+    x:Name="ParentPage"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    Loaded="ParentPage_Loaded"
+    mc:Ignorable="d">
 
     <local:PageNotifyPropertyChanged.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -20,252 +20,344 @@
 
         <DataTemplate x:Key="FolderTreeViewItemTemplate" x:DataType="local1:FolderViewModel">
             <TreeViewItem
-                    ItemsSource="{x:Bind Children}"
-                    Tag="{x:Bind Item}" 
-                    IsExpanded="{Binding IsExpanded, Mode=OneWay}"
-                    ContextRequested="TreeViewItem_ContextRequested"
-                    >
+                ContextRequested="TreeViewItem_ContextRequested"
+                IsExpanded="{Binding IsExpanded, Mode=OneWay}"
+                ItemsSource="{x:Bind Children}"
+                Tag="{x:Bind Item}">
                 <RelativePanel>
-                    <Image x:Name="FolderImage"
-                            Width="20"
-                            Margin="0,0,10,0"
-                            Source="../Assets/Folder.png"/>
-                    <TextBlock x:Name="TreeViewText"
-                            Text="{x:Bind Name, Mode=OneWay}" 
-                            RelativePanel.RightOf="FolderImage"
-                            />
-                    <Button x:Name="m_objNewButton" 
-                            RelativePanel.RightOf="TreeViewText"
-                            Margin="15,0,0,0"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                            Click="OnNewFolderContextMenu"
-                            >
-                        <Image Width="12" Height="12" Source="../Assets/e710.png"/>
+                    <Image
+                        x:Name="FolderImage"
+                        Width="20"
+                        Margin="0,0,10,0"
+                        Source="../Assets/Folder.png" />
+                    <TextBlock
+                        x:Name="TreeViewText"
+                        RelativePanel.RightOf="FolderImage"
+                        Text="{x:Bind Name, Mode=OneWay}" />
+                    <Button
+                        x:Name="m_objNewButton"
+                        Margin="15,0,0,0"
+                        Click="OnNewFolderContextMenu"
+                        RelativePanel.RightOf="TreeViewText"
+                        Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <Image
+                            Width="12"
+                            Height="12"
+                            Source="../Assets/e710.png" />
                     </Button>
-                    <Button x:Name="m_objDeleteButton" 
-                            Margin="5,0,0,0"
-                            RelativePanel.RightOf="m_objNewButton"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                            Click="OnDeleteClick"
-                            >
-                        <Image Width="12" Height="12" Source="../Assets/e711.png"/>
+                    <Button
+                        x:Name="m_objDeleteButton"
+                        Margin="5,0,0,0"
+                        Click="OnDeleteClick"
+                        RelativePanel.RightOf="m_objNewButton"
+                        Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <Image
+                            Width="12"
+                            Height="12"
+                            Source="../Assets/e711.png" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="ApplicationTreeViewItemTemplate" x:DataType="local1:ApplicationViewModel">
             <TreeViewItem
-                    ItemsSource="{x:Bind Children}"
-                    Tag="{x:Bind Item, Mode=OneWay}" 
-                    ContextRequested="TreeViewItem_ContextRequested"
-                    AllowFocusOnInteraction="True"
-                    >
-                <Grid HorizontalAlignment="Left" 
-                        VerticalAlignment="Stretch"
-                        >
+                AllowFocusOnInteraction="True"
+                ContextRequested="TreeViewItem_ContextRequested"
+                ItemsSource="{x:Bind Children}"
+                Tag="{x:Bind Item, Mode=OneWay}">
+                <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="{x:Bind TreeViewItemWidth, Mode=OneWay}" />
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    
+
                     <RelativePanel Grid.Column="0">
-                        <Image x:Name="ApplicationImage"
-                                Width="20"
-                                Margin="0,0,10,0"
-                                Source="../Assets/Application.png"/>
-                        <TextBlock x:Name="TreeViewText" 
-                                Text="{x:Bind Name, Mode=OneWay}" 
-                                RelativePanel.RightOf="ApplicationImage"
-                                />
-                        <Button x:Name="m_objNewButton" 
-                            RelativePanel.RightOf="TreeViewText"
+                        <Image
+                            x:Name="ApplicationImage"
+                            Width="20"
+                            Margin="0,0,10,0"
+                            Source="../Assets/Application.png" />
+                        <TextBlock
+                            x:Name="TreeViewText"
+                            RelativePanel.RightOf="ApplicationImage"
+                            Text="{x:Bind Name, Mode=OneWay}" />
+                        <Button
+                            x:Name="m_objNewButton"
                             Margin="15,0,0,0"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnNewApplicationContextMenu"
-                            >
-                            <Image Width="12" Height="12" Source="../Assets/e710.png"/>
+                            RelativePanel.RightOf="TreeViewText"
+                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                            <Image
+                                Width="12"
+                                Height="12"
+                                Source="../Assets/e710.png" />
                         </Button>
-                        <Button x:Name="m_objDeleteButton" 
-                            RelativePanel.RightOf="m_objNewButton"
+                        <Button
+                            x:Name="m_objDeleteButton"
                             Margin="5,0,0,0"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
                             Click="OnDeleteClick"
-                            >
-                            <Image Width="12" Height="12" Source="../Assets/e711.png"/>
+                            RelativePanel.RightOf="m_objNewButton"
+                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                            <Image
+                                Width="12"
+                                Height="12"
+                                Source="../Assets/e711.png" />
                         </Button>
                     </RelativePanel>
-                    <toolkit:GridSplitter x:Name="m_objTreeListView"
+                    <toolkit:GridSplitter
+                        x:Name="m_objTreeListView"
                         Grid.Column="1"
-                        Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                        ManipulationStarted="m_objTreeListView_ManipulationStarted"
-                        ManipulationDelta="m_objTreeListView_ManipulationDelta"
                         ManipulationCompleted="m_objTreeListView_ManipulationCompleted"
-                        />
-                    <RelativePanel 
-                            Grid.Column="2"
-                            Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                            >
-                        <TextBox x:Name="m_objDescription"
-                            Width="120" 
+                        ManipulationDelta="m_objTreeListView_ManipulationDelta"
+                        ManipulationStarted="m_objTreeListView_ManipulationStarted"
+                        Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                    <RelativePanel Grid.Column="2" Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <TextBox
+                            x:Name="m_objDescription"
+                            Width="120"
                             Margin="5,0,5,0"
-                            Text="{x:Bind ReservationDescription, Mode=TwoWay}" 
-                            ToolTipService.ToolTip="{x:Bind ReservationDescription, Mode=OneWay}"
                             IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
-                            TextWrapping="NoWrap" 
-                            />
-                        <CalendarDatePicker x:Name="m_objReservedDate"
-                            RelativePanel.RightOf="m_objDescription"
-                            Width="120" 
+                            Text="{x:Bind ReservationDescription, Mode=TwoWay}"
+                            TextWrapping="NoWrap"
+                            ToolTipService.ToolTip="{x:Bind ReservationDescription, Mode=OneWay}" />
+                        <CalendarDatePicker
+                            x:Name="m_objReservedDate"
+                            Width="120"
                             Margin="5,0,5,0"
-                            PlaceholderText="Date"
-                            Date="{x:Bind ReservationDate, Mode=TwoWay}" 
+                            Date="{x:Bind ReservationDate, Mode=TwoWay}"
                             IsEnabled="{x:Bind EditMode, Mode=OneWay}"
-                            />
-                        <TextBox x:Name="m_objReservedOwner"
-                            RelativePanel.RightOf="m_objReservedDate"
-                            Width="120" 
+                            PlaceholderText="Date"
+                            RelativePanel.RightOf="m_objDescription" />
+                        <TextBox
+                            x:Name="m_objReservedOwner"
+                            Width="120"
                             Margin="5,0,5,0"
-                            Text="{x:Bind ReservationOwner, Mode=TwoWay}" 
                             IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
-                            TextWrapping="NoWrap" 
-                            />
+                            RelativePanel.RightOf="m_objReservedDate"
+                            Text="{x:Bind ReservationOwner, Mode=TwoWay}"
+                            TextWrapping="NoWrap" />
                     </RelativePanel>
                 </Grid>
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="EnvironmentTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
             <TreeViewItem
-                    ItemsSource="{x:Bind Children}"
-                    Tag="{x:Bind Item, Mode=OneWay}" 
-                    ContextRequested="TreeViewItem_ContextRequested"
-                    Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                    >
+                ContextRequested="TreeViewItem_ContextRequested"
+                ItemsSource="{x:Bind Children}"
+                Tag="{x:Bind Item, Mode=OneWay}"
+                Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                 <RelativePanel>
-                    <Image x:Name="EnvironmentImage"
-                            Width="20"
-                            Margin="0,0,10,0"
-                            Source="../Assets/Environment.png"/>
-                    <TextBlock x:Name="TreeViewText" 
-                            Text="{x:Bind Name, Mode=OneWay}" 
-                            RelativePanel.RightOf="EnvironmentImage"
-                            />
-                    <Button x:Name="m_objNewButton" 
-                            RelativePanel.RightOf="TreeViewText"
-                            Margin="15,0,0,0"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                            Click="OnNewEnvironmentContextMenu"
-                            >
-                        <Image Width="12" Height="12" Source="../Assets/e710.png"/>
+                    <Image
+                        x:Name="EnvironmentImage"
+                        Width="20"
+                        Margin="0,0,10,0"
+                        Source="../Assets/Environment.png" />
+                    <TextBlock
+                        x:Name="TreeViewText"
+                        RelativePanel.RightOf="EnvironmentImage"
+                        Text="{x:Bind Name, Mode=OneWay}" />
+                    <Button
+                        x:Name="m_objNewButton"
+                        Margin="15,0,0,0"
+                        Click="OnNewEnvironmentContextMenu"
+                        RelativePanel.RightOf="TreeViewText"
+                        Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <Image
+                            Width="12"
+                            Height="12"
+                            Source="../Assets/e710.png" />
                     </Button>
-                    <Button x:Name="m_objDeleteButton" 
-                            RelativePanel.RightOf="m_objNewButton"
-                            Margin="5,0,0,0"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                            Click="OnDeleteClick"
-                            >
-                        <Image Width="12" Height="12" Source="../Assets/e711.png"/>
+                    <Button
+                        x:Name="m_objDeleteButton"
+                        Margin="5,0,0,0"
+                        Click="OnDeleteClick"
+                        RelativePanel.RightOf="m_objNewButton"
+                        Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <Image
+                            Width="12"
+                            Height="12"
+                            Source="../Assets/e711.png" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="VariableTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
             <TreeViewItem
-                    ItemsSource="{x:Bind Children}"
-                    Tag="{x:Bind Item, Mode=OneWay}"
-                    ContextRequested="TreeViewItem_ContextRequested"
-                    Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}}"
-                    >
+                ContextRequested="TreeViewItem_ContextRequested"
+                ItemsSource="{x:Bind Children}"
+                Tag="{x:Bind Item, Mode=OneWay}"
+                Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}}">
                 <RelativePanel>
-                    <Image x:Name="VariableImage"
-                            Width="20"
-                            Margin="0,0,10,0"
-                            Source="../Assets/Variable.png"/>
-                    <TextBlock x:Name="TreeViewText" 
-                            Text="{x:Bind Name, Mode=OneWay}" 
-                            RelativePanel.RightOf="VariableImage"
-                            />
-                    <Button x:Name="m_objDeleteButton" 
-                            RelativePanel.RightOf="TreeViewText"
-                            Margin="5,0,0,0"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
-                            Click="OnDeleteClick"
-                            >
-                        <Image Width="12" Height="12" Source="../Assets/e711.png"/>
+                    <Image
+                        x:Name="VariableImage"
+                        Width="20"
+                        Margin="0,0,10,0"
+                        Source="../Assets/Variable.png" />
+                    <TextBlock
+                        x:Name="TreeViewText"
+                        RelativePanel.RightOf="VariableImage"
+                        Text="{x:Bind Name, Mode=OneWay}" />
+                    <Button
+                        x:Name="m_objDeleteButton"
+                        Margin="5,0,0,0"
+                        Click="OnDeleteClick"
+                        RelativePanel.RightOf="TreeViewText"
+                        Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                        <Image
+                            Width="12"
+                            Height="12"
+                            Source="../Assets/e711.png" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
-        <local:TreeViewItemTemplateSelector x:Key="TreeViewItemTemplateSelector"
-                FolderTreeViewItemTemplate="{StaticResource FolderTreeViewItemTemplate}"
-                ApplicationTreeViewItemTemplate="{StaticResource ApplicationTreeViewItemTemplate}"
-                EnvironmentTreeViewItemTemplate="{StaticResource EnvironmentTreeViewItemTemplate}"
-                VariableTreeViewItemTemplate="{StaticResource VariableTreeViewItemTemplate}"
-                />
-        <CommandBarFlyout Placement="Right" x:Name="m_objNewFolderContextMenu">
-            <AppBarButton Label="Folder" Icon="NewFolder" ToolTipService.ToolTip="New Folder" Click="OnNewFolderClick" />
-            <AppBarButton Label="App" Icon="NewWindow" ToolTipService.ToolTip="New Application" Click="OnNewApplicationClick" />
-            <AppBarButton Label="Variable" Icon="Repair" ToolTipService.ToolTip="New Variable" Click="OnNewVariableClick" />
+        <local:TreeViewItemTemplateSelector
+            x:Key="TreeViewItemTemplateSelector"
+            ApplicationTreeViewItemTemplate="{StaticResource ApplicationTreeViewItemTemplate}"
+            EnvironmentTreeViewItemTemplate="{StaticResource EnvironmentTreeViewItemTemplate}"
+            FolderTreeViewItemTemplate="{StaticResource FolderTreeViewItemTemplate}"
+            VariableTreeViewItemTemplate="{StaticResource VariableTreeViewItemTemplate}" />
+        <CommandBarFlyout x:Name="m_objNewFolderContextMenu" Placement="Right">
+            <AppBarButton
+                Click="OnNewFolderClick"
+                Icon="NewFolder"
+                Label="Folder"
+                ToolTipService.ToolTip="New Folder" />
+            <AppBarButton
+                Click="OnNewApplicationClick"
+                Icon="NewWindow"
+                Label="App"
+                ToolTipService.ToolTip="New Application" />
+            <AppBarButton
+                Click="OnNewVariableClick"
+                Icon="Repair"
+                Label="Variable"
+                ToolTipService.ToolTip="New Variable" />
         </CommandBarFlyout>
-        <CommandBarFlyout Placement="Right" x:Name="m_objNewApplicationContextMenu">
-            <AppBarButton Label="Variable" Icon="Repair" ToolTipService.ToolTip="New Variable" Click="OnNewVariableClick" />
+        <CommandBarFlyout x:Name="m_objNewApplicationContextMenu" Placement="Right">
+            <AppBarButton
+                Click="OnNewVariableClick"
+                Icon="Repair"
+                Label="Variable"
+                ToolTipService.ToolTip="New Variable" />
         </CommandBarFlyout>
-        <CommandBarFlyout Placement="Right" x:Name="m_objNewEnvironmentContextMenu">
-            <AppBarButton Label="Variable" Icon="Repair" ToolTipService.ToolTip="New Variable" Click="OnNewVariableClick" />
+        <CommandBarFlyout x:Name="m_objNewEnvironmentContextMenu" Placement="Right">
+            <AppBarButton
+                Click="OnNewVariableClick"
+                Icon="Repair"
+                Label="Variable"
+                ToolTipService.ToolTip="New Variable" />
         </CommandBarFlyout>
-        <CommandBarFlyout Placement="Right" x:Name="m_objFolderContextMenu">
-            <AppBarButton Label="Folder" Icon="NewFolder" ToolTipService.ToolTip="New Folder" Click="OnNewFolderClick" />
-            <AppBarButton Label="App" Icon="NewWindow" ToolTipService.ToolTip="New Application" Click="OnNewApplicationClick" />
-            <AppBarButton Label="Variable" Icon="Repair" ToolTipService.ToolTip="New Variable" Click="OnNewVariableClick" />
-            <AppBarButton x:Name="m_objFolderContextMenuEdit" Label="Edit" Icon="Edit" ToolTipService.ToolTip="Edit" Click="OnEditClick" />
-            <AppBarButton x:Name="m_objFolderContextMenuDelete" Label="Delete" Icon="Delete" ToolTipService.ToolTip="Delete" Click="OnDeleteClick" />
+        <CommandBarFlyout x:Name="m_objFolderContextMenu" Placement="Right">
+            <AppBarButton
+                Click="OnNewFolderClick"
+                Icon="NewFolder"
+                Label="Folder"
+                ToolTipService.ToolTip="New Folder" />
+            <AppBarButton
+                Click="OnNewApplicationClick"
+                Icon="NewWindow"
+                Label="App"
+                ToolTipService.ToolTip="New Application" />
+            <AppBarButton
+                Click="OnNewVariableClick"
+                Icon="Repair"
+                Label="Variable"
+                ToolTipService.ToolTip="New Variable" />
+            <AppBarButton
+                x:Name="m_objFolderContextMenuEdit"
+                Click="OnEditClick"
+                Icon="Edit"
+                Label="Edit"
+                ToolTipService.ToolTip="Edit" />
+            <AppBarButton
+                x:Name="m_objFolderContextMenuDelete"
+                Click="OnDeleteClick"
+                Icon="Delete"
+                Label="Delete"
+                ToolTipService.ToolTip="Delete" />
         </CommandBarFlyout>
-        <CommandBarFlyout Placement="Right" x:Name="m_objApplicationContextMenu">
-            <AppBarButton Label="Variable" Icon="Repair" ToolTipService.ToolTip="New Variable" Click="OnNewVariableClick" />
-            <AppBarButton x:Name="m_objApplicationContextMenuEdit" Label="Edit" Icon="Edit" ToolTipService.ToolTip="Edit" Click="OnEditClick" />
-            <AppBarButton x:Name="m_objApplicationContextMenuDelete" Label="Delete" Icon="Delete" ToolTipService.ToolTip="Delete" Click="OnDeleteClick" />
+        <CommandBarFlyout x:Name="m_objApplicationContextMenu" Placement="Right">
+            <AppBarButton
+                Click="OnNewVariableClick"
+                Icon="Repair"
+                Label="Variable"
+                ToolTipService.ToolTip="New Variable" />
+            <AppBarButton
+                x:Name="m_objApplicationContextMenuEdit"
+                Click="OnEditClick"
+                Icon="Edit"
+                Label="Edit"
+                ToolTipService.ToolTip="Edit" />
+            <AppBarButton
+                x:Name="m_objApplicationContextMenuDelete"
+                Click="OnDeleteClick"
+                Icon="Delete"
+                Label="Delete"
+                ToolTipService.ToolTip="Delete" />
         </CommandBarFlyout>
-        <CommandBarFlyout Placement="Right" x:Name="m_objEnvironmentContextMenu">
-            <AppBarButton Label="Variable" Icon="Repair" ToolTipService.ToolTip="New Variable" Click="OnNewVariableClick" />
-            <AppBarButton x:Name="m_objEnvironmentContextMenuDelete" Label="Delete" Icon="Delete" ToolTipService.ToolTip="Delete" Click="OnDeleteClick" />
+        <CommandBarFlyout x:Name="m_objEnvironmentContextMenu" Placement="Right">
+            <AppBarButton
+                Click="OnNewVariableClick"
+                Icon="Repair"
+                Label="Variable"
+                ToolTipService.ToolTip="New Variable" />
+            <AppBarButton
+                x:Name="m_objEnvironmentContextMenuDelete"
+                Click="OnDeleteClick"
+                Icon="Delete"
+                Label="Delete"
+                ToolTipService.ToolTip="Delete" />
         </CommandBarFlyout>
-        <CommandBarFlyout Placement="Right" x:Name="m_objVariableContextMenu">
-            <AppBarButton x:Name="m_objVariableContextMenuEdit" Label="Edit" Icon="Edit" ToolTipService.ToolTip="Edit" Click="OnEditClick" />
-            <AppBarButton x:Name="m_objVariableContextMenuDelete" Label="Delete" Icon="Delete" ToolTipService.ToolTip="Delete" Click="OnDeleteClick" />
+        <CommandBarFlyout x:Name="m_objVariableContextMenu" Placement="Right">
+            <AppBarButton
+                x:Name="m_objVariableContextMenuEdit"
+                Click="OnEditClick"
+                Icon="Edit"
+                Label="Edit"
+                ToolTipService.ToolTip="Edit" />
+            <AppBarButton
+                x:Name="m_objVariableContextMenuDelete"
+                Click="OnDeleteClick"
+                Icon="Delete"
+                Label="Delete"
+                ToolTipService.ToolTip="Delete" />
         </CommandBarFlyout>
     </local:PageNotifyPropertyChanged.Resources>
-    
-    <Grid x:Name="RootElement"
-        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-        >
+
+    <Grid x:Name="RootElement" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0"
-                HorizontalScrollMode="Enabled"
-                HorizontalScrollBarVisibility="Auto"
-                VerticalScrollMode="Enabled"
-                VerticalScrollBarVisibility="Auto"
-                >
-            <TreeView x:Name="m_objTreeView" 
-                VerticalAlignment="Top" 
-                HorizontalAlignment="Left"
+        <ScrollViewer
+            Grid.Row="0"
+            HorizontalScrollBarVisibility="Auto"
+            HorizontalScrollMode="Enabled"
+            VerticalScrollBarVisibility="Auto"
+            VerticalScrollMode="Enabled">
+            <TreeView
+                x:Name="m_objTreeView"
                 Margin="0,12,0,0"
-                ItemTemplateSelector="{StaticResource TreeViewItemTemplateSelector}"
-                ItemsSource="{x:Bind Menu.Children}"
-                ItemInvoked="Apps_ItemInvoked"
-                DoubleTapped="Apps_DoubleTapped"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
                 CanDragItems="{x:Bind DragDropEnabled, Mode=OneWay}"
                 CanReorderItems="{x:Bind DragDropEnabled, Mode=OneWay}"
-                />
+                DoubleTapped="Apps_DoubleTapped"
+                ItemInvoked="Apps_ItemInvoked"
+                ItemTemplateSelector="{StaticResource TreeViewItemTemplateSelector}"
+                ItemsSource="{x:Bind Menu.Children}" />
         </ScrollViewer>
-        <Button x:Name="m_objNewButton" 
+        <Button
+            x:Name="m_objNewButton"
             Grid.Row="1"
-            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}"
             Click="OnNewFolderContextMenu"
-            >
-            <Image Width="12" Height="12" Source="../Assets/e710.png"/>
+            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <Image
+                Width="12"
+                Height="12"
+                Source="../Assets/e710.png" />
         </Button>
     </Grid>
 </local:PageNotifyPropertyChanged>
