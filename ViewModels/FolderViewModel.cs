@@ -10,13 +10,13 @@ namespace AppLaunchMenu.ViewModels
         private readonly Folder m_objFolder;
 
         public FolderViewModel(LaunchMenu? p_objLaunchMenu, Folder p_objFolder)
-            : base(p_objLaunchMenu, true)
+            : base(p_objLaunchMenu)
         {
             m_objFolder = p_objFolder;
         }
 
         public FolderViewModel(LaunchMenu? p_objLaunchMenu, Folder p_objFolder, FolderViewModel p_objFolderViewModel)
-            : base(p_objLaunchMenu, p_objFolderViewModel, true)
+            : base(p_objLaunchMenu, p_objFolderViewModel)
         {
             m_objFolder = p_objFolder;
         }
@@ -115,7 +115,7 @@ namespace AppLaunchMenu.ViewModels
             get { return new EnvironmentViewModel(LaunchMenu, m_objFolder.Environment); }
         }
 
-        protected override void LoadChildren()
+        protected override void OnLoadChildren()
         {
             foreach (DataModelBase objItem in m_objFolder.Items)
             {
@@ -134,10 +134,6 @@ namespace AppLaunchMenu.ViewModels
                 if (objItem is Application objApplication)
                     Children.Add(new ApplicationViewModel(LaunchMenu, objApplication, this));
             }
-
-            base.LoadChildren();
-
-            OnPropertyChanged(nameof(Expanded));
         }
     }
 }

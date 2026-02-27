@@ -61,11 +61,11 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
-        protected override void LoadChildren()
+        protected override void OnLoadChildren()
         {
             Children.Add(new EnvironmentViewModel(LaunchMenu, m_objMenusViewModel.Environment.Environment, this));
 
-            base.LoadChildren();
+            base.OnLoadChildren();
         }
     }
 }

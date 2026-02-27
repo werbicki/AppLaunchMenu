@@ -23,7 +23,7 @@ namespace AppLaunchMenu.ViewModels
         }
 
         public EnvironmentViewModel(LaunchMenu? p_objLaunchMenu, DataModels.Environment p_objEnvironment, TreeViewItemViewModel p_objTreeViewItemViewModel)
-            : base(p_objLaunchMenu, p_objTreeViewItemViewModel, true)
+            : base(p_objLaunchMenu, p_objTreeViewItemViewModel)
         {
             m_objEnvironment = p_objEnvironment;
         }
@@ -84,15 +84,13 @@ namespace AppLaunchMenu.ViewModels
             get { return m_objVariables; }
         }
 
-        protected override void LoadChildren()
+        protected override void OnLoadChildren()
         {
             foreach (DataModelBase objItem in m_objEnvironment.Items)
             {
                 if (objItem is Variable objVariable)
                     Children.Add(new VariableViewModel(LaunchMenu, objVariable, this));
             }
-
-            base.LoadChildren();
         }
     }
 }

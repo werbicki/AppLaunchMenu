@@ -137,17 +137,17 @@ namespace AppLaunchMenu.DataModels
             get
             {
                 XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("./" + Environment.ElementName);
-
-                if (objEnvironmentNode == null)
+                if (objEnvironmentNode != null)
+                    return new Environment(m_objMenuFile, objEnvironmentNode);
+                else
                 {
                     Environment objEnvironment = CreateEnvironment();
 
                     Insert(objEnvironment, 0);
+                    m_objMenuFile.IsDirty = false;
 
                     return objEnvironment;
                 }
-                else
-                    return new Environment(m_objMenuFile, objEnvironmentNode);
             }
         }
 
@@ -165,11 +165,6 @@ namespace AppLaunchMenu.DataModels
                         foreach (XmlNode objItemNode in objNodes)
                         {
                             bool blnInclude = true;
-
-                            /*
-                            if (!HostnameMatches(objItemNode))
-                                    blnInclude = false;
-                            */
 
                             if (blnInclude)
                             {

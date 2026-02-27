@@ -12,7 +12,7 @@ namespace AppLaunchMenu.ViewModels
         protected Variable m_objVariable;
 
         public VariableViewModel(LaunchMenu? p_objLaunchMenu, Variable p_objVariable, EnvironmentViewModel p_objEnvironment)
-            : base(p_objLaunchMenu, p_objEnvironment, false)
+            : base(p_objLaunchMenu, p_objEnvironment)
         {
             m_objVariable = p_objVariable;
             m_objEnvironment = p_objEnvironment.Environment;
@@ -72,11 +72,6 @@ namespace AppLaunchMenu.ViewModels
         public string ExpandedValue
         {
             get { return m_objEnvironment.ExpandVariable(m_objVariable.Value); }
-        }
-
-        protected override void LoadChildren()
-        {
-            base.LoadChildren();
         }
     }
 }

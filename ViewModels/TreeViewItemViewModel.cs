@@ -30,12 +30,9 @@ namespace AppLaunchMenu.ViewModels
         protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, bool p_blnLazyLoadChildren = false)
         {
             m_objLaunchMenu = p_objLaunchMenu;
+            m_blnLazyLoadChildren = p_blnLazyLoadChildren;
 
-            if (p_blnLazyLoadChildren)
-            {
-                m_blnLazyLoadChildren = p_blnLazyLoadChildren;
-                m_objChildren.Add(DummyChild);
-            }
+            m_objChildren.Add(DummyChild);
 
             if (m_objLaunchMenu != null)
                 m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
@@ -45,12 +42,9 @@ namespace AppLaunchMenu.ViewModels
         {
             m_objLaunchMenu = p_objLaunchMenu;
             m_objParent = p_objParent;
+            m_blnLazyLoadChildren = p_blnLazyLoadChildren;
 
-            if (p_blnLazyLoadChildren)
-            {
-                m_blnLazyLoadChildren = p_blnLazyLoadChildren;
-                m_objChildren.Add(DummyChild);
-            }
+            m_objChildren.Add(DummyChild);
 
             if (m_objLaunchMenu != null)
                 m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
@@ -134,26 +128,6 @@ namespace AppLaunchMenu.ViewModels
         {
             get { return m_objParent; }
             set { m_objParent = value; }
-        }
-
-        /// <summary>
-        /// Returns the logical child items of this object.
-        /// </summary>
-        public ObservableCollection<TreeViewItemViewModel> Children
-        {
-            get
-            {
-                if ((m_blnLazyLoadChildren) || ((m_objChildren.Count == 1) && (HasDummyChild)))
-                {
-                    m_blnLazyLoadChildren = false;
-                    if (HasDummyChild)
-                        m_objChildren.Clear();
-
-                    LoadChildren();
-                }
-
-                return m_objChildren;
-            }
         }
 
         public virtual bool EditMode
@@ -250,26 +224,53 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        /// <summary>
+        /// Returns the logical child items of this object.
+        /// </summary>
+        public ObservableCollection<TreeViewItemViewModel> Children
+        {
+            get
+            {
+                if ((m_objChildren.Count == 1) && (HasDummyChild))
+                    LoadChildren();
+
+                return m_objChildren;
+            }
+        }
+
         protected void ReloadChildren()
         {
-            m_objChildren.CollectionChanged -= Children_CollectionChanged;
-            m_blnLazyLoadChildren = true;
-            Children.Clear();
-
+            m_objChildren.Clear();
+            m_objChildren.Add(DummyChild);
             LoadChildren();
+        }
+
+        private void LoadChildren()
+        {
+            m_objChildren.CollectionChanged -= Children_CollectionChanged;
+
+            if (HasDummyChild)
+                m_objChildren.Remove(DummyChild);
+
+            OnLoadChildren();
+
+            if (!m_blnLazyLoadChildren)
+            {
+                foreach (TreeViewItemViewModel objTreeViewItemViewModel in m_objChildren)
+                    objTreeViewItemViewModel.LoadChildren();
+            }
+
+            m_objChildren.CollectionChanged += Children_CollectionChanged;
+
+            OnPropertyChanged(nameof(Children));
         }
 
         /// <summary>
         /// Invoked when the child items need to be loaded on demand.
         /// Subclasses can override this to populate the Children collection.
         /// </summary>
-        protected virtual void LoadChildren()
+        protected virtual void OnLoadChildren()
         {
-            m_blnLazyLoadChildren = false;
-            if (HasDummyChild)
-                Children.Remove(DummyChild);
-
-            m_objChildren.CollectionChanged += Children_CollectionChanged;
         }
     }
 }
