@@ -34,7 +34,7 @@ namespace AppLaunchMenu
     public sealed partial class LaunchMenu : PageNotifyPropertyChanged
     {
         private MenuFile m_objMenuFile = new();
-        private MenuListViewModel m_objMenusViewModel;
+        private MenuFileViewModel m_objMenuFileViewModel;
         private DataModels.Application? m_objSelectedApplication = null;
         private bool m_blnShowEnvironment = false;
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
@@ -45,9 +45,9 @@ namespace AppLaunchMenu
         {
             InitializeComponent();
 
-            m_objMenusViewModel = new MenuListViewModel(this);
+            m_objMenuFileViewModel = new MenuFileViewModel(this);
 
-            m_objMenusViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
+            m_objMenuFileViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
 
             StatusText = "Hostname: " + System.Environment.MachineName + ", Username: " + System.Environment.UserDomainName + "\\" + System.Environment.UserName;
         }
@@ -57,10 +57,10 @@ namespace AppLaunchMenu
             InitializeComponent();
 
             m_objMenuFile = p_objMenuFile;
-            m_objMenusViewModel = new MenuListViewModel(this, m_objMenuFile);
+            m_objMenuFileViewModel = new MenuFileViewModel(this, m_objMenuFile);
 
             m_objMenuFile.FileChanged += MenuFile_FileChanged;
-            m_objMenusViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
+            m_objMenuFileViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
 
             StatusText = "Hostname: " + System.Environment.MachineName + ", Username: " + System.Environment.UserDomainName + "\\" + System.Environment.UserName;
         }
@@ -78,9 +78,9 @@ namespace AppLaunchMenu
 
             if (m_objMenuFile != null)
             {
-                m_objMenusViewModel = new MenuListViewModel(this, m_objMenuFile);
+                m_objMenuFileViewModel = new MenuFileViewModel(this, m_objMenuFile);
 
-                m_objMenusViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
+                m_objMenuFileViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
             }
 
             base.OnNavigatedTo(e);
@@ -105,21 +105,21 @@ namespace AppLaunchMenu
 
         private bool CanEdit
         {
-            get { return m_objMenusViewModel.CanEdit; }
+            get { return m_objMenuFileViewModel.CanEdit; }
         }
 
         public bool EditMode
         {
             get
             {
-                if (m_objMenusViewModel.CanEdit)
+                if (m_objMenuFileViewModel.CanEdit)
                     return m_blnEditMode;
                 return
                     false;
             }
             set
             {
-                if (m_objMenusViewModel.CanEdit)
+                if (m_objMenuFileViewModel.CanEdit)
                 {
                     m_blnEditMode = value;
                     OnPropertyChanged(nameof(EditMode));
@@ -131,16 +131,16 @@ namespace AppLaunchMenu
         {
             get
             {
-                if (m_objMenusViewModel != null)
-                    return m_objMenusViewModel.Menus;
+                if (m_objMenuFileViewModel != null)
+                    return m_objMenuFileViewModel.MenuListViewModel.Menus;
                 return [];
             }
         }
 
         public MenuViewModel? SelectedMenu
         {
-            get { return m_objMenusViewModel.SelectedMenu; }
-            set { m_objMenusViewModel.SelectedMenu = value; }
+            get { return m_objMenuFileViewModel.MenuListViewModel.SelectedMenu; }
+            set { m_objMenuFileViewModel.MenuListViewModel.SelectedMenu = value; }
         }
 
         public DataModels.Application? SelectedApplication
@@ -263,7 +263,7 @@ namespace AppLaunchMenu
 
         private void Reload_Click(object sender, RoutedEventArgs e)
         {
-            m_objMenusViewModel?.Reload(this);
+            m_objMenuFileViewModel?.Reload(this);
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -298,13 +298,13 @@ namespace AppLaunchMenu
 
         private void Menus_AddMenu(TabView sender, object args)
         {
-            MenuViewModel? objMenuViewModel = m_objMenusViewModel?.AddMenu(this, "New Menu");
+            MenuViewModel? objMenuViewModel = m_objMenuFileViewModel?.MenuListViewModel.AddMenu(this, "New Menu");
             SelectedMenu = objMenuViewModel;
         }
 
         private void Menus_RemoveMenu(TabView sender, TabViewTabCloseRequestedEventArgs args)
         {
-            m_objMenusViewModel?.RemoveMenu((MenuViewModel)args.Item);
+            m_objMenuFileViewModel?.MenuListViewModel.RemoveMenu((MenuViewModel)args.Item);
         }
     }
 }

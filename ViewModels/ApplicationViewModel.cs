@@ -39,7 +39,7 @@ namespace AppLaunchMenu.ViewModels
             Variable? objVariable = m_objApplication.CreateVariable(p_strVariableName);
             if (objVariable != null)
             {
-                objVariableViewModel = new VariableViewModel(LaunchMenu, objVariable, new EnvironmentViewModel(LaunchMenu, m_objApplication.Environment));
+                objVariableViewModel = new VariableViewModel(LaunchMenu, new EnvironmentViewModel(LaunchMenu, m_objApplication.Environment), objVariable);
                 //Children.Add(new ApplicationViewModel(objApplication, this));
             }
 

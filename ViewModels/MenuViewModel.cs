@@ -11,7 +11,7 @@ namespace AppLaunchMenu.ViewModels
 {
     public partial class MenuViewModel : FolderViewModel
     {
-        private readonly MenuListViewModel m_objMenusViewModel;
+        private readonly MenuListViewModel m_objMenuListViewModel;
         private readonly Menu m_objMenu;
         private readonly Page m_objMenuPage;
         private readonly IconSource m_objDataIconSource = new SymbolIconSource() { Symbol = Symbol.Placeholder };
@@ -20,7 +20,7 @@ namespace AppLaunchMenu.ViewModels
         public MenuViewModel(LaunchMenu p_objLaunchMenu, MenuListViewModel p_objMenusViewModel, Menu p_objMenu)
             : base(p_objLaunchMenu, p_objMenu)
         {
-            m_objMenusViewModel = p_objMenusViewModel;
+            m_objMenuListViewModel = p_objMenusViewModel;
             m_objMenu = p_objMenu;
             m_objMenuPage = new MenuPage(p_objLaunchMenu, this);
         }
@@ -40,17 +40,6 @@ namespace AppLaunchMenu.ViewModels
             get { return m_objMenuPage; }
         }
 
-        public override bool EditMode
-        {
-            get
-            {
-                if (LaunchMenu != null)
-                    return LaunchMenu.EditMode;
-                else 
-                    return false;
-            }
-        }
-
         public override GridLength TreeViewItemWidth
         {
             get { return m_objTreeViewItemWidth; }
@@ -63,7 +52,9 @@ namespace AppLaunchMenu.ViewModels
 
         protected override void OnLoadChildren()
         {
-            Children.Add(new EnvironmentViewModel(LaunchMenu, m_objMenusViewModel.Environment.Environment, this));
+            Children.Add(m_objMenuListViewModel.MenuFileViewModel.NetworkDriveListViewModel);
+            Children.Add(m_objMenuListViewModel.MenuFileViewModel.ScriptListViewModel);
+            Children.Add(m_objMenuListViewModel.MenuFileViewModel.EnvironmentViewModel);
 
             base.OnLoadChildren();
         }

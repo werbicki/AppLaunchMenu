@@ -130,6 +130,7 @@ namespace AppLaunchMenu.ViewModels
             set { m_objParent = value; }
         }
 
+        /*
         public virtual bool EditMode
         {
             get
@@ -146,6 +147,19 @@ namespace AppLaunchMenu.ViewModels
                 return blnEditMode;
             }
         }
+        */
+
+        public virtual bool EditMode
+        {
+            get
+            {
+                if (LaunchMenu != null)
+                    return LaunchMenu.EditMode;
+                else
+                    return false;
+            }
+        }
+
 
         public virtual GridLength TreeViewItemWidth
         {

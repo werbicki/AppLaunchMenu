@@ -22,6 +22,57 @@ namespace AppLaunchMenu.DataModels
             Initialize(m_objMenuFile.XmlDocument, m_objMenuFile.XmlDocument, XmlNode.ParentNode);
         }
 
+        private void Initialize(XmlDocument p_objDocument, XmlNode? p_objReferenceNode, XmlNode? p_objParent)
+        {
+            XmlNode? objRoot = p_objDocument.DocumentElement;
+
+            m_objVariables.Clear();
+
+            if (objRoot != null)
+            {
+                List<XmlNode> objIncludedNodes = [];
+                XmlNodeList? objVariables = objRoot.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
+                Initialize(objIncludedNodes, objVariables);
+
+                if (p_objParent != null)
+                {
+                    List<XmlNode> objMenuAndFolders = new List<XmlNode>();
+                    XmlNode? objApplication = p_objParent;
+                    XmlNode? objNode = null;
+
+                    if (objApplication != null)
+                        objNode = objApplication.ParentNode;
+
+                    while (objNode != null)
+                    {
+                        if ((objNode.Name == MenuList.ElementName)
+                            || (objNode.Name == Menu.ElementName)
+                            || (objNode.Name == Folder.ElementName)
+                            )
+                            objMenuAndFolders.Insert(0, objNode);
+
+                        objNode = objNode.ParentNode;
+                    }
+
+                    foreach (XmlNode objFolder in objMenuAndFolders)
+                    {
+                        objVariables = objFolder.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
+                        Initialize(objIncludedNodes, objVariables);
+                    }
+
+                    if (objApplication != null)
+                        objVariables = objApplication.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
+
+                    Initialize(objIncludedNodes, objVariables);
+                }
+
+                m_objVariables = new DataModelCollection<Variable>(m_objMenuFile, objIncludedNodes);
+
+                if (p_objReferenceNode != null)
+                    ExpandVariables(p_objReferenceNode);
+            }
+        }
+
         internal static string ElementName
         {
             get { return nameof(Environment); }
@@ -120,110 +171,6 @@ namespace AppLaunchMenu.DataModels
                     return m_objVariables.Count;
 
                 return 0;
-            }
-        }
-
-        private static void Initialize(List<XmlNode> p_objIncludedNodes, XmlNodeList? p_objVariables)
-        {
-            if (p_objVariables != null)
-            {
-                foreach (XmlNode objVariable in p_objVariables)
-                {
-                    String strName = "";
-                    bool blnInclude = true;
-
-                    if ((objVariable.Attributes != null)
-                        && (objVariable.Attributes["Name"] != null)
-                        )
-                        strName = objVariable.Attributes["Name"]!.Value;
-
-                    /*
-                    XmlNode? objEnvironmentNode = objVariable.ParentNode;
-                    if ((!DomainMatches(objEnvironmentNode))
-                        || (!DataCenterMatches(objEnvironmentNode))
-                        || (!HostnameMatches(objEnvironmentNode))
-                        || (!IsServiceMatches(objEnvironmentNode))
-                        )
-                        blnInclude = false;
-                        */
-
-                    if (blnInclude)
-                    {
-                        bool blnFound = false;
-
-                        for (int intIndex = 0; (!blnFound) && (intIndex < p_objIncludedNodes.Count); intIndex++)
-                        {
-                            String strExistingName = "";
-
-                            if ((p_objIncludedNodes[intIndex] != null)
-                                && (p_objIncludedNodes[intIndex].Attributes != null)
-                                && (p_objIncludedNodes[intIndex].Attributes!["Name"] != null)
-                                )
-                                strExistingName = p_objIncludedNodes[intIndex].Attributes!["Name"]!.Value;
-
-                            if (strExistingName == strName)
-                            {
-                                p_objIncludedNodes[intIndex] = objVariable;
-
-                                blnFound = true;
-                            }
-                        }
-
-                        if (!blnFound)
-                            p_objIncludedNodes.Add(objVariable);
-                    }
-                }
-            }
-        }
-
-        private void Initialize(XmlDocument p_objDocument, XmlNode? p_objReferenceNode, XmlNode? p_objParent)
-        {
-            XmlNode? objRoot = p_objDocument.DocumentElement;
-
-            m_objVariables.Clear();
-
-            if (objRoot != null)
-            {
-                List<XmlNode> objIncludedNodes = [];
-                XmlNodeList? objVariables = objRoot.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
-                Initialize(objIncludedNodes, objVariables);
-
-                if (p_objParent != null)
-                {
-                    List<XmlNode> objMenuAndFolders = new List<XmlNode>();
-                    XmlNode? objApplication = p_objParent;
-                    XmlNode? objNode = null;
-
-                    if (objApplication != null)
-                        objNode = objApplication.ParentNode;
-
-                    while (objNode != null)
-                    {
-                        if ((objNode.Name == MenuList.ElementName)
-                            || (objNode.Name == Menu.ElementName)
-                            || (objNode.Name == Folder.ElementName)
-                            )
-                            objMenuAndFolders.Insert(0, objNode);
-
-                        objNode = objNode.ParentNode;
-                    }
-
-                    foreach (XmlNode objFolder in objMenuAndFolders)
-                    {
-                        objVariables = objFolder.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
-                        Initialize(objIncludedNodes, objVariables);
-                    }
-
-                    if (objApplication != null)
-                        objVariables = objApplication.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
-
-                    Initialize(objIncludedNodes, objVariables);
-                }
-
-                m_objVariables = new DataModelCollection<Variable>(m_objMenuFile, objIncludedNodes);
-
-                if (p_objReferenceNode != null)
-                    ExpandVariables(p_objReferenceNode);
             }
         }
 
@@ -367,7 +314,7 @@ namespace AppLaunchMenu.DataModels
                 {
                     string strScript = strMatch.Substring(1, strMatch.Length - 2);
 
-                    Script? objScript = m_objMenuFile.ConfigList.GetScriptByName(strScript);
+                    Script? objScript = m_objMenuFile.ScriptList.GetScriptByName(strScript);
                     if (objScript != null)
                     {
                         ScriptingHost objScriptingHost = new(this);

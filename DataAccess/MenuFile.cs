@@ -5,6 +5,7 @@ using System.IO;
 using System.Security.Principal;
 using System.Text;
 using System.Xml;
+using Environment = AppLaunchMenu.DataModels.Environment;
 
 namespace AppLaunchMenu.DataAccess
 {
@@ -210,6 +211,72 @@ namespace AppLaunchMenu.DataAccess
             OnFileChanged();
         }
 
+        internal NetworkDrive? AddNetworkDrive(string p_strNetworkDriveName)
+        {
+            if (m_objXmlDocument != null)
+            {
+                XmlNode? objRoot = m_objXmlDocument.DocumentElement;
+                XmlNodeList? objMenusNode = null;
+
+                if (objRoot != null)
+                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/" + NetworkDriveList.ElementName);
+
+                if (objMenusNode != null)
+                {
+                    XmlElement objNetworkDriveElement = m_objXmlDocument.CreateElement(NetworkDrive.ElementName);
+                    XmlAttribute objNetworkDriveNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                    objNetworkDriveNameAttribute.Value = p_strNetworkDriveName;
+                    objNetworkDriveElement.Attributes.Append(objNetworkDriveNameAttribute);
+                    objMenusNode[0]?.AppendChild(objNetworkDriveElement);
+
+                    return new NetworkDrive(this, objNetworkDriveElement);
+                }
+            }
+
+            return null;
+        }
+
+        internal void RemoveNetworkDrive(NetworkDrive p_objNetworkDrive)
+        {
+            if (m_objXmlDocument != null)
+            {
+                p_objNetworkDrive.XmlNode?.ParentNode?.RemoveChild(p_objNetworkDrive.XmlNode);
+            }
+        }
+
+        internal Script? AddScript(string p_strScriptName)
+        {
+            if (m_objXmlDocument != null)
+            {
+                XmlNode? objRoot = m_objXmlDocument.DocumentElement;
+                XmlNodeList? objMenusNode = null;
+
+                if (objRoot != null)
+                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/" + ScriptList.ElementName);
+
+                if (objMenusNode != null)
+                {
+                    XmlElement objScriptElement = m_objXmlDocument.CreateElement(Script.ElementName);
+                    XmlAttribute objScriptNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                    objScriptNameAttribute.Value = p_strScriptName;
+                    objScriptElement.Attributes.Append(objScriptNameAttribute);
+                    objMenusNode[0]?.AppendChild(objScriptElement);
+
+                    return new Script(this, objScriptElement);
+                }
+            }
+
+            return null;
+        }
+
+        internal void RemoveScript(Script p_objScript)
+        {
+            if (m_objXmlDocument != null)
+            {
+                p_objScript.XmlNode?.ParentNode?.RemoveChild(p_objScript.XmlNode);
+            }
+        }
+
         internal Menu? AddMenu(string p_strMenuName)
         {
             if (m_objXmlDocument != null)
@@ -245,7 +312,11 @@ namespace AppLaunchMenu.DataAccess
 
         internal override void Insert(DataModelBase p_objObject, int p_intIndex)
         {
-            if (p_objObject is MenuList)
+            if ((p_objObject is NetworkDriveList)
+                || (p_objObject is ScriptList)
+                || (p_objObject is MenuList)
+                || (p_objObject is Environment)
+                )
             {
                 if (p_intIndex >= 0)
                     m_objXmlNode?.InsertBefore(p_objObject.XmlNode, m_objXmlNode?.ChildNodes[p_intIndex]);
@@ -256,23 +327,73 @@ namespace AppLaunchMenu.DataAccess
                 throw new ArgumentException();
         }
 
-        private MenuList CreateMenuList()
+        private ScriptList CreateScriptList()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(MenuList.ElementName);
-            return new MenuList(this, objEnvironmentElement);
+            XmlElement objElement = m_objXmlDocument.CreateElement(ScriptList.ElementName);
+            return new ScriptList(this, objElement);
         }
 
-        private ScriptListing CreateConfigList()
+        private NetworkDriveList CreateNetworkDriveList()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(ScriptListing.ElementName);
-            return new ScriptListing(this, objEnvironmentElement);
+            XmlElement objElement = m_objXmlDocument.CreateElement(DataModels.NetworkDriveList.ElementName);
+            return new NetworkDriveList(this, objElement);
+        }
+
+        private MenuList CreateMenuList()
+        {
+            XmlElement objElement = m_objXmlDocument.CreateElement(MenuList.ElementName);
+            return new MenuList(this, objElement);
+        }
+
+        private Environment CreateEnvironment()
+        {
+            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
+            return new Environment(this, objEnvironmentElement);
+        }
+
+        public ScriptList ScriptList
+        {
+            get
+            {
+                XmlNode? objScriptListNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + ScriptList.ElementName);
+
+                if (objScriptListNode == null)
+                {
+                    ScriptList objConfigList = CreateScriptList();
+
+                    Insert(objConfigList, 0);
+
+                    return objConfigList;
+                }
+                else
+                    return new ScriptList(this, objScriptListNode);
+            }
+        }
+
+        public NetworkDriveList NetworkDriveList
+        {
+            get
+            {
+                XmlNode? objNetworkDriveListNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + NetworkDriveList.ElementName);
+
+                if (objNetworkDriveListNode == null)
+                {
+                    NetworkDriveList objNetworkDriveList = CreateNetworkDriveList();
+
+                    Insert(objNetworkDriveList, 0);
+
+                    return objNetworkDriveList;
+                }
+                else
+                    return new NetworkDriveList(this, objNetworkDriveListNode);
+            }
         }
 
         public MenuList MenuList
         {
             get
             {
-                XmlNode? objMenuListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + MenuList.ElementName);
+                XmlNode? objMenuListNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName);
 
                 if (objMenuListNode == null)
                 {
@@ -287,22 +408,22 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        public ScriptListing ConfigList
+        public Environment Environment
         {
             get
             {
-                XmlNode? objConfigListNode = m_objXmlNode?.SelectSingleNode("/" + ElementName + "/" + ScriptListing.ElementName);
+                XmlNode? objEnvironmentNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName + "/" + Environment.ElementName);
 
-                if (objConfigListNode == null)
+                if (objEnvironmentNode == null)
                 {
-                    ScriptListing objConfigList = CreateConfigList();
+                    Environment objEnvironment = CreateEnvironment();
 
-                    Insert(objConfigList, 0);
+                    Insert(objEnvironment, 0);
 
-                    return objConfigList;
+                    return objEnvironment;
                 }
                 else
-                    return new ScriptListing(this, objConfigListNode);
+                    return new Environment(this, objEnvironmentNode);
             }
         }
 

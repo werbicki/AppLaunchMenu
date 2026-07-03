@@ -277,7 +277,7 @@ namespace AppLaunchMenu.DataModels
                         && (!string.IsNullOrEmpty(strConfigFilePath))
                         )
                     {
-                        Script? objConfig = m_objMenuFile.ConfigList.GetScriptByName(strConfig);
+                        Script? objConfig = m_objMenuFile.ScriptList.GetScriptByName(strConfig);
                         if (objConfig != null)
                         {
                             Variable objConfigFilePathVariable = new(m_objMenuFile, "ConfigFilePath");

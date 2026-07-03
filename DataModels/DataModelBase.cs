@@ -1,5 +1,4 @@
 ﻿using AppLaunchMenu.DataAccess;
-using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
@@ -40,6 +39,11 @@ namespace AppLaunchMenu.DataModels
             }
 
             Name = p_strName;
+        }
+
+        internal MenuFile MenuFile
+        {
+            get { return m_objMenuFile; }
         }
 
         internal XmlNode XmlNode
@@ -136,6 +140,19 @@ namespace AppLaunchMenu.DataModels
             return "";
         }
 
+        protected void SetXmlCData(string p_strXmlCData)
+        {
+            if ((m_objXmlNode != null)
+                && (m_objXmlNode.ChildNodes.Count > 0)
+                && (m_objXmlNode.ChildNodes[0] is XmlCDataSection)
+                )
+            {
+                XmlCDataSection? objCDataSection = m_objXmlNode.ChildNodes[0] as XmlCDataSection;
+                if (objCDataSection != null)
+                    objCDataSection.Value = p_strXmlCData;
+            }
+        }
+
         public string Name
         {
             get { return GetXmlAttribute(nameof(Name)); }
@@ -183,9 +200,9 @@ namespace AppLaunchMenu.DataModels
 
             try
             {
+                /*
                 if (RoleEnvironment.IsAvailable)
                     strAccountName = RoleEnvironment.CurrentRoleInstance.Id;
-                /*
                 else
                 {
                     AmazonS3Client objAmazonS3Client = new AmazonS3Client();
@@ -267,6 +284,59 @@ namespace AppLaunchMenu.DataModels
                     && Matches(Hostname, GetAllLocalIPv4(NetworkInterfaceType.Ethernet))
                     && Matches(Hostname, System.Environment.MachineName)
                     ;
+            }
+        }
+
+        internal virtual void Initialize(List<XmlNode> p_objIncludedNodes, XmlNodeList? p_objNodeList)
+        {
+            if (p_objNodeList != null)
+            {
+                foreach (XmlNode objNode in p_objNodeList)
+                {
+                    String strName = "";
+                    bool blnInclude = true;
+
+                    if ((objNode.Attributes != null)
+                        && (objNode.Attributes["Name"] != null)
+                        )
+                        strName = objNode.Attributes["Name"]!.Value;
+
+                    /*
+                    XmlNode? objEnvironmentNode = objVariable.ParentNode;
+                    if ((!DomainMatches(objEnvironmentNode))
+                        || (!DataCenterMatches(objEnvironmentNode))
+                        || (!HostnameMatches(objEnvironmentNode))
+                        || (!IsServiceMatches(objEnvironmentNode))
+                        )
+                        blnInclude = false;
+                        */
+
+                    if (blnInclude)
+                    {
+                        bool blnFound = false;
+
+                        for (int intIndex = 0; (!blnFound) && (intIndex < p_objIncludedNodes.Count); intIndex++)
+                        {
+                            String strExistingName = "";
+
+                            if ((p_objIncludedNodes[intIndex] != null)
+                                && (p_objIncludedNodes[intIndex].Attributes != null)
+                                && (p_objIncludedNodes[intIndex].Attributes!["Name"] != null)
+                                )
+                                strExistingName = p_objIncludedNodes[intIndex].Attributes!["Name"]!.Value;
+
+                            if (strExistingName == strName)
+                            {
+                                p_objIncludedNodes[intIndex] = objNode;
+
+                                blnFound = true;
+                            }
+                        }
+
+                        if (!blnFound)
+                            p_objIncludedNodes.Add(objNode);
+                    }
+                }
             }
         }
 

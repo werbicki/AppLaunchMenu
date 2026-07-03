@@ -18,6 +18,26 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
+        <DataTemplate x:Key="DefaultTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
+            <TreeViewItem
+                ContextRequested="TreeViewItem_ContextRequested"
+                IsExpanded="{Binding IsExpanded, Mode=OneWay}"
+                ItemsSource="{x:Bind Children}"
+                Tag="{x:Bind Item}"
+                Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                <RelativePanel>
+                    <Image
+                        x:Name="DefaultImage"
+                        Width="20"
+                        Margin="0,0,10,0"
+                        Source="../Assets/Default.png" />
+                    <TextBlock
+                        x:Name="TreeViewText"
+                        RelativePanel.RightOf="DefaultImage"
+                        Text="{x:Bind Name, Mode=OneWay}" />
+                </RelativePanel>
+            </TreeViewItem>
+        </DataTemplate>
         <DataTemplate x:Key="FolderTreeViewItemTemplate" x:DataType="local1:FolderViewModel">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
@@ -214,10 +234,12 @@
         </DataTemplate>
         <local:TreeViewItemTemplateSelector
             x:Key="TreeViewItemTemplateSelector"
+            DefaultTreeViewItemTemplate="{StaticResource DefaultTreeViewItemTemplate}"
+            FolderTreeViewItemTemplate="{StaticResource FolderTreeViewItemTemplate}"
             ApplicationTreeViewItemTemplate="{StaticResource ApplicationTreeViewItemTemplate}"
             EnvironmentTreeViewItemTemplate="{StaticResource EnvironmentTreeViewItemTemplate}"
-            FolderTreeViewItemTemplate="{StaticResource FolderTreeViewItemTemplate}"
-            VariableTreeViewItemTemplate="{StaticResource VariableTreeViewItemTemplate}" />
+            VariableTreeViewItemTemplate="{StaticResource VariableTreeViewItemTemplate}" 
+            />
         <CommandBarFlyout x:Name="m_objNewFolderContextMenu" Placement="Right">
             <AppBarButton
                 Click="OnNewFolderClick"

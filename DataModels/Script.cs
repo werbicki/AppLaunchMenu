@@ -92,7 +92,7 @@ namespace AppLaunchMenu.DataModels
 
         internal static string ElementName
         {
-            get { return nameof(DataModels.Script); }
+            get { return nameof(Script); }
         }
 
         protected override string _ElementName
@@ -100,14 +100,16 @@ namespace AppLaunchMenu.DataModels
             get { return ElementName; }
         }
 
-        protected string Language        
+        public string Language        
         {
             get { return GetXmlAttribute(nameof(Language)); }
+            set { SetXmlAttribute(nameof(Language), value); }
         }
 
-        protected string Code
+        public string Code
         {
             get { return GetXmlCData(); }
+            set { SetXmlCData(value); }
         }
 
         internal void RunScriptVoid(IScriptingHost p_objScriptingHost)

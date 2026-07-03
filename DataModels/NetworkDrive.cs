@@ -16,23 +16,19 @@ namespace AppLaunchMenu.DataModels
 {
     public class NetworkDrive : DataModelBase
     {
-        protected NetworkDriveListing m_objNetworkDrives;
-
-        public NetworkDrive(MenuFile p_objMenuFile, NetworkDriveListing p_objNetworkDrives, XmlNode p_objApplicationNode)
-            : base(p_objMenuFile, p_objApplicationNode)
+        public NetworkDrive(MenuFile p_objMenuFile, XmlNode p_objNetworkDriveNode)
+            : base(p_objMenuFile, p_objNetworkDriveNode)
         {
-            m_objNetworkDrives = p_objNetworkDrives;
         }
 
-        public NetworkDrive(MenuFile p_objMenuFile, NetworkDriveListing p_objNetworkDrives, string p_strName)
+        public NetworkDrive(MenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, p_strName)
         {
-            m_objNetworkDrives = p_objNetworkDrives;
         }
 
         internal static string ElementName
         {
-            get { return nameof(Application); }
+            get { return nameof(NetworkDrive); }
         }
 
         protected override string _ElementName
@@ -94,9 +90,11 @@ namespace AppLaunchMenu.DataModels
             if (UnmapFirst)
                 UnmapNetworkDrive();
 
-            Environment objEnvironment = m_objNetworkDrives.Folder.Environment;
-            string strRemoveUncPath = objEnvironment.ExpandVariable(RemoteUncPath);
-            string strLocalDriveLetter = objEnvironment.ExpandVariable(LocalDriveLetter);
+            //Environment objEnvironment = m_objNetworkDrives.Folder.Environment;
+            //string strRemoveUncPath = objEnvironment.ExpandVariable(RemoteUncPath);
+            //string strLocalDriveLetter = objEnvironment.ExpandVariable(LocalDriveLetter);
+            string strRemoveUncPath = RemoteUncPath;
+            string strLocalDriveLetter = LocalDriveLetter;
 
             NETRESOURCE objNetResource = new NETRESOURCE
             {
@@ -114,8 +112,9 @@ namespace AppLaunchMenu.DataModels
 
         public bool UnmapNetworkDrive()
         {
-            Environment objEnvironment = m_objNetworkDrives.Folder.Environment;
-            string strLocalDriveLetter = objEnvironment.ExpandVariable(LocalDriveLetter);
+            //Environment objEnvironment = m_objNetworkDrives.Folder.Environment;
+            //string strLocalDriveLetter = objEnvironment.ExpandVariable(LocalDriveLetter);
+            string strLocalDriveLetter = LocalDriveLetter;
 
             // dwFlags can be 0 or CONNECT_UPDATE_PROFILE (1) to make changes permanent/persistent
             // fForce can be 0 (false) or 1 (true)

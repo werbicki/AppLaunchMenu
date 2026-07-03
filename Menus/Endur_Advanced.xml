@@ -1,5 +1,5 @@
 <AppLaunchMenu SecurityGroup="Everyone">
-	<ScriptListing>
+	<ScriptList>
 		<Script Name="Endur_Config" Language="C#">
 			<![CDATA[
 WriteLine($"# Endur configuration file");
@@ -85,7 +85,10 @@ catch (HttpRequestException e)
 return strDateTime;
 			]]>
 		</Script>
-	</ScriptListing>
+	</ScriptList>
+	<NetworkDriveList>
+		<NetworkDrive Name="Public Share" RemoteUncPath="\\underworld\Public" LocalDriveLetter="X:" Persistent="False" UnmapFirst="True" ForceUnmap="True"/>
+	</NetworkDriveList>
 	<MenuList>
 		<Environment Name="Common">
 			<Variable Group="FileSystem" Name="OLF_MENU_FILE" Description="The file location of this Menu file." Value="\\%OLF_FILESHARE%\Environments\Endur_Sample.xml" />

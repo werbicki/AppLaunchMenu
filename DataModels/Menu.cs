@@ -29,7 +29,7 @@ namespace AppLaunchMenu.DataModels
             get { return ElementName; }
         }
 
-        internal NetworkDriveListing? CreateNetworkDrives(String p_strNetworkDrivesName)
+        internal NetworkDriveList? CreateNetworkDrives(String p_strNetworkDrivesName)
         {
             if (m_objXmlNode != null)
             {
@@ -40,7 +40,7 @@ namespace AppLaunchMenu.DataModels
                     objNetworkDrivesNameAttribute.Value = p_strNetworkDrivesName;
                     objNetworkDrivesElement.Attributes.Append(objNetworkDrivesNameAttribute);
 
-                    return new NetworkDriveListing(m_objMenuFile, this, objNetworkDrivesElement);
+                    return new NetworkDriveList(m_objMenuFile, objNetworkDrivesElement);
                 }
             }
 

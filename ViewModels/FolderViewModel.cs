@@ -80,7 +80,7 @@ namespace AppLaunchMenu.ViewModels
             VariableViewModel? objVariableViewModel = null;
             Variable? objVariable = m_objFolder.CreateVariable(p_strVariableName);
             if (objVariable != null)
-                objVariableViewModel = new VariableViewModel(LaunchMenu, objVariable, new EnvironmentViewModel(LaunchMenu, m_objFolder.Environment));
+                objVariableViewModel = new VariableViewModel(LaunchMenu, new EnvironmentViewModel(LaunchMenu, m_objFolder.Environment), objVariable);
 
             return objVariableViewModel;
         }

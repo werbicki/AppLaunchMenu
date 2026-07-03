@@ -495,6 +495,9 @@ namespace AppLaunchMenu
     class TreeViewItemTemplateSelector : DataTemplateSelector
     {
         // Template to use for folder items in the TreeView.
+        public DataTemplate? DefaultTreeViewItemTemplate { get; set; }
+
+        // Template to use for folder items in the TreeView.
         public DataTemplate? FolderTreeViewItemTemplate { get; set; }
 
         // Template to use for file items in the TreeView.
@@ -517,8 +520,10 @@ namespace AppLaunchMenu
                 return EnvironmentTreeViewItemTemplate;
             else if (objTreeViewItemViewModel is ApplicationViewModel)
                 return ApplicationTreeViewItemTemplate;
-            else
+            else if (objTreeViewItemViewModel is FolderViewModel)
                 return FolderTreeViewItemTemplate;
+            else
+                return DefaultTreeViewItemTemplate;
         }
     }
 }

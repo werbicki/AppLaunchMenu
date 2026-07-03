@@ -31,6 +31,11 @@ namespace AppLaunchMenu.DataModels
             get { return ElementName; }
         }
 
+        public bool CanEdit
+        {
+            get { return m_objMenuFile.CanEdit; }
+        }
+
         private Environment CreateEnvironment()
         {
             XmlElement objEnvironmentElement = m_objMenuFile.XmlDocument.CreateElement(Environment.ElementName);

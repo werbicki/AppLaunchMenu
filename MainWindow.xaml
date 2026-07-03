@@ -18,11 +18,21 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <TitleBar x:Name="TitleBar" Title="{x:Bind AppTitle, Mode=OneWay}">
-            <TitleBar.IconSource>
-                <FontIconSource Glyph="&#xF4AA;" />
-            </TitleBar.IconSource>
-        </TitleBar>
+        <Grid x:Name="TitleBar">
+            <Image
+                x:Name="TitleBarIcon"
+                Grid.Column="1"
+                Width="16"
+                Height="16"
+                Margin="8,0,4,0"
+                Source="ms-appx:///Assets/StoreLogo.png" />
+            <TextBlock
+                x:Name="TitleBarTextBlock"
+                Grid.Column="2"
+                VerticalAlignment="Center"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                Text="{x:Bind AppTitle, Mode=OneWay}" />
+        </Grid>
 
         <Frame x:Name="InnerFrame" Grid.Row="1" />
     </Grid>

@@ -12,22 +12,18 @@ namespace AppLaunchMenu.ViewModels
     public partial class MenuListViewModel : ViewModelBase
     {
         LaunchMenu m_objLaunchMenu;
-        MenuFile m_objMenuFile = new();
-        ObservableCollection<MenuViewModel> m_objMenus = new();
+        MenuFileViewModel m_objMenuFileViewModel;
+        MenuList m_objMenuList;
         EnvironmentViewModel m_objEnvironmentViewModel;
+        ObservableCollection<MenuViewModel> m_objMenus = new();
         private int m_intSelectedMenu = 0;
 
-        public MenuListViewModel(LaunchMenu p_objLaunchMenu)
+        public MenuListViewModel(LaunchMenu p_objLaunchMenu, MenuFileViewModel p_objMenuFileViewModel, MenuList p_objMenuList)
         {
             m_objLaunchMenu = p_objLaunchMenu;
-            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.MenuList.Environment);
-        }
-
-        public MenuListViewModel(LaunchMenu p_objLaunchMenu, MenuFile p_objMenuFile)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objMenuFile = p_objMenuFile;
-            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.MenuList.Environment);
+            m_objMenuFileViewModel = p_objMenuFileViewModel;
+            m_objMenuList = p_objMenuList;
+            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, p_objMenuList.Environment);
 
             SelectFirstMenu();
         }
@@ -36,7 +32,7 @@ namespace AppLaunchMenu.ViewModels
         {
             m_intSelectedMenu = 0;
 
-            foreach (DataModels.Menu objMenu in m_objMenuFile.MenuList.Menus)
+            foreach (DataModels.Menu objMenu in m_objMenuList.Menus)
                 m_objMenus.Add(new MenuViewModel(m_objLaunchMenu, this, objMenu));
 
             OnPropertyChanged(nameof(Menus));
@@ -51,7 +47,12 @@ namespace AppLaunchMenu.ViewModels
 
         public bool CanEdit
         {
-            get { return m_objMenuFile.CanEdit; }
+            get { return m_objMenuList.CanEdit; }
+        }
+
+        internal MenuFileViewModel MenuFileViewModel
+        {
+            get { return m_objMenuFileViewModel; }
         }
 
         public ObservableCollection<MenuViewModel> Menus
@@ -81,7 +82,7 @@ namespace AppLaunchMenu.ViewModels
         public MenuViewModel? AddMenu(LaunchMenu p_objLaunchMenu, String p_strMenuName)
         {
             MenuViewModel? objMenuViewModel = null;
-            Menu? objMenu = m_objMenuFile.AddMenu(p_strMenuName);
+            Menu? objMenu = m_objMenuList.MenuFile.AddMenu(p_strMenuName);
             if (objMenu != null)
             {
                 objMenuViewModel = new MenuViewModel(p_objLaunchMenu, this, objMenu);
@@ -97,25 +98,10 @@ namespace AppLaunchMenu.ViewModels
         {
             if (m_objMenus.Remove(p_objMenuViewModel))
             {
-                m_objMenuFile.RemoveMenu(p_objMenuViewModel.Menu);
+                m_objMenuList.MenuFile.RemoveMenu(p_objMenuViewModel.Menu);
 
                 this.OnPropertyChanged(nameof(Menus));
             }
-        }
-
-        public void Reload(LaunchMenu p_objLaunchMenu)
-        {
-            m_objMenuFile.Reload();
-
-            m_objMenus.Clear();
-            OnPropertyChanged(nameof(Menus));
-
-            SelectFirstMenu();
-        }
-
-        public EnvironmentViewModel Environment
-        {
-            get { return m_objEnvironmentViewModel; }
         }
     }
 }

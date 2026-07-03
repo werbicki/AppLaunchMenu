@@ -44,8 +44,6 @@ namespace AppLaunchMenu.Dialogs
         {
             this.InitializeComponent();
 
-            AppWindow.TitleBar.PreferredTheme = TitleBarTheme.UseDefaultAppMode;
-
             if (App.MainWindow != null)
                 SetWindowOwner(owner: App.MainWindow);
 

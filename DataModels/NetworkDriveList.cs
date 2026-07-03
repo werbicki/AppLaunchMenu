@@ -6,30 +6,48 @@ using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class NetworkDriveListing : DataModelBase
+    public class NetworkDriveList : DataModelBase
     {
-        protected Folder m_objFolder;
+        DataModelCollection<NetworkDrive> m_objNetworkDrives;
 
-        public NetworkDriveListing(MenuFile p_objMenuFile, Folder p_objFolder, XmlNode p_objFolderNode)
+        public NetworkDriveList(MenuFile p_objMenuFile, XmlNode p_objFolderNode)
             : base(p_objMenuFile, p_objFolderNode)
         {
-            m_objFolder = p_objFolder;
+            m_objNetworkDrives = new(p_objMenuFile, null);
+
+            Initialize(m_objMenuFile.XmlDocument, m_objMenuFile.XmlDocument, XmlNode.ParentNode);
         }
 
-        public NetworkDriveListing(MenuFile p_objMenuFile, Folder p_objFolder, string p_strName)
+        public NetworkDriveList(MenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, p_strName)
         {
-            m_objFolder = p_objFolder;
+            m_objNetworkDrives = new(p_objMenuFile, null);
+        }
+
+        private void Initialize(XmlDocument p_objDocument, XmlNode? p_objReferenceNode, XmlNode? p_objParent)
+        {
+            m_objNetworkDrives.Clear();
+
+            List<XmlNode> objIncludedNodes = [];
+            XmlNodeList? objNodeList = XmlNode.SelectNodes("./" + NetworkDrive.ElementName);
+            Initialize(objIncludedNodes, objNodeList);
+
+            m_objNetworkDrives = new DataModelCollection<NetworkDrive>(m_objMenuFile, objIncludedNodes);
         }
 
         internal static string ElementName
         {
-            get { return nameof(NetworkDriveListing); }
+            get { return nameof(NetworkDriveList); }
         }
 
         protected override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public bool CanEdit
+        {
+            get { return m_objMenuFile.CanEdit; }
         }
 
         internal NetworkDrive? CreateNetworkDrive(String p_strNetworkDriveName)
@@ -43,7 +61,7 @@ namespace AppLaunchMenu.DataModels
                     objNetworkDriveNameAttribute.Value = p_strNetworkDriveName;
                     objNetworkDriveElement.Attributes.Append(objNetworkDriveNameAttribute);
 
-                    return new NetworkDrive(m_objMenuFile, this, objNetworkDriveElement);
+                    return new NetworkDrive(m_objMenuFile, objNetworkDriveElement);
                 }
             }
 
@@ -71,11 +89,6 @@ namespace AppLaunchMenu.DataModels
             throw new ArgumentException();
         }
 
-        public Folder Folder
-        {
-            get { return m_objFolder; }
-        }
-
         public override DataModelBase[] Items
         {
             get
@@ -97,7 +110,7 @@ namespace AppLaunchMenu.DataModels
                             */
 
                             if (blnInclude)
-                                objItems.Add(new NetworkDrive(m_objMenuFile, this, objItemNode));
+                                objItems.Add(new NetworkDrive(m_objMenuFile, objItemNode));
                         }
                     }
                 }
@@ -128,7 +141,7 @@ namespace AppLaunchMenu.DataModels
                             */
 
                             if (blnInclude)
-                                objFolders.Add(new NetworkDrive(m_objMenuFile, this, objFolderNode));
+                                objFolders.Add(new NetworkDrive(m_objMenuFile, objFolderNode));
                         }
                     }
                 }
