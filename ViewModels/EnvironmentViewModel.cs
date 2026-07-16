@@ -12,8 +12,8 @@ namespace AppLaunchMenu.ViewModels
         DataModels.Environment m_objEnvironment;
         protected ObservableCollection<VariableViewModel> m_objExpandedVariables = new ObservableCollection<VariableViewModel>();
 
-        public EnvironmentViewModel(LaunchMenu? p_objLaunchMenu, DataModels.Environment p_objEnvironment)
-            : base(p_objLaunchMenu)
+        public EnvironmentViewModel(LaunchMenu p_objLaunchMenu, DataModels.Environment p_objEnvironment)
+            : base(p_objLaunchMenu, p_objEnvironment)
         {
             m_objEnvironment = p_objEnvironment;
 
@@ -23,8 +23,8 @@ namespace AppLaunchMenu.ViewModels
             m_objExpandedVariables.CollectionChanged += Variables_CollectionChanged;
         }
 
-        public EnvironmentViewModel(LaunchMenu? p_objLaunchMenu, DataModels.Environment p_objEnvironment, TreeViewItemViewModel p_objTreeViewItemViewModel)
-            : base(p_objLaunchMenu, p_objTreeViewItemViewModel)
+        public EnvironmentViewModel(LaunchMenu p_objLaunchMenu, DataModels.Environment p_objEnvironment, TreeViewItemViewModel p_objParent)
+            : base(p_objLaunchMenu, p_objEnvironment, p_objParent)
         {
             m_objEnvironment = p_objEnvironment;
         }

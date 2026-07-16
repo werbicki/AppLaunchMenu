@@ -9,19 +9,18 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public partial class MenuListViewModel : ViewModelBase
+    public partial class MenuListViewModel : TreeViewItemViewModel
     {
         LaunchMenu m_objLaunchMenu;
-        MenuFileViewModel m_objMenuFileViewModel;
         MenuList m_objMenuList;
         EnvironmentViewModel m_objEnvironmentViewModel;
         ObservableCollection<MenuViewModel> m_objMenus = new();
         private int m_intSelectedMenu = 0;
 
-        public MenuListViewModel(LaunchMenu p_objLaunchMenu, MenuFileViewModel p_objMenuFileViewModel, MenuList p_objMenuList)
+        public MenuListViewModel(LaunchMenu p_objLaunchMenu, MenuList p_objMenuList)
+            : base(p_objLaunchMenu)
         {
             m_objLaunchMenu = p_objLaunchMenu;
-            m_objMenuFileViewModel = p_objMenuFileViewModel;
             m_objMenuList = p_objMenuList;
             m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, p_objMenuList.Environment);
 
@@ -33,7 +32,7 @@ namespace AppLaunchMenu.ViewModels
             m_intSelectedMenu = 0;
 
             foreach (DataModels.Menu objMenu in m_objMenuList.Menus)
-                m_objMenus.Add(new MenuViewModel(m_objLaunchMenu, this, objMenu));
+                m_objMenus.Add(new MenuViewModel(m_objLaunchMenu, objMenu));
 
             OnPropertyChanged(nameof(Menus));
 
@@ -43,16 +42,6 @@ namespace AppLaunchMenu.ViewModels
 
                 OnPropertyChanged(nameof(SelectedMenu));
             }
-        }
-
-        public bool CanEdit
-        {
-            get { return m_objMenuList.CanEdit; }
-        }
-
-        internal MenuFileViewModel MenuFileViewModel
-        {
-            get { return m_objMenuFileViewModel; }
         }
 
         public ObservableCollection<MenuViewModel> Menus
@@ -82,10 +71,10 @@ namespace AppLaunchMenu.ViewModels
         public MenuViewModel? AddMenu(LaunchMenu p_objLaunchMenu, String p_strMenuName)
         {
             MenuViewModel? objMenuViewModel = null;
-            Menu? objMenu = m_objMenuList.MenuFile.AddMenu(p_strMenuName);
+            Menu? objMenu = m_objMenuList.CreateItem<Menu>(p_strMenuName);
             if (objMenu != null)
             {
-                objMenuViewModel = new MenuViewModel(p_objLaunchMenu, this, objMenu);
+                objMenuViewModel = new MenuViewModel(p_objLaunchMenu, objMenu);
                 m_objMenus.Add(objMenuViewModel);
 
                 this.OnPropertyChanged(nameof(Menus));
@@ -98,7 +87,7 @@ namespace AppLaunchMenu.ViewModels
         {
             if (m_objMenus.Remove(p_objMenuViewModel))
             {
-                m_objMenuList.MenuFile.RemoveMenu(p_objMenuViewModel.Menu);
+                m_objMenuList.MenuFile.RemoveItem(p_objMenuViewModel.Menu);
 
                 this.OnPropertyChanged(nameof(Menus));
             }

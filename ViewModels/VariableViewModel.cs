@@ -11,11 +11,11 @@ namespace AppLaunchMenu.ViewModels
         protected DataModels.Environment m_objEnvironment;
         protected Variable m_objVariable;
 
-        public VariableViewModel(LaunchMenu? p_objLaunchMenu, EnvironmentViewModel p_objEnvironment, Variable p_objVariable)
-            : base(p_objLaunchMenu, p_objEnvironment)
+        public VariableViewModel(LaunchMenu p_objLaunchMenu, EnvironmentViewModel p_objEnvironmentViewModel, Variable p_objVariable)
+            : base(p_objLaunchMenu, p_objVariable, p_objEnvironmentViewModel)
         {
             m_objVariable = p_objVariable;
-            m_objEnvironment = p_objEnvironment.Environment;
+            m_objEnvironment = p_objEnvironmentViewModel.Environment;
         }
 
         internal Variable Variable

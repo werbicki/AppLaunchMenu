@@ -10,14 +10,14 @@ namespace AppLaunchMenu.ViewModels
     {
         private readonly Folder m_objFolder;
 
-        public FolderViewModel(LaunchMenu? p_objLaunchMenu, Folder p_objFolder)
-            : base(p_objLaunchMenu)
+        public FolderViewModel(LaunchMenu p_objLaunchMenu, Folder p_objFolder)
+            : base(p_objLaunchMenu, p_objFolder)
         {
             m_objFolder = p_objFolder;
         }
 
-        public FolderViewModel(LaunchMenu? p_objLaunchMenu, Folder p_objFolder, FolderViewModel p_objFolderViewModel)
-            : base(p_objLaunchMenu, p_objFolderViewModel)
+        public FolderViewModel(LaunchMenu p_objLaunchMenu, Folder p_objFolder, TreeViewItemViewModel p_objParent)
+            : base(p_objLaunchMenu, p_objFolder, p_objParent)
         {
             m_objFolder = p_objFolder;
         }
@@ -43,7 +43,7 @@ namespace AppLaunchMenu.ViewModels
         internal FolderViewModel? CreateFolder(String p_strFolderName)
         {
             FolderViewModel? objFolderViewModel = null;
-            Folder? objFolder = m_objFolder.CreateFolder(p_strFolderName);
+            Folder? objFolder = m_objFolder.CreateItem<Folder>(p_strFolderName);
             if (objFolder != null)
             {
                 objFolderViewModel = new FolderViewModel(LaunchMenu, objFolder, this);
@@ -69,7 +69,7 @@ namespace AppLaunchMenu.ViewModels
         internal ApplicationViewModel? CreateApplication(String p_strApplicationName)
         {
             ApplicationViewModel? objApplicationViewModel = null;
-            Application? objApplication = m_objFolder.CreateApplication(p_strApplicationName);
+            Application? objApplication = m_objFolder.CreateItem<Application>(p_strApplicationName);
 
             if (objApplication != null)
                 objApplicationViewModel = new ApplicationViewModel(LaunchMenu, objApplication, this);

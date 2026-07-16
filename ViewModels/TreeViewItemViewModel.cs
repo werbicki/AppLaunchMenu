@@ -1,20 +1,35 @@
-﻿using Microsoft.UI.Xaml;
+﻿using AppLaunchMenu.DataModels;
+using Microsoft.UI.Xaml;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AppLaunchMenu.ViewModels
 {
+    public class EmptyViewModel : TreeViewItemViewModel
+    {
+        public EmptyViewModel(LaunchMenu p_objLaunchMenu)
+            : base(p_objLaunchMenu)
+        {
+        }
+
+        public override string Name
+        {
+            get { return "Empty"; }
+        }
+    }
+
     /// <summary>
     /// Base class for all ViewModel classes displayed by TreeViewItems.  
     /// This acts as an adapter between a raw data object and a TreeViewItem.
     /// </summary>
-    public partial class TreeViewItemViewModel : ViewModelBase
+    public partial class TreeViewItemViewModel : ViewModelNotifyBase
     {
-        private static readonly TreeViewItemViewModel DummyChild = new();
+        private static TreeViewItemViewModel? m_objEmptyChild = null;
 
-        private LaunchMenu? m_objLaunchMenu;
+        private readonly LaunchMenu m_objLaunchMenu = new LaunchMenu(true);
         private TreeViewItemViewModel? m_objParent = null;
         private ObservableCollection<TreeViewItemViewModel> m_objChildren = [];
         private string m_strName = "";
@@ -23,28 +38,31 @@ namespace AppLaunchMenu.ViewModels
         private bool m_blnSelected = false;
 
         // This is used to create the DummyChild instance.
-        internal TreeViewItemViewModel()
+        protected TreeViewItemViewModel(LaunchMenu p_objLaunchMenu)
         {
+            m_objLaunchMenu = p_objLaunchMenu;
         }
 
-        protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, bool p_blnLazyLoadChildren = false)
+        protected TreeViewItemViewModel(LaunchMenu p_objLaunchMenu, DataModelBase p_objDataModel, bool p_blnLazyLoadChildren = false)
         {
             m_objLaunchMenu = p_objLaunchMenu;
             m_blnLazyLoadChildren = p_blnLazyLoadChildren;
 
-            m_objChildren.Add(DummyChild);
+            if (EmptyChild != null)
+                m_objChildren.Add(EmptyChild);
 
             if (m_objLaunchMenu != null)
                 m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
         }
 
-        protected TreeViewItemViewModel(LaunchMenu? p_objLaunchMenu, TreeViewItemViewModel p_objParent, bool p_blnLazyLoadChildren = false)
+        protected TreeViewItemViewModel(LaunchMenu p_objLaunchMenu, DataModelBase p_objDataModel, TreeViewItemViewModel p_objParent, bool p_blnLazyLoadChildren = false)
         {
             m_objLaunchMenu = p_objLaunchMenu;
             m_objParent = p_objParent;
             m_blnLazyLoadChildren = p_blnLazyLoadChildren;
 
-            m_objChildren.Add(DummyChild);
+            if (EmptyChild != null)
+                m_objChildren.Add(EmptyChild);
 
             if (m_objLaunchMenu != null)
                 m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
@@ -97,9 +115,28 @@ namespace AppLaunchMenu.ViewModels
         /// <summary>
         /// Returns true if this object's Children have not yet been populated.
         /// </summary>
-        private bool HasDummyChild
+        internal static TreeViewItemViewModel? EmptyChild
         {
-            get { return m_objChildren.Contains(DummyChild); }
+            get { return m_objEmptyChild; }
+            set { m_objEmptyChild = value; }
+        }
+
+        /// <summary>
+        /// Returns true if this object's Children have not yet been populated.
+        /// </summary>
+        private bool HasEmptyChild
+        {
+            get
+            {
+                if (EmptyChild != null)
+                    return m_objChildren.Contains(EmptyChild);
+                return false;
+            }
+        }
+
+        internal LaunchMenu LaunchMenu
+        {
+            get { return m_objLaunchMenu; }
         }
 
         /// <summary>
@@ -117,11 +154,6 @@ namespace AppLaunchMenu.ViewModels
         public virtual object Item
         {
             get { return this; }
-        }
-
-        protected LaunchMenu? LaunchMenu
-        {
-            get { return m_objLaunchMenu; }
         }
 
         internal TreeViewItemViewModel? Parent
@@ -226,7 +258,7 @@ namespace AppLaunchMenu.ViewModels
         {
             get
             {
-                if ((m_objChildren.Count == 1) && (HasDummyChild))
+                if ((m_objChildren.Count == 1) && (HasEmptyChild))
                     LoadChildren();
 
                 return m_objChildren;
@@ -236,7 +268,10 @@ namespace AppLaunchMenu.ViewModels
         protected void ReloadChildren()
         {
             m_objChildren.Clear();
-            m_objChildren.Add(DummyChild);
+
+            if (EmptyChild != null)
+                m_objChildren.Add(EmptyChild);
+
             LoadChildren();
         }
 
@@ -244,8 +279,8 @@ namespace AppLaunchMenu.ViewModels
         {
             m_objChildren.CollectionChanged -= Children_CollectionChanged;
 
-            if (HasDummyChild)
-                m_objChildren.Remove(DummyChild);
+            if ((EmptyChild != null) && (HasEmptyChild))
+                m_objChildren.Remove(EmptyChild);
 
             OnLoadChildren();
 

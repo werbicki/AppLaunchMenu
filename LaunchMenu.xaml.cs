@@ -34,8 +34,8 @@ namespace AppLaunchMenu
     public sealed partial class LaunchMenu : PageNotifyPropertyChanged
     {
         private MenuFile m_objMenuFile = new();
-        private MenuFileViewModel m_objMenuFileViewModel;
-        private DataModels.Application? m_objSelectedApplication = null;
+        private MenuFileViewModel? m_objMenuFileViewModel;
+        private ApplicationViewModel? m_objSelectedApplication = null;
         private bool m_blnShowEnvironment = false;
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
         private string m_strStatusText = "";
@@ -44,6 +44,7 @@ namespace AppLaunchMenu
         public LaunchMenu()
         {
             InitializeComponent();
+            TreeViewItemViewModel.EmptyChild = new EmptyViewModel(this);
 
             m_objMenuFileViewModel = new MenuFileViewModel(this);
 
@@ -52,17 +53,8 @@ namespace AppLaunchMenu
             StatusText = "Hostname: " + System.Environment.MachineName + ", Username: " + System.Environment.UserDomainName + "\\" + System.Environment.UserName;
         }
 
-        public LaunchMenu(MenuFile p_objMenuFile)
+        public LaunchMenu(bool p_blnEmptyConstructor)
         {
-            InitializeComponent();
-
-            m_objMenuFile = p_objMenuFile;
-            m_objMenuFileViewModel = new MenuFileViewModel(this, m_objMenuFile);
-
-            m_objMenuFile.FileChanged += MenuFile_FileChanged;
-            m_objMenuFileViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
-
-            StatusText = "Hostname: " + System.Environment.MachineName + ", Username: " + System.Environment.UserDomainName + "\\" + System.Environment.UserName;
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -105,23 +97,34 @@ namespace AppLaunchMenu
                 OnPropertyChanged(nameof(SelectedMenu));
         }
 
+        internal MenuFileViewModel MenuFileViewModel
+        {
+            get
+            {
+                if (m_objMenuFileViewModel == null)
+                    throw new AccessViolationException();
+
+                return m_objMenuFileViewModel;
+            }
+        }
+
         private bool CanEdit
         {
-            get { return m_objMenuFileViewModel.CanEdit; }
+            get { return m_objMenuFile.CanEdit; }
         }
 
         public bool EditMode
         {
             get
             {
-                if (m_objMenuFileViewModel.CanEdit)
+                if (m_objMenuFile.CanEdit)
                     return m_blnEditMode;
                 return
                     false;
             }
             set
             {
-                if (m_objMenuFileViewModel.CanEdit)
+                if (m_objMenuFile.CanEdit)
                 {
                     m_blnEditMode = value;
                     OnPropertyChanged(nameof(EditMode));
@@ -141,11 +144,11 @@ namespace AppLaunchMenu
 
         public MenuViewModel? SelectedMenu
         {
-            get { return m_objMenuFileViewModel.MenuListViewModel.SelectedMenu; }
-            set { m_objMenuFileViewModel.MenuListViewModel.SelectedMenu = value; }
+            get { return MenuFileViewModel.MenuListViewModel.SelectedMenu; }
+            set { MenuFileViewModel.MenuListViewModel.SelectedMenu = value; }
         }
 
-        public DataModels.Application? SelectedApplication
+        public ApplicationViewModel? SelectedApplication
         {
             get
             {
@@ -157,9 +160,9 @@ namespace AppLaunchMenu
 
                 if (m_objSelectedApplication != null)
                 {
-                    DataModels.Environment? objEnvironment = m_objSelectedApplication.Environment;
+                    DataModels.Environment? objEnvironment = m_objSelectedApplication.Application.Environment;
                     if (objEnvironment != null)
-                        CommandLine = m_objSelectedApplication.GetExecutablePath(objEnvironment) + " " + m_objSelectedApplication.GetParameters(objEnvironment);
+                        CommandLine = m_objSelectedApplication.Application.GetExecutablePath(objEnvironment) + " " + m_objSelectedApplication.Application.GetParameters(objEnvironment);
                 }
                 else
                     CommandLine = "Select an application from the list and press the 'Launch' button.";
@@ -218,7 +221,7 @@ namespace AppLaunchMenu
                 Execute(m_objSelectedApplication);
         }
 
-        private async void Execute(DataModels.Application p_objApplication)
+        private async void Execute(ApplicationViewModel p_objApplicationViewModel)
         {
             bool blnExecute = true;
 
@@ -228,9 +231,9 @@ namespace AppLaunchMenu
                 {
                     //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                     //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme,
-                    Title = p_objApplication.Name,
+                    Title = p_objApplicationViewModel.Name,
                     IsResizable = true,
-                    Page = new EnvironmentReview(p_objApplication),
+                    Page = new EnvironmentReview(p_objApplicationViewModel),
                     CloseButtonText = "Cancel",
                     PrimaryButtonText = "OK",
                     DefaultButton = ContentDialogButton.Primary
@@ -245,7 +248,7 @@ namespace AppLaunchMenu
             {
                 try
                 {
-                    p_objApplication.Execute(p_objApplication.Environment);
+                    p_objApplicationViewModel.Application.Execute(p_objApplicationViewModel.Application.Environment);
                 }
                 catch (Exception e)
                 {

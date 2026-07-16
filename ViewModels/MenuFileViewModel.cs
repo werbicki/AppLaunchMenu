@@ -9,7 +9,7 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public partial class MenuFileViewModel : ViewModelBase
+    public partial class MenuFileViewModel : ViewModelNotifyBase
     {
         LaunchMenu m_objLaunchMenu;
         MenuFile m_objMenuFile = new();
@@ -23,7 +23,7 @@ namespace AppLaunchMenu.ViewModels
             m_objLaunchMenu = p_objLaunchMenu;
             m_objNetworkDriveListViewModel = new NetworkDriveListViewModel(m_objLaunchMenu, m_objMenuFile.NetworkDriveList);
             m_objScriptListViewModel = new ScriptListViewModel(m_objLaunchMenu, m_objMenuFile.ScriptList);
-            m_objMenuListViewModel = new MenuListViewModel(m_objLaunchMenu, this, m_objMenuFile.MenuList);
+            m_objMenuListViewModel = new MenuListViewModel(m_objLaunchMenu, m_objMenuFile.MenuList);
             m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.Environment);
         }
 
@@ -33,13 +33,8 @@ namespace AppLaunchMenu.ViewModels
             m_objMenuFile = p_objMenuFile;
             m_objNetworkDriveListViewModel = new NetworkDriveListViewModel(m_objLaunchMenu, m_objMenuFile.NetworkDriveList);
             m_objScriptListViewModel = new ScriptListViewModel(m_objLaunchMenu, m_objMenuFile.ScriptList);
-            m_objMenuListViewModel = new MenuListViewModel(m_objLaunchMenu, this, m_objMenuFile.MenuList);
+            m_objMenuListViewModel = new MenuListViewModel(m_objLaunchMenu, m_objMenuFile.MenuList);
             m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.Environment);
-        }
-
-        public bool CanEdit
-        {
-            get { return m_objMenuFile.CanEdit; }
         }
 
         public NetworkDriveListViewModel NetworkDriveListViewModel

@@ -9,14 +9,8 @@ namespace AppLaunchMenu.ViewModels
     {
         Application m_objApplication;
 
-        public ApplicationViewModel(LaunchMenu? p_objLaunchMenu, Application p_objApplication, MenuViewModel p_objMenuViewModel)
-            : base(p_objLaunchMenu, p_objMenuViewModel)
-        {
-            m_objApplication = p_objApplication;
-        }
-
-        public ApplicationViewModel(LaunchMenu?p_objLaunchMenu, Application p_objApplication, FolderViewModel p_objFolderViewModel)
-            : base(p_objLaunchMenu, p_objFolderViewModel)
+        public ApplicationViewModel(LaunchMenu p_objLaunchMenu, Application p_objApplication, TreeViewItemViewModel p_objParent)
+            : base(p_objLaunchMenu, p_objApplication, p_objParent)
         {
             m_objApplication = p_objApplication;
         }

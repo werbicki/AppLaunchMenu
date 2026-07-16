@@ -11,16 +11,14 @@ namespace AppLaunchMenu.ViewModels
 {
     public partial class MenuViewModel : FolderViewModel
     {
-        private readonly MenuListViewModel m_objMenuListViewModel;
         private readonly Menu m_objMenu;
         private readonly Page m_objMenuPage;
         private readonly IconSource m_objDataIconSource = new SymbolIconSource() { Symbol = Symbol.Placeholder };
         GridLength m_objTreeViewItemWidth = new(200.0);
 
-        public MenuViewModel(LaunchMenu p_objLaunchMenu, MenuListViewModel p_objMenusViewModel, Menu p_objMenu)
+        public MenuViewModel(LaunchMenu p_objLaunchMenu, Menu p_objMenu)
             : base(p_objLaunchMenu, p_objMenu)
         {
-            m_objMenuListViewModel = p_objMenusViewModel;
             m_objMenu = p_objMenu;
             m_objMenuPage = new MenuPage(p_objLaunchMenu, this);
         }
@@ -52,9 +50,9 @@ namespace AppLaunchMenu.ViewModels
 
         protected override void OnLoadChildren()
         {
-            Children.Add(m_objMenuListViewModel.MenuFileViewModel.NetworkDriveListViewModel);
-            Children.Add(m_objMenuListViewModel.MenuFileViewModel.ScriptListViewModel);
-            Children.Add(m_objMenuListViewModel.MenuFileViewModel.EnvironmentViewModel);
+            Children.Add(LaunchMenu.MenuFileViewModel.NetworkDriveListViewModel);
+            Children.Add(LaunchMenu.MenuFileViewModel.ScriptListViewModel);
+            Children.Add(LaunchMenu.MenuFileViewModel.EnvironmentViewModel);
 
             base.OnLoadChildren();
         }

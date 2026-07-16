@@ -15,15 +15,8 @@ namespace AppLaunchMenu.ViewModels
         NetworkDriveList m_objNetworkDriveList;
         ObservableCollection<NetworkDriveViewModel> m_objNetworkDrives = new();
 
-        public NetworkDriveListViewModel(LaunchMenu p_objLaunchMenu, MenuFile p_objMenuFile)
-            : base(p_objLaunchMenu)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objNetworkDriveList = new NetworkDriveList(p_objMenuFile, "NetworkDrives");
-        }
-
         public NetworkDriveListViewModel(LaunchMenu p_objLaunchMenu, NetworkDriveList p_objNetworkDriveList)
-            : base(p_objLaunchMenu)
+            : base(p_objLaunchMenu, p_objNetworkDriveList)
         {
             m_objLaunchMenu = p_objLaunchMenu;
             m_objNetworkDriveList = p_objNetworkDriveList;
@@ -57,10 +50,10 @@ namespace AppLaunchMenu.ViewModels
         public NetworkDriveViewModel? AddNetworkDrive(LaunchMenu p_objLaunchMenu, String p_strNetworkDrive)
         {
             NetworkDriveViewModel? objNetworkDriveViewModel = null;
-            NetworkDrive? objNetworkDrive = m_objNetworkDriveList.MenuFile.AddNetworkDrive(p_strNetworkDrive);
+            NetworkDrive? objNetworkDrive = m_objNetworkDriveList.CreateItem<NetworkDrive>(p_strNetworkDrive);
             if (objNetworkDrive != null)
             {
-                objNetworkDriveViewModel = new NetworkDriveViewModel(p_objLaunchMenu, this, objNetworkDrive);
+                objNetworkDriveViewModel = new NetworkDriveViewModel(p_objLaunchMenu, objNetworkDrive);
                 m_objNetworkDrives.Add(objNetworkDriveViewModel);
 
                 this.OnPropertyChanged(nameof(NetworkDrives));
@@ -73,7 +66,7 @@ namespace AppLaunchMenu.ViewModels
         {
             if (m_objNetworkDrives.Remove(p_objNetworkDriveViewModel))
             {
-                m_objNetworkDriveList.MenuFile.RemoveNetworkDrive(p_objNetworkDriveViewModel.NetworkDrive);
+                m_objNetworkDriveList.MenuFile.RemoveItem(p_objNetworkDriveViewModel.NetworkDrive);
 
                 this.OnPropertyChanged(nameof(NetworkDrives));
             }
@@ -84,7 +77,7 @@ namespace AppLaunchMenu.ViewModels
             foreach (DataModelBase objItem in m_objNetworkDriveList.Items)
             {
                 if (objItem is NetworkDrive objNetworkDrive)
-                    Children.Add(new NetworkDriveViewModel(LaunchMenu, this, objNetworkDrive));
+                    Children.Add(new NetworkDriveViewModel(LaunchMenu, objNetworkDrive));
             }
         }
     }

@@ -30,7 +30,6 @@ namespace AppLaunchMenu
     public sealed partial class EnvironmentReview : PageNotifyPropertyChanged
     {
         private DataModels.Application? m_objApplication;
-        private DataModels.Environment? m_objEnvironment;
         private EnvironmentViewModel? m_objEnvironmentViewModel;
 
         public EnvironmentReview()
@@ -38,12 +37,10 @@ namespace AppLaunchMenu
             this.InitializeComponent();
         }
 
-        public EnvironmentReview(DataModels.Application p_objApplication)
+        public EnvironmentReview(ApplicationViewModel p_objApplicationViewModel)
         {
-            m_objApplication = p_objApplication;
-            m_objEnvironment = m_objApplication.Environment;
-            if (m_objEnvironment != null)
-                m_objEnvironmentViewModel = new EnvironmentViewModel(null, m_objEnvironment);
+            m_objApplication = p_objApplicationViewModel.Application;
+            m_objEnvironmentViewModel = p_objApplicationViewModel.Environment;
 
             this.InitializeComponent();
             m_objEnvironmentTable.DataContext = m_objEnvironmentViewModel;

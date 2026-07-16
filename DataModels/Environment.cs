@@ -150,7 +150,7 @@ namespace AppLaunchMenu.DataModels
 
         internal Variable? CreateVariable(String p_strVariableName)
         {
-            Variable objVariable = (Variable)CreateChildNode(typeof(Variable), p_strVariableName);
+            Variable objVariable = CreateItem<Variable>(p_strVariableName);
 
             return objVariable;
         }

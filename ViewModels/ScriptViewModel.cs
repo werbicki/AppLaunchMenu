@@ -8,13 +8,11 @@ namespace AppLaunchMenu.ViewModels
 {
     public class ScriptViewModel : TreeViewItemViewModel
     {
-        private readonly ScriptListViewModel m_objScriptListViewModel;
         protected Script m_objScript;
 
-        public ScriptViewModel(LaunchMenu? p_objLaunchMenu, ScriptListViewModel p_objScriptListViewModel, Script p_objScript)
-            : base(p_objLaunchMenu)
+        public ScriptViewModel(LaunchMenu p_objLaunchMenu, Script p_objScript)
+            : base(p_objLaunchMenu, p_objScript)
         {
-            m_objScriptListViewModel = p_objScriptListViewModel;
             m_objScript = p_objScript;
         }
 

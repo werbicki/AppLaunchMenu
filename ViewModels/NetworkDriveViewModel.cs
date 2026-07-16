@@ -8,13 +8,11 @@ namespace AppLaunchMenu.ViewModels
 {
     public class NetworkDriveViewModel : TreeViewItemViewModel
     {
-        private readonly NetworkDriveListViewModel m_objNetworkDriveListViewModel;
         protected NetworkDrive m_objNetworkDrive;
 
-        public NetworkDriveViewModel(LaunchMenu? p_objLaunchMenu, NetworkDriveListViewModel p_objNetworkDriveListViewModel, NetworkDrive p_objVariable)
-            : base(p_objLaunchMenu)
+        public NetworkDriveViewModel(LaunchMenu p_objLaunchMenu, NetworkDrive p_objVariable)
+            : base(p_objLaunchMenu, p_objVariable)
         {
-            m_objNetworkDriveListViewModel = p_objNetworkDriveListViewModel;
             m_objNetworkDrive = p_objVariable;
         }
 

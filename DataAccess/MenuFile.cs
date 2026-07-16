@@ -25,13 +25,13 @@ namespace AppLaunchMenu.DataAccess
         private FileSystemWatcher m_objFileSystemWatcher = new FileSystemWatcher();
 
         public MenuFile()
-            : base(new XmlDocument())
+            : base(new Type[] { typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
         {
             CreateFile("New AppLaunchMenu");
         }
 
         public MenuFile(string p_strFilename)
-            : base(new XmlDocument())
+            : base(new Type[] { typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
         {
             FileInfo objFileInfo = new FileInfo(p_strFilename);
 
@@ -209,105 +209,6 @@ namespace AppLaunchMenu.DataAccess
         private void FileSystemWatcher_Changed(object sender, FileSystemEventArgs e)
         {
             OnFileChanged();
-        }
-
-        internal NetworkDrive? AddNetworkDrive(string p_strNetworkDriveName)
-        {
-            if (XmlDocument != null)
-            {
-                XmlNode? objRoot = XmlDocument.DocumentElement;
-                XmlNodeList? objMenusNode = null;
-
-                if (objRoot != null)
-                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/" + NetworkDriveList.ElementName);
-
-                if (objMenusNode != null)
-                {
-                    XmlElement objNetworkDriveElement = XmlDocument.CreateElement(NetworkDrive.ElementName);
-                    XmlAttribute objNetworkDriveNameAttribute = XmlDocument.CreateAttribute("Name");
-                    objNetworkDriveNameAttribute.Value = p_strNetworkDriveName;
-                    objNetworkDriveElement.Attributes.Append(objNetworkDriveNameAttribute);
-                    objMenusNode[0]?.AppendChild(objNetworkDriveElement);
-
-                    return new NetworkDrive(this, objNetworkDriveElement);
-                }
-            }
-
-            return null;
-        }
-
-        internal void RemoveNetworkDrive(NetworkDrive p_objNetworkDrive)
-        {
-            if (XmlDocument != null)
-            {
-                p_objNetworkDrive.XmlNode?.ParentNode?.RemoveChild(p_objNetworkDrive.XmlNode);
-            }
-        }
-
-        internal Script? AddScript(string p_strScriptName)
-        {
-            if (XmlDocument != null)
-            {
-                XmlNode? objRoot = XmlDocument.DocumentElement;
-                XmlNodeList? objMenusNode = null;
-
-                if (objRoot != null)
-                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/" + ScriptList.ElementName);
-
-                if (objMenusNode != null)
-                {
-                    XmlElement objScriptElement = XmlDocument.CreateElement(Script.ElementName);
-                    XmlAttribute objScriptNameAttribute = XmlDocument.CreateAttribute("Name");
-                    objScriptNameAttribute.Value = p_strScriptName;
-                    objScriptElement.Attributes.Append(objScriptNameAttribute);
-                    objMenusNode[0]?.AppendChild(objScriptElement);
-
-                    return new Script(this, objScriptElement);
-                }
-            }
-
-            return null;
-        }
-
-        internal void RemoveScript(Script p_objScript)
-        {
-            if (XmlDocument != null)
-            {
-                p_objScript.XmlNode?.ParentNode?.RemoveChild(p_objScript.XmlNode);
-            }
-        }
-
-        internal Menu? AddMenu(string p_strMenuName)
-        {
-            if (XmlDocument != null)
-            {
-                XmlNode? objRoot = XmlDocument.DocumentElement;
-                XmlNodeList? objMenusNode = null;
-
-                if (objRoot != null)
-                    objMenusNode = objRoot.SelectNodes("/" + ElementName + "/" + MenuList.ElementName);
-
-                if (objMenusNode != null)
-                {
-                    XmlElement objMenuElement = XmlDocument.CreateElement(Menu.ElementName);
-                    XmlAttribute objMenuNameAttribute = XmlDocument.CreateAttribute("Name");
-                    objMenuNameAttribute.Value = p_strMenuName;
-                    objMenuElement.Attributes.Append(objMenuNameAttribute);
-                    objMenusNode[0]?.AppendChild(objMenuElement);
-
-                    return new Menu(this, objMenuElement);
-                }
-            }
-
-            return null;
-        }
-
-        internal void RemoveMenu(Menu p_objMenu)
-        {
-            if (XmlDocument != null)
-            {
-                p_objMenu.XmlNode?.ParentNode?.RemoveChild(p_objMenu.XmlNode);
-            }
         }
 
         internal override void InsertItem(DataModelBase p_objObject, int p_intIndex)

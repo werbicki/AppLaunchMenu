@@ -15,15 +15,8 @@ namespace AppLaunchMenu.ViewModels
         ScriptList m_objScriptList;
         ObservableCollection<ScriptViewModel> m_objScripts = new();
 
-        public ScriptListViewModel(LaunchMenu p_objLaunchMenu, MenuFile p_objMenuFile)
-            : base(p_objLaunchMenu)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objScriptList = new ScriptList(p_objMenuFile, "Scripts");
-        }
-
         public ScriptListViewModel(LaunchMenu p_objLaunchMenu, ScriptList p_objScriptList)
-            : base(p_objLaunchMenu)
+            : base(p_objLaunchMenu, p_objScriptList)
         {
             m_objLaunchMenu = p_objLaunchMenu;
             m_objScriptList = p_objScriptList;
@@ -57,10 +50,10 @@ namespace AppLaunchMenu.ViewModels
         public ScriptViewModel? AddScript(LaunchMenu p_objLaunchMenu, String p_strScript)
         {
             ScriptViewModel? objScriptViewModel = null;
-            Script? objScript = m_objScriptList.MenuFile.AddScript(p_strScript);
+            Script? objScript = m_objScriptList.CreateItem<Script>(p_strScript);
             if (objScript != null)
             {
-                objScriptViewModel = new ScriptViewModel(p_objLaunchMenu, this, objScript);
+                objScriptViewModel = new ScriptViewModel(p_objLaunchMenu, objScript);
                 m_objScripts.Add(objScriptViewModel);
 
                 this.OnPropertyChanged(nameof(Scripts));
@@ -73,7 +66,7 @@ namespace AppLaunchMenu.ViewModels
         {
             if (m_objScripts.Remove(p_objScriptViewModel))
             {
-                m_objScriptList.MenuFile.RemoveScript(p_objScriptViewModel.Script);
+                m_objScriptList.MenuFile.RemoveItem(p_objScriptViewModel.Script);
 
                 this.OnPropertyChanged(nameof(Scripts));
             }
@@ -84,7 +77,7 @@ namespace AppLaunchMenu.ViewModels
             foreach (DataModelBase objItem in m_objScriptList.Items)
             {
                 if (objItem is Script objScript)
-                    Children.Add(new ScriptViewModel(LaunchMenu, this, objScript));
+                    Children.Add(new ScriptViewModel(LaunchMenu, objScript));
             }
         }
     }

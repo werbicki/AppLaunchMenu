@@ -146,7 +146,7 @@ namespace AppLaunchMenu
             if ((objItem != null) && (objItem.GetType() == typeof(ApplicationViewModel)))
             {
                 ApplicationViewModel objApplicationViewModel = (ApplicationViewModel)objItem;
-                m_objLaunchMenu.SelectedApplication = objApplicationViewModel.Application;
+                m_objLaunchMenu.SelectedApplication = objApplicationViewModel;
             }
         }
 
@@ -160,7 +160,7 @@ namespace AppLaunchMenu
             if ((objItem != null) && (objItem.GetType() == typeof(ApplicationViewModel)))
             {
                 ApplicationViewModel objApplicationViewModel = (ApplicationViewModel)objItem;
-                m_objLaunchMenu.SelectedApplication = objApplicationViewModel.Application;
+                m_objLaunchMenu.SelectedApplication = objApplicationViewModel;
 
                 m_objLaunchMenu.Execute();
             }

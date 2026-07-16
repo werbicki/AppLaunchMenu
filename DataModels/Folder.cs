@@ -34,27 +34,6 @@ namespace AppLaunchMenu.DataModels
             set { SetXmlAttribute(nameof(Expanded), value ? "true" : "false"); }
         }
 
-        internal Folder CreateFolder(String p_strFolderName)
-        {
-            Folder objFolder = (Folder)CreateChildNode(typeof(Folder), p_strFolderName);
-
-            return objFolder;
-        }
-
-        internal Application? CreateApplication(String p_strApplicationName)
-        {
-            Application objApplication = (Application)CreateChildNode(typeof(Application), p_strApplicationName);
-
-            return objApplication;
-        }
-
-        internal Environment CreateEnvironment()
-        {
-            Environment objEnvironment = (Environment)CreateChildNode(typeof(Environment));
-
-            return objEnvironment;
-        }
-
         public Environment Environment
         {
             get
@@ -63,7 +42,7 @@ namespace AppLaunchMenu.DataModels
 
                 if (objEnvironmentNode == null)
                 {
-                    Environment objEnvironment = CreateEnvironment();
+                    Environment objEnvironment = CreateItem<Environment>();
 
                     InsertItem(objEnvironment, 0);
 

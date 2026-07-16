@@ -10,7 +10,7 @@ using Windows.Foundation.Collections;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public abstract class ViewModelCollection<DataModelT, ViewModelT> : ViewModelBase, INotifyCollectionChanged
+    public abstract class ViewModelCollection<DataModelT, ViewModelT> : INotifyCollectionChanged
     {
         /// <summary>
         /// Multicast event for collection change notifications.
@@ -20,6 +20,7 @@ namespace AppLaunchMenu.ViewModels
         DataModelCollection<DataModelT> m_objItems;
 
         public ViewModelCollection(DataModelCollection<DataModelT> p_objItems)
+            : base()
         {
             m_objItems = p_objItems;
         }

@@ -22,17 +22,17 @@ namespace AppLaunchMenu.DataModels
         private readonly Type[] m_objXmlChildNodeTypes = [];
         private XmlNode m_objXmlNode;
 
-        protected DataModelBase(Type[] p_objXmlChildNodeTypes, XmlDocument p_objDocument)
+        protected DataModelBase(Type[] p_objXmlChildNodeTypes, XmlDocument p_objXmlDocument)
         {
             m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
-            m_objXmlNode = p_objDocument;
+            m_objXmlNode = p_objXmlDocument;
         }
 
-        protected DataModelBase(MenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, XmlNode p_objNode)
+        protected DataModelBase(MenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, XmlNode p_objXmlNode)
         {
             m_objMenuFile = p_objMenuFile;
             m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
-            m_objXmlNode = p_objNode;
+            m_objXmlNode = p_objXmlNode;
         }
 
         protected DataModelBase(MenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, string p_strName)
@@ -124,7 +124,7 @@ namespace AppLaunchMenu.DataModels
             return null;
         }
 
-        protected DataModelBase CreateChildNode(Type p_objChildNodeType, string p_strName = "")
+        private DataModelBase CreateChildNode(Type p_objChildNodeType, string p_strName = "")
         {
             if ((XmlNode != null) && (IsValidChildNodeType(p_objChildNodeType)))
             {
@@ -161,6 +161,13 @@ namespace AppLaunchMenu.DataModels
             }
 
             throw new ArgumentException();
+        }
+
+        internal protected T CreateItem<T>(String p_strItemName = "") where T : DataModelBase
+        {
+            T objItem = (T)CreateChildNode(typeof(T), p_strItemName);
+
+            return objItem;
         }
 
         public virtual DataModelBase[] Items
