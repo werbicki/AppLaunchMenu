@@ -2,8 +2,10 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,19 +18,27 @@ namespace AppLaunchMenu.DataModels
 {
     public abstract class DataModelBase : IComparable
     {
-        protected MenuFile m_objMenuFile;
-        protected XmlNode m_objXmlNode;
+        private readonly MenuFile? m_objMenuFile;
+        private readonly Type[] m_objXmlChildNodeTypes = [];
+        private XmlNode m_objXmlNode;
 
-        protected DataModelBase(MenuFile p_objMenuFile, XmlNode p_objNode)
+        protected DataModelBase(Type[] p_objXmlChildNodeTypes, XmlDocument p_objDocument)
+        {
+            m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
+            m_objXmlNode = p_objDocument;
+        }
+
+        protected DataModelBase(MenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, XmlNode p_objNode)
         {
             m_objMenuFile = p_objMenuFile;
+            m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
             m_objXmlNode = p_objNode;
         }
 
-        protected DataModelBase(MenuFile p_objMenuFile, string p_strName)
+        protected DataModelBase(MenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, string p_strName)
         {
             m_objMenuFile = p_objMenuFile;
-
+            m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
             m_objXmlNode = CreateNode();
 
             if (!string.IsNullOrEmpty(p_strName))
@@ -41,14 +51,34 @@ namespace AppLaunchMenu.DataModels
             Name = p_strName;
         }
 
+        internal void SetXmlNode(DataModelBase p_objObject, XmlNode p_objXmlNode)
+        {
+            if (p_objObject.GetType().IsSubclassOf(typeof(DataAccessBase)))
+            {
+                m_objXmlNode = p_objXmlNode;
+                //UpdateItems();
+            }
+        }
+
         internal MenuFile MenuFile
         {
-            get { return m_objMenuFile; }
+            get
+            {
+                if (m_objMenuFile == null)
+                    throw new AccessViolationException();
+
+                return m_objMenuFile;
+            }
         }
 
         internal XmlNode XmlNode
         {
             get { return m_objXmlNode; }
+        }
+
+        public bool CanEdit
+        {
+            get { return MenuFile.CanEdit; }
         }
 
         protected abstract string _ElementName
@@ -58,17 +88,155 @@ namespace AppLaunchMenu.DataModels
 
         protected XmlNode CreateNode()
         {
-            return m_objMenuFile.XmlDocument.CreateNode("element", _ElementName, "");
+            return MenuFile.XmlDocument.CreateNode("element", _ElementName, "");
         }
 
-        internal virtual void Insert(DataModelBase p_objObject, int p_intIndex)
+        protected bool IsValidChildNodeType(Type p_objType)
         {
-            throw new NotImplementedException();
+            foreach (Type objType in m_objXmlChildNodeTypes)
+            {
+                if (p_objType == objType)
+                    return true;
+            }
+
+            return false;
         }
 
-        internal virtual void Remove(DataModelBase p_objObject)
+        protected Type? GetValidChildNodeType(DataModelBase p_objObject)
         {
-            throw new NotImplementedException();
+            foreach (Type objType in m_objXmlChildNodeTypes)
+            {
+                if (p_objObject.GetType() == objType)
+                    return objType;
+            }
+
+            return null;
+        }
+
+        protected Type? GetValidChildNodeType(XmlNode p_objXmlNode)
+        {
+            foreach (Type objType in m_objXmlChildNodeTypes)
+            {
+                if (p_objXmlNode.Name == objType.Name)
+                    return objType;
+            }
+
+            return null;
+        }
+
+        protected DataModelBase CreateChildNode(Type p_objChildNodeType, string p_strName = "")
+        {
+            if ((XmlNode != null) && (IsValidChildNodeType(p_objChildNodeType)))
+            {
+                PropertyInfo? objPropertyInfo = p_objChildNodeType.GetProperty("ElementName", BindingFlags.Static | BindingFlags.NonPublic);
+                string strElementName = "";
+
+                if ((objPropertyInfo != null) && (objPropertyInfo.GetValue(null) != null))
+                {
+                    string? strProperty = (string?)objPropertyInfo.GetValue(null);
+
+                    if (strProperty != null)
+                        strElementName = strProperty;
+                }
+
+                XmlElement? objChildNodeElement = MenuFile.XmlDocument.CreateElement(strElementName);
+                if (objChildNodeElement != null)
+                {
+                    if (p_strName != "")
+                    {
+                        XmlAttribute? objChildNodeNameAttribute = MenuFile.XmlDocument.CreateAttribute("Name");
+                        if (objChildNodeNameAttribute != null)
+                        {
+                            objChildNodeNameAttribute.Value = p_strName;
+                            objChildNodeElement.Attributes.Append(objChildNodeNameAttribute);
+                        }
+                    }
+
+                    object[] arrConstructorArgs = new object[] { MenuFile, objChildNodeElement };
+                    DataModelBase? objObject = (DataModelBase?)Activator.CreateInstance(p_objChildNodeType, arrConstructorArgs);
+
+                    if (objObject != null)
+                        return objObject;
+                }
+            }
+
+            throw new ArgumentException();
+        }
+
+        public virtual DataModelBase[] Items
+        {
+            get
+            {
+                List<DataModelBase> objItems = [];
+
+                if (XmlNode != null)
+                {
+                    XmlNodeList? objNodes = XmlNode.SelectNodes("*");
+                    if (objNodes != null)
+                    {
+                        foreach (XmlNode objItemNode in objNodes)
+                        {
+                            bool blnInclude = true;
+
+                            /*
+                            if (!HostnameMatches(objItemNode))
+                                    blnInclude = false;
+                            */
+
+                            if (blnInclude)
+                            {
+                                Type? objType = GetValidChildNodeType(objItemNode);
+                                if (objType != null)
+                                {
+                                    object[] arrConstructorArgs = new object[] { MenuFile, objItemNode };
+                                    DataModelBase? objObject = (DataModelBase?)Activator.CreateInstance(objType, arrConstructorArgs);
+
+                                    if (objObject != null)
+                                        objItems.Add(objObject);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return [.. objItems];
+            }
+        }
+
+        virtual protected void UpdateItems()
+        {
+            //throw new NotImplementedException();
+        }
+
+        internal virtual void InsertItem(DataModelBase p_objObject, int p_intIndex)
+        {
+            Type? objType = GetValidChildNodeType(p_objObject);
+
+            if ((XmlNode != null) && (objType != null))
+            {
+                if (p_intIndex >= 0)
+                    XmlNode.InsertBefore(p_objObject.XmlNode, XmlNode.ChildNodes[p_intIndex]);
+                else
+                    XmlNode.AppendChild(p_objObject.XmlNode);
+
+                UpdateItems();
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        internal virtual void RemoveItem(DataModelBase p_objObject)
+        {
+            Type? objType = GetValidChildNodeType(p_objObject);
+
+            if ((XmlNode != null) && (XmlNode.ParentNode != null) && (objType != null))
+            {
+                p_objObject.XmlNode.ParentNode?.RemoveChild(p_objObject.XmlNode);
+
+                UpdateItems();
+            }
+            else
+                throw new ArgumentException();
         }
 
         protected bool HasXmlAttribute(string p_strPropertyName)
@@ -285,64 +453,6 @@ namespace AppLaunchMenu.DataModels
                     && Matches(Hostname, System.Environment.MachineName)
                     ;
             }
-        }
-
-        internal virtual void Initialize(List<XmlNode> p_objIncludedNodes, XmlNodeList? p_objNodeList)
-        {
-            if (p_objNodeList != null)
-            {
-                foreach (XmlNode objNode in p_objNodeList)
-                {
-                    String strName = "";
-                    bool blnInclude = true;
-
-                    if ((objNode.Attributes != null)
-                        && (objNode.Attributes["Name"] != null)
-                        )
-                        strName = objNode.Attributes["Name"]!.Value;
-
-                    /*
-                    XmlNode? objEnvironmentNode = objVariable.ParentNode;
-                    if ((!DomainMatches(objEnvironmentNode))
-                        || (!DataCenterMatches(objEnvironmentNode))
-                        || (!HostnameMatches(objEnvironmentNode))
-                        || (!IsServiceMatches(objEnvironmentNode))
-                        )
-                        blnInclude = false;
-                        */
-
-                    if (blnInclude)
-                    {
-                        bool blnFound = false;
-
-                        for (int intIndex = 0; (!blnFound) && (intIndex < p_objIncludedNodes.Count); intIndex++)
-                        {
-                            String strExistingName = "";
-
-                            if ((p_objIncludedNodes[intIndex] != null)
-                                && (p_objIncludedNodes[intIndex].Attributes != null)
-                                && (p_objIncludedNodes[intIndex].Attributes!["Name"] != null)
-                                )
-                                strExistingName = p_objIncludedNodes[intIndex].Attributes!["Name"]!.Value;
-
-                            if (strExistingName == strName)
-                            {
-                                p_objIncludedNodes[intIndex] = objNode;
-
-                                blnFound = true;
-                            }
-                        }
-
-                        if (!blnFound)
-                            p_objIncludedNodes.Add(objNode);
-                    }
-                }
-            }
-        }
-
-        public virtual DataModelBase[] Items
-        {
-            get { return []; }
         }
 
         public int CompareTo(object? p_objObject)

@@ -288,9 +288,9 @@ namespace AppLaunchMenu
 
                         {
                             if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
-                                objVariableViewModel = objFolderViewModel.CreateVariable("New Variable " + m_intCount++);
+                                objVariableViewModel = objFolderViewModel.Environment.CreateVariable("New Variable " + m_intCount++);
                             else if (objTreeViewItemViewModel is ApplicationViewModel objApplicationViewModel)
-                                objVariableViewModel = objApplicationViewModel.CreateVariable("New Variable " + m_intCount++);
+                                objVariableViewModel = objApplicationViewModel.Environment.CreateVariable("New Variable " + m_intCount++);
                             else
                                 throw new ArgumentException();
                         }
@@ -313,9 +313,9 @@ namespace AppLaunchMenu
                             if (objContentDialogResult == ContentDialogResult.None)
                             {
                                 if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
-                                    objFolderViewModel.Environment.Variables.Add(objVariableViewModel);
+                                    objFolderViewModel.Environment.ExpandedVariables.Add(objVariableViewModel);
                                 else if (objTreeViewItemViewModel is ApplicationViewModel objApplicationViewModel)
-                                    objApplicationViewModel.Environment.Variables.Add(objVariableViewModel);
+                                    objApplicationViewModel.Environment.ExpandedVariables.Add(objVariableViewModel);
                                 else
                                     throw new ArgumentException();
                             }

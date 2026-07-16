@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -13,20 +14,94 @@ namespace AppLaunchMenu.DataModels
     public class Environment : DataModelBase, IEnumerable<Variable>
     {
         DataModelCollection<Variable> m_objVariables;
+        DataModelCollection<Variable> m_objExpandedVariables;
 
         public Environment(MenuFile p_objMenuFile, XmlNode p_objEnvironmentNode)
-             : base(p_objMenuFile, p_objEnvironmentNode)
+             : base(p_objMenuFile, new Type[] { typeof(Variable) }, p_objEnvironmentNode)
         {
-            m_objVariables = new(p_objMenuFile, null);
+            m_objVariables = new(this, null);
+            m_objExpandedVariables = new(this, null);
 
-            Initialize(m_objMenuFile.XmlDocument, m_objMenuFile.XmlDocument, XmlNode.ParentNode);
+            UpdateItems();
         }
 
-        private void Initialize(XmlDocument p_objDocument, XmlNode? p_objReferenceNode, XmlNode? p_objParent)
+        internal static string ElementName
         {
-            XmlNode? objRoot = p_objDocument.DocumentElement;
+            get { return nameof(Environment); }
+        }
 
+        protected override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
+        private void Initialize(List<XmlNode> p_objIncludedNodes, XmlNodeList? p_objNodeList)
+        {
+            if (p_objNodeList != null)
+            {
+                foreach (XmlNode objNode in p_objNodeList)
+                {
+                    String strName = "";
+                    bool blnInclude = true;
+
+                    if ((objNode.Attributes != null)
+                        && (objNode.Attributes["Name"] != null)
+                        )
+                        strName = objNode.Attributes["Name"]!.Value;
+
+                    /*
+                    XmlNode? objEnvironmentNode = objVariable.ParentNode;
+                    if ((!DomainMatches(objEnvironmentNode))
+                        || (!DataCenterMatches(objEnvironmentNode))
+                        || (!HostnameMatches(objEnvironmentNode))
+                        || (!IsServiceMatches(objEnvironmentNode))
+                        )
+                        blnInclude = false;
+                        */
+
+                    if (blnInclude)
+                    {
+                        bool blnFound = false;
+
+                        for (int intIndex = 0; (!blnFound) && (intIndex < p_objIncludedNodes.Count); intIndex++)
+                        {
+                            String strExistingName = "";
+
+                            if ((p_objIncludedNodes[intIndex] != null)
+                                && (p_objIncludedNodes[intIndex].Attributes != null)
+                                && (p_objIncludedNodes[intIndex].Attributes!["Name"] != null)
+                                )
+                                strExistingName = p_objIncludedNodes[intIndex].Attributes!["Name"]!.Value;
+
+                            if (strExistingName == strName)
+                            {
+                                p_objIncludedNodes[intIndex] = objNode;
+
+                                blnFound = true;
+                            }
+                        }
+
+                        if (!blnFound)
+                            p_objIncludedNodes.Add(objNode);
+                    }
+                }
+            }
+        }
+
+        protected override void UpdateItems()
+        {
             m_objVariables.Clear();
+
+            foreach (DataModelBase objObject in Items)
+            {
+                if (objObject is Variable)
+                    m_objVariables.Add((Variable)objObject);
+            }
+
+            XmlNode? objRoot = MenuFile.XmlDocument.DocumentElement;
+            XmlNode? objParent = MenuFile.XmlDocument.DocumentElement;
+
+            m_objExpandedVariables.Clear();
 
             if (objRoot != null)
             {
@@ -34,10 +109,10 @@ namespace AppLaunchMenu.DataModels
                 XmlNodeList? objVariables = objRoot.SelectNodes("./" + Environment.ElementName + "/" + Variable.ElementName);
                 Initialize(objIncludedNodes, objVariables);
 
-                if (p_objParent != null)
+                if (objParent != null)
                 {
                     List<XmlNode> objMenuAndFolders = new List<XmlNode>();
-                    XmlNode? objApplication = p_objParent;
+                    XmlNode? objApplication = objParent;
                     XmlNode? objNode = null;
 
                     if (objApplication != null)
@@ -66,51 +141,30 @@ namespace AppLaunchMenu.DataModels
                     Initialize(objIncludedNodes, objVariables);
                 }
 
-                m_objVariables = new DataModelCollection<Variable>(m_objMenuFile, objIncludedNodes);
+                m_objExpandedVariables = new DataModelCollection<Variable>(this, objIncludedNodes);
 
-                if (p_objReferenceNode != null)
-                    ExpandVariables(p_objReferenceNode);
+                if (XmlNode.ParentNode != null)
+                    ExpandVariables(XmlNode.ParentNode);
             }
         }
 
-        internal static string ElementName
+        internal Variable? CreateVariable(String p_strVariableName)
         {
-            get { return nameof(Environment); }
+            Variable objVariable = (Variable)CreateChildNode(typeof(Variable), p_strVariableName);
+
+            return objVariable;
         }
 
-        protected override string _ElementName
+        public Variable[] Variables
         {
-            get { return ElementName; }
-        }
-
-        internal override void Insert(DataModelBase p_objObject, int p_intIndex)
-        {
-            if (p_objObject is Variable)
-            {
-                if (p_intIndex >= 0)
-                    m_objXmlNode?.InsertBefore(p_objObject.XmlNode, m_objXmlNode?.ChildNodes[p_intIndex]);
-                else
-                    m_objXmlNode?.AppendChild(p_objObject.XmlNode);
-
-                Initialize(m_objMenuFile.XmlDocument, m_objMenuFile.XmlDocument, XmlNode.ParentNode);
-            }
-            else
-                throw new ArgumentException();
-        }
-
-        internal override void Remove(DataModelBase p_objObject)
-        {
-            if (p_objObject is Variable)
-                p_objObject.XmlNode?.ParentNode?.RemoveChild(p_objObject.XmlNode);
-            else
-                throw new ArgumentException();
+            get { return m_objVariables.ToArray(); }
         }
 
         public string this[string p_strName]
         {
             get
             {
-                foreach (Variable objVariable in m_objVariables)
+                foreach (Variable objVariable in m_objExpandedVariables)
                 {
                     if (objVariable.Name == p_strName)
                         return objVariable.ExpandedValue;
@@ -120,55 +174,22 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
-        public override DataModelBase[] Items
-        {
-            get
-            {
-                List<DataModelBase> objItems = [];
-
-                if (m_objXmlNode != null)
-                {
-                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes(Variable.ElementName);
-                    if (objNodes != null)
-                    {
-                        foreach (XmlNode objItemNode in objNodes)
-                        {
-                            bool blnInclude = true;
-
-                            /*
-                            if (!HostnameMatches(objItemNode))
-                                    blnInclude = false;
-                            */
-
-                            if (blnInclude)
-                            {
-                                if (objItemNode.Name == Variable.ElementName)
-                                    objItems.Add(new Variable(m_objMenuFile, objItemNode));
-                            }
-                        }
-                    }
-                }
-
-                return [.. objItems];
-            }
-        }
-
         public IEnumerator<Variable> GetEnumerator()
         {
-            return m_objVariables.GetEnumerator();
+            return m_objExpandedVariables.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return m_objVariables.GetEnumerator();
+            return m_objExpandedVariables.GetEnumerator();
         }
 
         public int Count
         {
             get
             {
-                if (m_objVariables != null)
-                    return m_objVariables.Count;
+                if (m_objExpandedVariables != null)
+                    return m_objExpandedVariables.Count;
 
                 return 0;
             }
@@ -176,8 +197,8 @@ namespace AppLaunchMenu.DataModels
 
         private void ExpandVariables()
         {
-            if (m_objXmlNode != null)
-                ExpandVariables(m_objXmlNode);
+            if (XmlNode != null)
+                ExpandVariables(XmlNode);
         }
 
         private void ExpandVariables(XmlNode p_objReferenceNode)
@@ -185,7 +206,7 @@ namespace AppLaunchMenu.DataModels
             bool blnExpanding;
 
             // Reset variable sto non-Expanede state.
-            foreach (Variable objVariable in m_objVariables)
+            foreach (Variable objVariable in m_objExpandedVariables)
                 objVariable.ExpandedValue = objVariable.Value;
         
             do
@@ -193,7 +214,7 @@ namespace AppLaunchMenu.DataModels
                 blnExpanding = false;
 
                 // Expand Xml Document based references completely first.
-                foreach (Variable objVariable in m_objVariables)
+                foreach (Variable objVariable in m_objExpandedVariables)
                 {
                     String strValue = objVariable.ExpandedValue;
                     String strExpandedValue = ExpandVariable(objVariable, p_objReferenceNode);
@@ -206,7 +227,7 @@ namespace AppLaunchMenu.DataModels
                 }
 
                 // Expand Environment Variables second.
-                foreach (Variable objVariable in m_objVariables)
+                foreach (Variable objVariable in m_objExpandedVariables)
                 {
                     String strValue = objVariable.ExpandedValue;
                     String strExpandedValue = ExpandVariable(objVariable);
@@ -295,15 +316,15 @@ namespace AppLaunchMenu.DataModels
 
                     if (!strName.StartsWith("xpath:", StringComparison.CurrentCultureIgnoreCase))
                     {
-                        for (int i = 0; (!blnMatch) && (i < m_objVariables.Count); i++)
+                        for (int i = 0; (!blnMatch) && (i < m_objExpandedVariables.Count); i++)
                         {
-                            if ((m_objVariables.Item(i) != null)
-                                && (m_objVariables.Item(i)!.Value != p_strString)
-                                && (m_objVariables.Item(i)!.Name == strName)
+                            if ((m_objExpandedVariables.Item(i) != null)
+                                && (m_objExpandedVariables.Item(i)!.Value != p_strString)
+                                && (m_objExpandedVariables.Item(i)!.Name == strName)
                                 )
                             {
                                 strString = strString.Remove(intOffset + objMatch.Index, objMatch.Length);
-                                strString = strString.Insert(intOffset + objMatch.Index, m_objVariables.Item(i)!.ExpandedValue);
+                                strString = strString.Insert(intOffset + objMatch.Index, m_objExpandedVariables.Item(i)!.ExpandedValue);
 
                                 blnMatch = true;
                             }
@@ -314,7 +335,7 @@ namespace AppLaunchMenu.DataModels
                 {
                     string strScript = strMatch.Substring(1, strMatch.Length - 2);
 
-                    Script? objScript = m_objMenuFile.ScriptList.GetScriptByName(strScript);
+                    Script? objScript = MenuFile.ScriptList.GetScriptByName(strScript);
                     if (objScript != null)
                     {
                         ScriptingHost objScriptingHost = new(this);
@@ -341,7 +362,7 @@ namespace AppLaunchMenu.DataModels
         {
             String strMessage = "";
 
-            foreach (Variable objVariable in m_objVariables)
+            foreach (Variable objVariable in m_objExpandedVariables)
             {
                 if (objVariable.Validation.Equals("directory", StringComparison.CurrentCultureIgnoreCase))
                 {

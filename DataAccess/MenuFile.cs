@@ -27,7 +27,7 @@ namespace AppLaunchMenu.DataAccess
         public MenuFile()
             : base(new XmlDocument())
         {
-            CreateFile("New LaunchMenu");
+            CreateFile("New AppLaunchMenu");
         }
 
         public MenuFile(string p_strFilename)
@@ -87,7 +87,7 @@ namespace AppLaunchMenu.DataAccess
             {
                 try
                 {
-                    m_objXmlDocument.Save(m_strFilename);
+                    XmlDocument.Save(m_strFilename);
                     IsDirty = false;
                 }
                 catch (XmlException e)
@@ -112,22 +112,22 @@ namespace AppLaunchMenu.DataAccess
         {
             try
             {
-                XmlElement objLaunchMenuElement = m_objXmlDocument.CreateElement(ElementName);
-                XmlElement objMenusElement = m_objXmlDocument.CreateElement(MenuList.ElementName);
+                XmlElement objLaunchMenuElement = XmlDocument.CreateElement(ElementName);
+                XmlElement objMenusElement = XmlDocument.CreateElement(MenuList.ElementName);
                 objLaunchMenuElement.AppendChild(objMenusElement);
-                m_objXmlDocument.AppendChild(objLaunchMenuElement);
+                XmlDocument.AppendChild(objLaunchMenuElement);
             }
             catch (Exception)
             {
             }
 
-            if (m_objXmlDocument != null)
+            if (XmlDocument != null)
             {
                 m_strFilename = p_strDocument;
 
-                XmlNode? objNode = m_objXmlDocument.SelectSingleNode(ElementName);
-                if (objNode != null)
-                    m_objXmlNode = objNode;
+                XmlNode? objXmlNode = XmlDocument.SelectSingleNode(ElementName);
+                if (objXmlNode != null)
+                    SetXmlNode(this, objXmlNode);
             }
             else
                 throw new Exception("Unable to create new Menu file '" + p_strDocument + "'");
@@ -144,15 +144,15 @@ namespace AppLaunchMenu.DataAccess
                 bool blnLoaded = false;
                 int intRetries = 3;
 
-                m_objXmlDocument.NodeChanged -= XmlDocument_NodeChanged;
-                m_objXmlDocument.NodeInserted -= XmlDocument_NodeChanged;
-                m_objXmlDocument.NodeRemoved -= XmlDocument_NodeChanged;
+                XmlDocument.NodeChanged -= XmlDocument_NodeChanged;
+                XmlDocument.NodeInserted -= XmlDocument_NodeChanged;
+                XmlDocument.NodeRemoved -= XmlDocument_NodeChanged;
 
                 while (intRetries > 0)
                 {
                     try
                     {
-                        m_objXmlDocument.Load(objFileInfo.FullName);
+                        XmlDocument.Load(objFileInfo.FullName);
 
                         blnLoaded = true;
                         intRetries = 0;
@@ -170,13 +170,13 @@ namespace AppLaunchMenu.DataAccess
 
                 if (blnLoaded)
                 {
-                    m_objXmlDocument.NodeChanged += XmlDocument_NodeChanged;
-                    m_objXmlDocument.NodeInserted += XmlDocument_NodeChanged;
-                    m_objXmlDocument.NodeRemoved += XmlDocument_NodeChanged;
+                    XmlDocument.NodeChanged += XmlDocument_NodeChanged;
+                    XmlDocument.NodeInserted += XmlDocument_NodeChanged;
+                    XmlDocument.NodeRemoved += XmlDocument_NodeChanged;
 
-                    XmlNode? objNode = m_objXmlDocument.SelectSingleNode(ElementName);
-                    if (objNode != null)
-                        m_objXmlNode = objNode;
+                    XmlNode? objXmlNode = XmlDocument.SelectSingleNode(ElementName);
+                    if (objXmlNode != null)
+                        SetXmlNode(this, objXmlNode);
 
                     String? strPath = Path.GetDirectoryName(objFileInfo.FullName);
                     if (strPath != null)
@@ -213,9 +213,9 @@ namespace AppLaunchMenu.DataAccess
 
         internal NetworkDrive? AddNetworkDrive(string p_strNetworkDriveName)
         {
-            if (m_objXmlDocument != null)
+            if (XmlDocument != null)
             {
-                XmlNode? objRoot = m_objXmlDocument.DocumentElement;
+                XmlNode? objRoot = XmlDocument.DocumentElement;
                 XmlNodeList? objMenusNode = null;
 
                 if (objRoot != null)
@@ -223,8 +223,8 @@ namespace AppLaunchMenu.DataAccess
 
                 if (objMenusNode != null)
                 {
-                    XmlElement objNetworkDriveElement = m_objXmlDocument.CreateElement(NetworkDrive.ElementName);
-                    XmlAttribute objNetworkDriveNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                    XmlElement objNetworkDriveElement = XmlDocument.CreateElement(NetworkDrive.ElementName);
+                    XmlAttribute objNetworkDriveNameAttribute = XmlDocument.CreateAttribute("Name");
                     objNetworkDriveNameAttribute.Value = p_strNetworkDriveName;
                     objNetworkDriveElement.Attributes.Append(objNetworkDriveNameAttribute);
                     objMenusNode[0]?.AppendChild(objNetworkDriveElement);
@@ -238,7 +238,7 @@ namespace AppLaunchMenu.DataAccess
 
         internal void RemoveNetworkDrive(NetworkDrive p_objNetworkDrive)
         {
-            if (m_objXmlDocument != null)
+            if (XmlDocument != null)
             {
                 p_objNetworkDrive.XmlNode?.ParentNode?.RemoveChild(p_objNetworkDrive.XmlNode);
             }
@@ -246,9 +246,9 @@ namespace AppLaunchMenu.DataAccess
 
         internal Script? AddScript(string p_strScriptName)
         {
-            if (m_objXmlDocument != null)
+            if (XmlDocument != null)
             {
-                XmlNode? objRoot = m_objXmlDocument.DocumentElement;
+                XmlNode? objRoot = XmlDocument.DocumentElement;
                 XmlNodeList? objMenusNode = null;
 
                 if (objRoot != null)
@@ -256,8 +256,8 @@ namespace AppLaunchMenu.DataAccess
 
                 if (objMenusNode != null)
                 {
-                    XmlElement objScriptElement = m_objXmlDocument.CreateElement(Script.ElementName);
-                    XmlAttribute objScriptNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                    XmlElement objScriptElement = XmlDocument.CreateElement(Script.ElementName);
+                    XmlAttribute objScriptNameAttribute = XmlDocument.CreateAttribute("Name");
                     objScriptNameAttribute.Value = p_strScriptName;
                     objScriptElement.Attributes.Append(objScriptNameAttribute);
                     objMenusNode[0]?.AppendChild(objScriptElement);
@@ -271,7 +271,7 @@ namespace AppLaunchMenu.DataAccess
 
         internal void RemoveScript(Script p_objScript)
         {
-            if (m_objXmlDocument != null)
+            if (XmlDocument != null)
             {
                 p_objScript.XmlNode?.ParentNode?.RemoveChild(p_objScript.XmlNode);
             }
@@ -279,9 +279,9 @@ namespace AppLaunchMenu.DataAccess
 
         internal Menu? AddMenu(string p_strMenuName)
         {
-            if (m_objXmlDocument != null)
+            if (XmlDocument != null)
             {
-                XmlNode? objRoot = m_objXmlDocument.DocumentElement;
+                XmlNode? objRoot = XmlDocument.DocumentElement;
                 XmlNodeList? objMenusNode = null;
 
                 if (objRoot != null)
@@ -289,8 +289,8 @@ namespace AppLaunchMenu.DataAccess
 
                 if (objMenusNode != null)
                 {
-                    XmlElement objMenuElement = m_objXmlDocument.CreateElement(Menu.ElementName);
-                    XmlAttribute objMenuNameAttribute = m_objXmlDocument.CreateAttribute("Name");
+                    XmlElement objMenuElement = XmlDocument.CreateElement(Menu.ElementName);
+                    XmlAttribute objMenuNameAttribute = XmlDocument.CreateAttribute("Name");
                     objMenuNameAttribute.Value = p_strMenuName;
                     objMenuElement.Attributes.Append(objMenuNameAttribute);
                     objMenusNode[0]?.AppendChild(objMenuElement);
@@ -304,13 +304,13 @@ namespace AppLaunchMenu.DataAccess
 
         internal void RemoveMenu(Menu p_objMenu)
         {
-            if (m_objXmlDocument != null)
+            if (XmlDocument != null)
             {
                 p_objMenu.XmlNode?.ParentNode?.RemoveChild(p_objMenu.XmlNode);
             }
         }
 
-        internal override void Insert(DataModelBase p_objObject, int p_intIndex)
+        internal override void InsertItem(DataModelBase p_objObject, int p_intIndex)
         {
             if ((p_objObject is NetworkDriveList)
                 || (p_objObject is ScriptList)
@@ -319,9 +319,9 @@ namespace AppLaunchMenu.DataAccess
                 )
             {
                 if (p_intIndex >= 0)
-                    m_objXmlNode?.InsertBefore(p_objObject.XmlNode, m_objXmlNode?.ChildNodes[p_intIndex]);
+                    XmlNode?.InsertBefore(p_objObject.XmlNode, XmlNode?.ChildNodes[p_intIndex]);
                 else
-                    m_objXmlNode?.AppendChild(p_objObject.XmlNode);
+                    XmlNode?.AppendChild(p_objObject.XmlNode);
             }
             else
                 throw new ArgumentException();
@@ -329,25 +329,25 @@ namespace AppLaunchMenu.DataAccess
 
         private ScriptList CreateScriptList()
         {
-            XmlElement objElement = m_objXmlDocument.CreateElement(ScriptList.ElementName);
+            XmlElement objElement = XmlDocument.CreateElement(ScriptList.ElementName);
             return new ScriptList(this, objElement);
         }
 
         private NetworkDriveList CreateNetworkDriveList()
         {
-            XmlElement objElement = m_objXmlDocument.CreateElement(DataModels.NetworkDriveList.ElementName);
+            XmlElement objElement = XmlDocument.CreateElement(DataModels.NetworkDriveList.ElementName);
             return new NetworkDriveList(this, objElement);
         }
 
         private MenuList CreateMenuList()
         {
-            XmlElement objElement = m_objXmlDocument.CreateElement(MenuList.ElementName);
+            XmlElement objElement = XmlDocument.CreateElement(MenuList.ElementName);
             return new MenuList(this, objElement);
         }
 
         private Environment CreateEnvironment()
         {
-            XmlElement objEnvironmentElement = m_objXmlDocument.CreateElement(Environment.ElementName);
+            XmlElement objEnvironmentElement = XmlDocument.CreateElement(Environment.ElementName);
             return new Environment(this, objEnvironmentElement);
         }
 
@@ -355,13 +355,13 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objScriptListNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + ScriptList.ElementName);
+                XmlNode? objScriptListNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + ScriptList.ElementName);
 
                 if (objScriptListNode == null)
                 {
                     ScriptList objConfigList = CreateScriptList();
 
-                    Insert(objConfigList, 0);
+                    InsertItem(objConfigList, 0);
 
                     return objConfigList;
                 }
@@ -374,13 +374,13 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objNetworkDriveListNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + NetworkDriveList.ElementName);
+                XmlNode? objNetworkDriveListNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + NetworkDriveList.ElementName);
 
                 if (objNetworkDriveListNode == null)
                 {
                     NetworkDriveList objNetworkDriveList = CreateNetworkDriveList();
 
-                    Insert(objNetworkDriveList, 0);
+                    InsertItem(objNetworkDriveList, 0);
 
                     return objNetworkDriveList;
                 }
@@ -393,13 +393,13 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objMenuListNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName);
+                XmlNode? objMenuListNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName);
 
                 if (objMenuListNode == null)
                 {
                     MenuList objMenuList = CreateMenuList();
 
-                    Insert(objMenuList, 0);
+                    InsertItem(objMenuList, 0);
 
                     return objMenuList;
                 }
@@ -412,13 +412,13 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objEnvironmentNode = m_objXmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName + "/" + Environment.ElementName);
+                XmlNode? objEnvironmentNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName + "/" + Environment.ElementName);
 
                 if (objEnvironmentNode == null)
                 {
                     Environment objEnvironment = CreateEnvironment();
 
-                    Insert(objEnvironment, 0);
+                    InsertItem(objEnvironment, 0);
 
                     return objEnvironment;
                 }
@@ -427,13 +427,7 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        public string SecurityGroup
-        {
-            get { return Property(nameof(SecurityGroup)); }
-            set { Property(nameof(SecurityGroup), value); }
-        }
-
-        public bool CanEdit
+        public new bool CanEdit
         {
             get { return MemberOf(SecurityGroup); }
         }

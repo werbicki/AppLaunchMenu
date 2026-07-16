@@ -16,12 +16,12 @@ namespace AppLaunchMenu.DataModels
     public class Application : DataModelBase
     {
         public Application(MenuFile p_objMenuFile, XmlNode p_objApplicationNode)
-            : base(p_objMenuFile, p_objApplicationNode)
+            : base(p_objMenuFile, new Type[] { typeof(Environment) }, p_objApplicationNode)
         {
         }
 
         public Application(MenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, p_strName)
+            : base(p_objMenuFile, new Type[] { typeof(Environment) }, p_strName)
         {
         }
 
@@ -33,40 +33,6 @@ namespace AppLaunchMenu.DataModels
         protected override string _ElementName
         {
             get { return ElementName; }
-        }
-
-        private Environment CreateEnvironment()
-        {
-            XmlElement objEnvironmentElement = m_objMenuFile.XmlDocument.CreateElement(Environment.ElementName);
-            return new Environment(m_objMenuFile, objEnvironmentElement);
-        }
-
-        internal Variable? CreateVariable(String p_strVariableName)
-        {
-            XmlElement? objVariableElement = m_objMenuFile.XmlDocument.CreateElement(Variable.ElementName);
-            XmlAttribute? objVariableNameAttribute = m_objMenuFile.XmlDocument.CreateAttribute("Name");
-            if ((objVariableElement != null) && (objVariableNameAttribute != null))
-            {
-                objVariableNameAttribute.Value = p_strVariableName;
-                objVariableElement.Attributes.Append(objVariableNameAttribute);
-
-                return new Variable(m_objMenuFile, objVariableElement);
-            }
-
-            return null;
-        }
-
-        internal override void Insert(DataModelBase p_objObject, int p_intIndex)
-        {
-            if (p_objObject is Environment)
-            {
-                if (p_intIndex >= 0)
-                    m_objXmlNode?.InsertBefore(p_objObject.XmlNode, m_objXmlNode?.ChildNodes[p_intIndex]);
-                else
-                    m_objXmlNode?.AppendChild(p_objObject.XmlNode);
-            }
-            else
-                throw new ArgumentException();
         }
 
         public string ExecutablePath
@@ -136,46 +102,17 @@ namespace AppLaunchMenu.DataModels
         {
             get
             {
-                XmlNode? objEnvironmentNode = m_objXmlNode.SelectSingleNode("./" + Environment.ElementName);
+                XmlNode? objEnvironmentNode = XmlNode.SelectSingleNode("./" + Environment.ElementName);
                 if (objEnvironmentNode != null)
-                    return new Environment(m_objMenuFile, objEnvironmentNode);
+                    return new Environment(MenuFile, objEnvironmentNode);
                 else
                 {
-                    Environment objEnvironment = CreateEnvironment();
+                    Environment objEnvironment = (Environment)CreateChildNode(typeof(Environment));
 
-                    Insert(objEnvironment, 0);
-                    m_objMenuFile.IsDirty = false;
+                    InsertItem(objEnvironment, 0);
 
                     return objEnvironment;
                 }
-            }
-        }
-
-        public override DataModelBase[] Items
-        {
-            get
-            {
-                List<DataModelBase> objItems = [];
-
-                if (m_objXmlNode != null)
-                {
-                    XmlNodeList? objNodes = m_objXmlNode.SelectNodes(Environment.ElementName);
-                    if (objNodes != null)
-                    {
-                        foreach (XmlNode objItemNode in objNodes)
-                        {
-                            bool blnInclude = true;
-
-                            if (blnInclude)
-                            {
-                                if (objItemNode.Name == Environment.ElementName)
-                                    objItems.Add(new Environment(m_objMenuFile, objItemNode));
-                            }
-                        }
-                    }
-                }
-
-                return [.. objItems];
             }
         }
 
@@ -277,10 +214,10 @@ namespace AppLaunchMenu.DataModels
                         && (!string.IsNullOrEmpty(strConfigFilePath))
                         )
                     {
-                        Script? objConfig = m_objMenuFile.ScriptList.GetScriptByName(strConfig);
+                        Script? objConfig = MenuFile.ScriptList.GetScriptByName(strConfig);
                         if (objConfig != null)
                         {
-                            Variable objConfigFilePathVariable = new(m_objMenuFile, "ConfigFilePath");
+                            Variable objConfigFilePathVariable = new(MenuFile, "ConfigFilePath");
                             objConfigFilePathVariable.Value = ConfigFilePath;
                             objConfigFilePathVariable.ExpandedValue = strConfigFilePath;
 
@@ -289,9 +226,9 @@ namespace AppLaunchMenu.DataModels
                             objScriptingHost.Close();
 
                             if (p_objEnvironment.Contains(objConfigFilePathVariable))
-                                p_objEnvironment.Remove(objConfigFilePathVariable);
+                                p_objEnvironment.RemoveItem(objConfigFilePathVariable);
 
-                            p_objEnvironment.Insert(objConfigFilePathVariable, 0);
+                            p_objEnvironment.InsertItem(objConfigFilePathVariable, 0);
                         }
                     }
 

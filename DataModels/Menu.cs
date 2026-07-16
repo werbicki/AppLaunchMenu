@@ -28,23 +28,5 @@ namespace AppLaunchMenu.DataModels
         {
             get { return ElementName; }
         }
-
-        internal NetworkDriveList? CreateNetworkDrives(String p_strNetworkDrivesName)
-        {
-            if (m_objXmlNode != null)
-            {
-                XmlElement? objNetworkDrivesElement = m_objMenuFile.XmlDocument.CreateElement(Folder.ElementName);
-                XmlAttribute? objNetworkDrivesNameAttribute = m_objMenuFile.XmlDocument.CreateAttribute("Name");
-                if ((objNetworkDrivesElement != null) && (objNetworkDrivesNameAttribute != null))
-                {
-                    objNetworkDrivesNameAttribute.Value = p_strNetworkDrivesName;
-                    objNetworkDrivesElement.Attributes.Append(objNetworkDrivesNameAttribute);
-
-                    return new NetworkDriveList(m_objMenuFile, objNetworkDrivesElement);
-                }
-            }
-
-            return null;
-        }
     }
 }

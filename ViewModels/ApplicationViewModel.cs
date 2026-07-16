@@ -33,19 +33,6 @@ namespace AppLaunchMenu.ViewModels
             //    m_objApplication.Remove(objEnvironmentViewModel.Environment);
         }
 
-        internal VariableViewModel? CreateVariable(String p_strVariableName)
-        {
-            VariableViewModel? objVariableViewModel = null;
-            Variable? objVariable = m_objApplication.CreateVariable(p_strVariableName);
-            if (objVariable != null)
-            {
-                objVariableViewModel = new VariableViewModel(LaunchMenu, new EnvironmentViewModel(LaunchMenu, m_objApplication.Environment), objVariable);
-                //Children.Add(new ApplicationViewModel(objApplication, this));
-            }
-
-            return objVariableViewModel;
-        }
-
         public Application Application
         {
             get { return m_objApplication; }
@@ -144,13 +131,10 @@ namespace AppLaunchMenu.ViewModels
 
         protected override void OnLoadChildren()
         {
-            if (EditMode)
+            foreach (DataModelBase objItem in m_objApplication.Items)
             {
-                foreach (DataModelBase objItem in m_objApplication.Items)
-                {
-                    if (objItem is DataModels.Environment objEnvironment)
-                        Children.Add(new EnvironmentViewModel(LaunchMenu, objEnvironment, this));
-                }
+                if (objItem is DataModels.Environment objEnvironment)
+                    Children.Add(new EnvironmentViewModel(LaunchMenu, objEnvironment, this));
             }
         }
     }

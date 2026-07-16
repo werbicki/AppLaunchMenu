@@ -81,6 +81,8 @@ namespace AppLaunchMenu
                 m_objMenuFileViewModel = new MenuFileViewModel(this, m_objMenuFile);
 
                 m_objMenuFileViewModel.PropertyChanged += MenusViewModel_OnPropertyChanged;
+
+                OnPropertyChanged(nameof(Menus));
             }
 
             base.OnNavigatedTo(e);

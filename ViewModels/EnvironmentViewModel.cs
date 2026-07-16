@@ -10,7 +10,7 @@ namespace AppLaunchMenu.ViewModels
     public class EnvironmentViewModel : TreeViewItemViewModel
     {
         DataModels.Environment m_objEnvironment;
-        protected ObservableCollection<VariableViewModel> m_objVariables = new ObservableCollection<VariableViewModel>();
+        protected ObservableCollection<VariableViewModel> m_objExpandedVariables = new ObservableCollection<VariableViewModel>();
 
         public EnvironmentViewModel(LaunchMenu? p_objLaunchMenu, DataModels.Environment p_objEnvironment)
             : base(p_objLaunchMenu)
@@ -18,9 +18,9 @@ namespace AppLaunchMenu.ViewModels
             m_objEnvironment = p_objEnvironment;
 
             foreach (Variable objVariable in p_objEnvironment)
-                m_objVariables.Add(new VariableViewModel(p_objLaunchMenu, this, objVariable));
+                m_objExpandedVariables.Add(new VariableViewModel(p_objLaunchMenu, this, objVariable));
 
-            m_objVariables.CollectionChanged += Variables_CollectionChanged;
+            m_objExpandedVariables.CollectionChanged += Variables_CollectionChanged;
         }
 
         public EnvironmentViewModel(LaunchMenu? p_objLaunchMenu, DataModels.Environment p_objEnvironment, TreeViewItemViewModel p_objTreeViewItemViewModel)
@@ -49,21 +49,31 @@ namespace AppLaunchMenu.ViewModels
             get { return false; }
         }
 
-        public ObservableCollection<VariableViewModel> Variables
+        public ObservableCollection<VariableViewModel> ExpandedVariables
         {
-            get { return m_objVariables; }
+            get { return m_objExpandedVariables; }
+        }
+
+        internal VariableViewModel? CreateVariable(String p_strVariableName)
+        {
+            VariableViewModel? objVariableViewModel = null;
+            Variable? objVariable = m_objEnvironment.CreateVariable(p_strVariableName);
+            if (objVariable != null)
+                objVariableViewModel = new VariableViewModel(LaunchMenu, new EnvironmentViewModel(LaunchMenu, m_objEnvironment), objVariable);
+
+            return objVariableViewModel;
         }
 
         protected override void Insert(object p_objItem, int p_intIndex)
         {
             if (p_objItem is VariableViewModel objVariableViewModel)
-                m_objEnvironment.Insert(objVariableViewModel.Variable, p_intIndex);
+                m_objEnvironment.InsertItem(objVariableViewModel.Variable, p_intIndex);
         }
 
         protected override void Remove(object p_objItem, int p_intIndex)
         {
             if (p_objItem is VariableViewModel objVariableViewModel)
-                m_objEnvironment.Remove(objVariableViewModel.Variable);
+                m_objEnvironment.RemoveItem(objVariableViewModel.Variable);
         }
 
         private void Variables_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

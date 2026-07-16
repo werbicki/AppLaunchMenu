@@ -130,25 +130,6 @@ namespace AppLaunchMenu.ViewModels
             set { m_objParent = value; }
         }
 
-        /*
-        public virtual bool EditMode
-        {
-            get
-            {
-                bool blnEditMode = false;
-                TreeViewItemViewModel? objTreeViewItemViewModel = Parent;
-
-                while ((objTreeViewItemViewModel != null) && (objTreeViewItemViewModel.Parent != null))
-                    objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
-
-                if (objTreeViewItemViewModel != null)
-                    return objTreeViewItemViewModel.EditMode;
-
-                return blnEditMode;
-            }
-        }
-        */
-
         public virtual bool EditMode
         {
             get

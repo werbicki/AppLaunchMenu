@@ -54,7 +54,7 @@ namespace AppLaunchMenu
             get
             {
                 if (m_objEnvironmentViewModel != null)
-                    return m_objEnvironmentViewModel.Variables;
+                    return m_objEnvironmentViewModel.ExpandedVariables;
                 return [];
             }
         }

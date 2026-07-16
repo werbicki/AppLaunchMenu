@@ -17,12 +17,12 @@ namespace AppLaunchMenu.DataModels
     public class NetworkDrive : DataModelBase
     {
         public NetworkDrive(MenuFile p_objMenuFile, XmlNode p_objNetworkDriveNode)
-            : base(p_objMenuFile, p_objNetworkDriveNode)
+            : base(p_objMenuFile, new Type[] { }, p_objNetworkDriveNode)
         {
         }
 
         public NetworkDrive(MenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, p_strName)
+            : base(p_objMenuFile, new Type[] { }, p_strName)
         {
         }
 

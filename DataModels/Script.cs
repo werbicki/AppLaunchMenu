@@ -81,12 +81,12 @@ namespace AppLaunchMenu.DataModels
     public class Script : DataModelBase
     {
         public Script(MenuFile p_objMenuFile, XmlNode p_objMenuNode)
-            : base(p_objMenuFile, p_objMenuNode)
+            : base(p_objMenuFile, new Type[] { }, p_objMenuNode)
         {
         }
 
         public Script(MenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, p_strName)
+            : base(p_objMenuFile, new Type[] { }, p_strName)
         {
         }
 

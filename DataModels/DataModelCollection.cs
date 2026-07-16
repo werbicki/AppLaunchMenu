@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Xml;
 
@@ -9,48 +10,41 @@ namespace AppLaunchMenu.DataModels
 {
     public class DataModelCollection<T> : IEnumerable<T>
     {
-        protected MenuFile m_objMenuFile;
+        protected DataModelBase m_objObject;
         protected List<T> m_objNodes = [];
 
-        public DataModelCollection(MenuFile p_objMenuFile, List<XmlNode>? p_objNodes)
+        public DataModelCollection(DataModelBase p_objObject, List<XmlNode>? p_objNodes)
         {
-            m_objMenuFile = p_objMenuFile;
+            m_objObject = p_objObject;
 
             if (p_objNodes != null)
                 Initialize(p_objNodes);
         }
-
-        /*
-        public DataModelCollection(XmlNodeList? p_objNodes)
-        {
-            List <XmlNode> objNodes = [];
-
-            if (p_objNodes != null)
-            {
-                foreach (XmlNode objNode in p_objNodes)
-                    objNodes.Add(objNode);
-
-                Initialize(objNodes);
-            }
-        }
-        */
 
         protected void Initialize(List<XmlNode> p_objNodes)
         {
             m_objNodes = new List<T>(p_objNodes.Count);
 
             for (int i = 0; i < p_objNodes.Count; i++)
-            {
-                T? objItem = (T?)Activator.CreateInstance(typeof(T), m_objMenuFile, p_objNodes[i]);
-
-                if (objItem != null)
-                    m_objNodes.Add(objItem);
-            }
+                Add(p_objNodes[i]);
         }
 
         public void Clear()
         {
             m_objNodes.Clear();
+        }
+
+        public void Add(XmlNode p_objNode)
+        {
+            T? objItem = (T?)Activator.CreateInstance(typeof(T), m_objObject.MenuFile, p_objNode);
+
+            if (objItem != null)
+                m_objNodes.Add(objItem);
+        }
+
+        public void Add(T p_objItem)
+        {
+            m_objNodes.Add(p_objItem);
         }
 
         public int Count

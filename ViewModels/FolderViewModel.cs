@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Environment = AppLaunchMenu.DataModels.Environment;
 
 namespace AppLaunchMenu.ViewModels
 {
@@ -54,7 +55,7 @@ namespace AppLaunchMenu.ViewModels
 
         internal FolderViewModel InsertFolder(FolderViewModel p_objFolderViewModel, int p_intIndex)
         {
-            m_objFolder.Insert(p_objFolderViewModel.Folder, p_intIndex);
+            m_objFolder.InsertItem(p_objFolderViewModel.Folder, p_intIndex);
 
             return p_objFolderViewModel;
         }
@@ -62,27 +63,18 @@ namespace AppLaunchMenu.ViewModels
         internal void RemoveFolder(FolderViewModel p_objFolderViewModel)
         {
             if (Children.Remove(p_objFolderViewModel))
-                m_objFolder.Remove(p_objFolderViewModel.Folder);
+                m_objFolder.RemoveItem(p_objFolderViewModel.Folder);
         }
 
         internal ApplicationViewModel? CreateApplication(String p_strApplicationName)
         {
             ApplicationViewModel? objApplicationViewModel = null;
             Application? objApplication = m_objFolder.CreateApplication(p_strApplicationName);
+
             if (objApplication != null)
                 objApplicationViewModel = new ApplicationViewModel(LaunchMenu, objApplication, this);
 
             return objApplicationViewModel;
-        }
-
-        internal VariableViewModel? CreateVariable(String p_strVariableName)
-        {
-            VariableViewModel? objVariableViewModel = null;
-            Variable? objVariable = m_objFolder.CreateVariable(p_strVariableName);
-            if (objVariable != null)
-                objVariableViewModel = new VariableViewModel(LaunchMenu, new EnvironmentViewModel(LaunchMenu, m_objFolder.Environment), objVariable);
-
-            return objVariableViewModel;
         }
 
         internal Folder Folder
