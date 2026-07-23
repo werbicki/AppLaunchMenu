@@ -9,33 +9,44 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public partial class MenuViewModel : FolderViewModel
+    public partial class MenuViewModel : ViewModelTreeBase<Menu>
     {
         private readonly Menu m_objMenu;
         private readonly Page m_objMenuPage;
         private readonly IconSource m_objDataIconSource = new SymbolIconSource() { Symbol = Symbol.Placeholder };
         GridLength m_objTreeViewItemWidth = new(200.0);
 
-        public MenuViewModel(LaunchMenu p_objLaunchMenu, Menu p_objMenu)
-            : base(p_objLaunchMenu, p_objMenu)
+        public MenuViewModel(Menu p_objMenu, LaunchMenu p_objLaunchMenu)
+            : base(p_objMenu, p_objLaunchMenu)
         {
             m_objMenu = p_objMenu;
             m_objMenuPage = new MenuPage(p_objLaunchMenu, this);
         }
 
-        internal Menu Menu
+        protected override void OnLoadChildren()
         {
-            get { return m_objMenu; }
-        }
+            Children.Add(LaunchMenu.MenuFileViewModel.NetworkDriveListViewModel);
+            Children.Add(LaunchMenu.MenuFileViewModel.ScriptListViewModel);
+            Children.Add(LaunchMenu.MenuFileViewModel.EnvironmentViewModel);
 
-        public IconSource Icon
-        { 
-            get { return m_objDataIconSource; }
+            foreach (EnvironmentViewModel objEnvironmentViewModel in Collection<EnvironmentViewModel, DataModels.Environment>(this))
+                Children.Add(objEnvironmentViewModel);
+
+            foreach (FolderViewModel objFolderViewModel in Collection<FolderViewModel, Folder>(this))
+                Children.Add(objFolderViewModel);
+
+            foreach (ApplicationViewModel objApplicationViewModel in Collection<ApplicationViewModel, DataModels.Application>(this))
+                Children.Add(objApplicationViewModel);
         }
 
         public Page MenuPage
         {
             get { return m_objMenuPage; }
+        }
+
+        public IconSource Icon
+        {
+            get { return m_objDataIconSource; }
         }
 
         public override GridLength TreeViewItemWidth
@@ -47,14 +58,9 @@ namespace AppLaunchMenu.ViewModels
                 OnPropertyChanged(nameof(TreeViewItemWidth));
             }
         }
-
-        protected override void OnLoadChildren()
+        public override bool Expanded
         {
-            Children.Add(LaunchMenu.MenuFileViewModel.NetworkDriveListViewModel);
-            Children.Add(LaunchMenu.MenuFileViewModel.ScriptListViewModel);
-            Children.Add(LaunchMenu.MenuFileViewModel.EnvironmentViewModel);
-
-            base.OnLoadChildren();
+            get { return true; }
         }
     }
 }

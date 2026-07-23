@@ -1,65 +1,38 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public partial class MenuFileViewModel : ViewModelNotifyBase
+    public partial class MenuFileViewModel : ViewModelBase<MenuFile>
     {
-        LaunchMenu m_objLaunchMenu;
-        MenuFile m_objMenuFile = new();
-        NetworkDriveListViewModel m_objNetworkDriveListViewModel;
-        ScriptListViewModel m_objScriptListViewModel;
-        MenuListViewModel m_objMenuListViewModel;
-        EnvironmentViewModel m_objEnvironmentViewModel;
-
-        public MenuFileViewModel(LaunchMenu p_objLaunchMenu)
+        public MenuFileViewModel(MenuFile p_objMenuFile, LaunchMenu p_objLaunchMenu)
+            : base(p_objMenuFile, p_objLaunchMenu)
         {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objNetworkDriveListViewModel = new NetworkDriveListViewModel(m_objLaunchMenu, m_objMenuFile.NetworkDriveList);
-            m_objScriptListViewModel = new ScriptListViewModel(m_objLaunchMenu, m_objMenuFile.ScriptList);
-            m_objMenuListViewModel = new MenuListViewModel(m_objLaunchMenu, m_objMenuFile.MenuList);
-            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.Environment);
-        }
-
-        public MenuFileViewModel(LaunchMenu p_objLaunchMenu, MenuFile p_objMenuFile)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objMenuFile = p_objMenuFile;
-            m_objNetworkDriveListViewModel = new NetworkDriveListViewModel(m_objLaunchMenu, m_objMenuFile.NetworkDriveList);
-            m_objScriptListViewModel = new ScriptListViewModel(m_objLaunchMenu, m_objMenuFile.ScriptList);
-            m_objMenuListViewModel = new MenuListViewModel(m_objLaunchMenu, m_objMenuFile.MenuList);
-            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, m_objMenuFile.Environment);
         }
 
         public NetworkDriveListViewModel NetworkDriveListViewModel
         {
-            get { return m_objNetworkDriveListViewModel; }
+            get { return ViewModel<NetworkDriveListViewModel, NetworkDriveList>(DataModel.NetworkDriveList); }
         }
 
         public ScriptListViewModel ScriptListViewModel
         {
-            get { return m_objScriptListViewModel; }
+            get { return ViewModel<ScriptListViewModel, ScriptList>(DataModel.ScriptList); }
         }
 
         public MenuListViewModel MenuListViewModel
         {
-            get { return m_objMenuListViewModel; }
+            get { return ViewModel<MenuListViewModel, MenuList>(DataModel.MenuList); }
         }
 
         public EnvironmentViewModel EnvironmentViewModel
         {
-            get { return m_objEnvironmentViewModel; }
+            get { return ViewModel<EnvironmentViewModel, Environment>(DataModel.Environment); }
         }
 
         public void Reload(LaunchMenu p_objLaunchMenu)
         {
-            m_objMenuFile.Reload();
+            DataModel.Reload();
 
             OnPropertyChanged(nameof(MenuListViewModel));
         }

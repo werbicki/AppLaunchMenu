@@ -9,87 +9,49 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public partial class MenuListViewModel : TreeViewItemViewModel
+    public partial class MenuListViewModel : ViewModelBase<MenuList>
     {
-        LaunchMenu m_objLaunchMenu;
-        MenuList m_objMenuList;
-        EnvironmentViewModel m_objEnvironmentViewModel;
-        ObservableCollection<MenuViewModel> m_objMenus = new();
-        private int m_intSelectedMenu = 0;
+        private int m_intSelectedMenu = -1;
 
-        public MenuListViewModel(LaunchMenu p_objLaunchMenu, MenuList p_objMenuList)
-            : base(p_objLaunchMenu)
+        public MenuListViewModel(MenuList p_objMenuList, LaunchMenu p_objLaunchMenu)
+            : base(p_objMenuList, p_objLaunchMenu)
         {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objMenuList = p_objMenuList;
-            m_objEnvironmentViewModel = new EnvironmentViewModel(m_objLaunchMenu, p_objMenuList.Environment);
+            if (Menus.Count > 0)
+                SelectedMenu = Menus[0];
 
-            SelectFirstMenu();
-        }
-
-        private void SelectFirstMenu()
-        {
-            m_intSelectedMenu = 0;
-
-            foreach (DataModels.Menu objMenu in m_objMenuList.Menus)
-                m_objMenus.Add(new MenuViewModel(m_objLaunchMenu, objMenu));
-
-            OnPropertyChanged(nameof(Menus));
-
-            if (m_objMenus.Count > 0)
-            {
-                SelectedMenu = m_objMenus[m_intSelectedMenu];
-
-                OnPropertyChanged(nameof(SelectedMenu));
-            }
+            OnPropertyChanged(nameof(SelectedMenu));
+            OnPropertyChanged(nameof(SelectedMenuIndex));
         }
 
         public ObservableCollection<MenuViewModel> Menus
         {
-            get { return m_objMenus; }
+            get { return Collection<MenuViewModel, Menu>(); }
         }
 
-        public MenuViewModel? SelectedMenu
+        public MenuViewModel SelectedMenu
         {
-            get
-            {
-                if ((Menus.Count > 0) && (m_intSelectedMenu < Menus.Count))
-                    return Menus[m_intSelectedMenu];
-                return null;
-            }
+            get { return Menus[m_intSelectedMenu]; }
             set
             {
-                if (value != null)
-                {
-                    m_intSelectedMenu = Menus.IndexOf(value);
+                int intSelectedMenu = Menus.IndexOf(value);
 
-                    OnPropertyChanged(nameof(SelectedMenu));
-                }
+                if ((intSelectedMenu >= 0) && (intSelectedMenu < Menus.Count))
+                    m_intSelectedMenu = intSelectedMenu;
+
+                OnPropertyChanged(nameof(SelectedMenu));
+                OnPropertyChanged(nameof(SelectedMenuIndex));
             }
         }
 
-        public MenuViewModel? AddMenu(LaunchMenu p_objLaunchMenu, String p_strMenuName)
+        public int SelectedMenuIndex
         {
-            MenuViewModel? objMenuViewModel = null;
-            Menu? objMenu = m_objMenuList.CreateItem<Menu>(p_strMenuName);
-            if (objMenu != null)
+            get { return m_intSelectedMenu; }
+            set
             {
-                objMenuViewModel = new MenuViewModel(p_objLaunchMenu, objMenu);
-                m_objMenus.Add(objMenuViewModel);
+                if ((value >= 0) && (value < Menus.Count))
+                    m_intSelectedMenu = value;
 
-                this.OnPropertyChanged(nameof(Menus));
-            }
-
-            return objMenuViewModel;
-        }
-
-        public void RemoveMenu(MenuViewModel p_objMenuViewModel)
-        {
-            if (m_objMenus.Remove(p_objMenuViewModel))
-            {
-                m_objMenuList.MenuFile.RemoveItem(p_objMenuViewModel.Menu);
-
-                this.OnPropertyChanged(nameof(Menus));
+                OnPropertyChanged(nameof(SelectedMenuIndex));
             }
         }
     }

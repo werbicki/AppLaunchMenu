@@ -6,31 +6,19 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public class VariableViewModel : TreeViewItemViewModel
+    public class VariableViewModel : ViewModelTreeBase<Variable>
     {
         protected DataModels.Environment m_objEnvironment;
-        protected Variable m_objVariable;
 
-        public VariableViewModel(LaunchMenu p_objLaunchMenu, EnvironmentViewModel p_objEnvironmentViewModel, Variable p_objVariable)
-            : base(p_objLaunchMenu, p_objVariable, p_objEnvironmentViewModel)
+        public VariableViewModel(Variable p_objVariable, LaunchMenu p_objLaunchMenu, EnvironmentViewModel p_objEnvironmentViewModel)
+            : base(p_objVariable, p_objLaunchMenu, p_objEnvironmentViewModel)
         {
-            m_objVariable = p_objVariable;
             m_objEnvironment = p_objEnvironmentViewModel.Environment;
         }
 
         internal Variable Variable
         {
-            get { return m_objVariable; }
-        }
-
-        public override string Name
-        {
-            get { return m_objVariable.Name; }
-            set
-            {
-                m_objVariable.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
+            get { return DataModel; }
         }
 
         public string Environment
@@ -40,30 +28,30 @@ namespace AppLaunchMenu.ViewModels
 
         public string Description
         {
-            get { return m_objVariable.Description; }
+            get { return DataModel.Description; }
             set
             {
-                m_objVariable.Description = value;
+                DataModel.Description = value;
                 OnPropertyChanged(nameof(Description));
             }
         }
 
         public string Group
         {
-            get { return m_objVariable.Group; }
+            get { return DataModel.Group; }
             set
             {
-                m_objVariable.Group = value;
+                DataModel.Group = value;
                 OnPropertyChanged(nameof(Group));
             }
         }
 
         public string Value
         {
-            get { return m_objVariable.Value; }
+            get { return DataModel.Value; }
             set
             {
-                m_objVariable.Value = value;
+                DataModel.Value = value;
                 OnPropertyChanged(nameof(Value));
                 OnPropertyChanged(nameof(ExpandedValue));
             }
@@ -71,7 +59,7 @@ namespace AppLaunchMenu.ViewModels
 
         public string ExpandedValue
         {
-            get { return m_objEnvironment.ExpandVariable(m_objVariable.Value); }
+            get { return m_objEnvironment.ExpandVariable(DataModel.Value); }
         }
     }
 }

@@ -9,32 +9,17 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public partial class ScriptListViewModel : TreeViewItemViewModel
+    public partial class ScriptListViewModel : ViewModelTreeBase<ScriptList>
     {
-        LaunchMenu m_objLaunchMenu;
-        ScriptList m_objScriptList;
-        ObservableCollection<ScriptViewModel> m_objScripts = new();
-
-        public ScriptListViewModel(LaunchMenu p_objLaunchMenu, ScriptList p_objScriptList)
-            : base(p_objLaunchMenu, p_objScriptList)
+        public ScriptListViewModel(ScriptList p_objScriptList, LaunchMenu p_objLaunchMenu)
+            : base(p_objScriptList, p_objLaunchMenu)
         {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objScriptList = p_objScriptList;
         }
 
-        public override string Name
+        protected override void OnLoadChildren()
         {
-            get
-            {
-                if (string.IsNullOrEmpty(m_objScriptList.Name))
-                    return "ScriptList";
-                return m_objScriptList.Name;
-            }
-            set
-            {
-                m_objScriptList.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
+            foreach (ScriptViewModel objScriptViewModel in Collection<ScriptViewModel, Script>())
+                Children.Add(objScriptViewModel);
         }
 
         public override bool Expanded
@@ -44,41 +29,7 @@ namespace AppLaunchMenu.ViewModels
 
         public ObservableCollection<ScriptViewModel> Scripts
         {
-            get { return m_objScripts; }
-        }
-
-        public ScriptViewModel? AddScript(LaunchMenu p_objLaunchMenu, String p_strScript)
-        {
-            ScriptViewModel? objScriptViewModel = null;
-            Script? objScript = m_objScriptList.CreateItem<Script>(p_strScript);
-            if (objScript != null)
-            {
-                objScriptViewModel = new ScriptViewModel(p_objLaunchMenu, objScript);
-                m_objScripts.Add(objScriptViewModel);
-
-                this.OnPropertyChanged(nameof(Scripts));
-            }
-
-            return objScriptViewModel;
-        }
-
-        public void RemoveScript(ScriptViewModel p_objScriptViewModel)
-        {
-            if (m_objScripts.Remove(p_objScriptViewModel))
-            {
-                m_objScriptList.MenuFile.RemoveItem(p_objScriptViewModel.Script);
-
-                this.OnPropertyChanged(nameof(Scripts));
-            }
-        }
-
-        protected override void OnLoadChildren()
-        {
-            foreach (DataModelBase objItem in m_objScriptList.Items)
-            {
-                if (objItem is Script objScript)
-                    Children.Add(new ScriptViewModel(LaunchMenu, objScript));
-            }
+            get { return Collection<ScriptViewModel, Script>(); }
         }
     }
 }

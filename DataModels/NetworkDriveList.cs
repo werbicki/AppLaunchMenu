@@ -47,7 +47,7 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
-        public NetworkDrive[] Drives
+        public NetworkDrive[] NetworkDrives
         {
             get { return m_objNetworkDrives.ToArray(); }
         }

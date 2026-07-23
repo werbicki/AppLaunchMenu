@@ -5,42 +5,27 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public class ApplicationViewModel : TreeViewItemViewModel
+    public class ApplicationViewModel : ViewModelTreeBase<Application>
     {
-        Application m_objApplication;
-
-        public ApplicationViewModel(LaunchMenu p_objLaunchMenu, Application p_objApplication, TreeViewItemViewModel p_objParent)
-            : base(p_objLaunchMenu, p_objApplication, p_objParent)
+        public ApplicationViewModel(Application p_objApplication, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
+            : base(p_objApplication, p_objLaunchMenu, p_objParent)
         {
-            m_objApplication = p_objApplication;
         }
 
-        protected override void Insert(object p_objItem, int p_intIndex)
+        protected override void OnLoadChildren()
         {
-            //if (p_objItem is EnvironmentViewModel objEnvironmentViewModel)
-            //    m_objApplication.Insert(objEnvironmentViewModel.Environment, p_intIndex);
-        }
-
-        protected override void Remove(object p_objItem, int p_intIndex)
-        {
-            //if (p_objItem is EnvironmentViewModel objEnvironmentViewModel)
-            //    m_objApplication.Remove(objEnvironmentViewModel.Environment);
+            foreach (EnvironmentViewModel objEnvironmentViewModel in Collection<EnvironmentViewModel, DataModels.Environment>(this))
+                Children.Add(objEnvironmentViewModel);
         }
 
         public Application Application
         {
-            get { return m_objApplication; }
-            set { m_objApplication = value; }
+            get { return DataModel; }
         }
 
-        public override string Name
+        public EnvironmentViewModel Environment
         {
-            get { return m_objApplication.Name; }
-            set
-            {
-                m_objApplication.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
+            get { return ViewModel<EnvironmentViewModel, DataModels.Environment>(DataModel.Environment); }
         }
 
         public override bool Expanded
@@ -50,85 +35,71 @@ namespace AppLaunchMenu.ViewModels
 
         public string Executable
         {
-            get { return m_objApplication.ExecutablePath; }
+            get { return DataModel.ExecutablePath; }
             set
             {
-                m_objApplication.ExecutablePath = value;
+                DataModel.ExecutablePath = value;
                 OnPropertyChanged(nameof(Executable));
             }
         }
 
         public string WorkingDirectory
         {
-            get { return m_objApplication.WorkingDirectory; }
+            get { return DataModel.WorkingDirectory; }
             set
             {
-                m_objApplication.WorkingDirectory = value;
+                DataModel.WorkingDirectory = value;
                 OnPropertyChanged(nameof(WorkingDirectory));
             }
         }
 
         public string Parameters
         {
-            get { return m_objApplication.Parameters; }
+            get { return DataModel.Parameters; }
             set
             {
-                m_objApplication.Parameters = value;
+                DataModel.Parameters = value;
                 OnPropertyChanged(nameof(Parameters));
             }
         }
 
-        public EnvironmentViewModel Environment
-        {
-            get { return new EnvironmentViewModel(LaunchMenu, m_objApplication.Environment); }
-        }
-
         public bool IsReservable
         {
-            get { return m_objApplication.Reservable; }
+            get { return DataModel.Reservable; }
             set
             {
-                m_objApplication.Reservable = value;
+                DataModel.Reservable = value;
                 OnPropertyChanged(nameof(IsReservable));
             }
         }
 
         public string ReservationDescription
         {
-            get { return m_objApplication.ReservationDescription; }
+            get { return DataModel.ReservationDescription; }
             set
             {
-                m_objApplication.ReservationDescription = value;
+                DataModel.ReservationDescription = value;
                 OnPropertyChanged(nameof(ReservationDescription));
             }
         }
 
         public DateTimeOffset ReservationDate
         {
-            get { return m_objApplication.ReservationDate; }
+            get { return DataModel.ReservationDate; }
             set
             {
-                m_objApplication.ReservationDate = value;
+                DataModel.ReservationDate = value;
                 OnPropertyChanged(nameof(ReservationDate));
             }
         }
 
         public string ReservationOwner
         {
-            get { return m_objApplication.ReservationOwner; }
+            get { return DataModel.ReservationOwner; }
             set
             {
-                m_objApplication.ReservationOwner = value;
+                DataModel.ReservationOwner = value;
                 OnPropertyChanged(nameof(ReservationOwner));
-            }
-        }
-
-        protected override void OnLoadChildren()
-        {
-            foreach (DataModelBase objItem in m_objApplication.Items)
-            {
-                if (objItem is DataModels.Environment objEnvironment)
-                    Children.Add(new EnvironmentViewModel(LaunchMenu, objEnvironment, this));
             }
         }
     }

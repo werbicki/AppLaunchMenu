@@ -1,3 +1,4 @@
+using AppLaunchMenu.DataModels;
 using AppLaunchMenu.Dialogs;
 using AppLaunchMenu.ViewModels;
 using CommunityToolkit.WinUI.Controls;
@@ -54,13 +55,13 @@ namespace AppLaunchMenu
             m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
         }
 
-        private double GetTreeViewItemWidth(ObservableCollection<TreeViewItemViewModel> p_objChildren, double p_dblWidth = 0)
+        private double GetTreeViewItemWidth(ObservableCollection<ITreeViewItem> p_objChildren, double p_dblWidth = 0)
         {
             double dblWidth = p_dblWidth;
 
-            foreach (TreeViewItemViewModel objTreeVieweItemViewModel in p_objChildren)
+            foreach (ITreeViewItem objTreeViewItemViewModel in p_objChildren)
             {
-                TreeViewItem? objTreeViewItem = (TreeViewItem)m_objTreeView.ContainerFromItem(objTreeVieweItemViewModel);
+                TreeViewItem? objTreeViewItem = (TreeViewItem)m_objTreeView.ContainerFromItem(objTreeViewItemViewModel);
                 if (objTreeViewItem != null)
                 {
                     object objRelativePanel = objTreeViewItem.Content;
@@ -79,7 +80,7 @@ namespace AppLaunchMenu
                     }
                 }
 
-                dblWidth = GetTreeViewItemWidth(objTreeVieweItemViewModel.Children, dblWidth);
+                dblWidth = GetTreeViewItemWidth(objTreeViewItemViewModel.Children, dblWidth);
             }
 
             return dblWidth;
@@ -209,10 +210,20 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)objButton.DataContext;
                     if (objTreeViewItemViewModel != null)
                     {
-                        FolderViewModel? objFolderViewModel = m_objMenuViewModel?.CreateFolder("New Folder " + m_intCount++);
+                        FolderViewModel? objFolderViewModel;
+
+                        {
+                            if (objTreeViewItemViewModel is MenuViewModel objMenuViewModel)
+                                objFolderViewModel = objMenuViewModel.NewChild<FolderViewModel, Folder>("New Variable " + m_intCount++, objMenuViewModel);
+                            else if (objTreeViewItemViewModel is FolderViewModel objParentFolderViewModel)
+                                objFolderViewModel = objParentFolderViewModel.NewChild<FolderViewModel, Folder>("New Variable " + m_intCount++, objParentFolderViewModel);
+                            else
+                                throw new ArgumentException();
+                        }
+
                         if (objFolderViewModel != null)
                         {
                             ModalDialog objNewFolderDialog = new ModalDialog()
@@ -229,7 +240,14 @@ namespace AppLaunchMenu
                             ContentDialogResult objContentDialogResult = await objNewFolderDialog.ShowAsync();
 
                             if (objContentDialogResult == ContentDialogResult.None)
-                                objTreeViewItemViewModel.Children.Add(objFolderViewModel);
+                            {
+                                if (objTreeViewItemViewModel is MenuViewModel objMenuViewModel)
+                                    objMenuViewModel.AddChild<FolderViewModel, Folder>(objFolderViewModel);
+                                else if (objTreeViewItemViewModel is FolderViewModel objParentFolderViewModel)
+                                    objParentFolderViewModel.AddChild<FolderViewModel, Folder>(objFolderViewModel);
+                                else
+                                    throw new ArgumentException();
+                            }
                         }
                     }
                 }
@@ -245,10 +263,20 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)objButton.DataContext;
                     if (objTreeViewItemViewModel != null)
                     {
-                        ApplicationViewModel? objApplicationViewModel = m_objMenuViewModel?.CreateApplication("New Application " + m_intCount++);
+                        ApplicationViewModel? objApplicationViewModel;
+
+                        {
+                            if (objTreeViewItemViewModel is MenuViewModel objMenuViewModel)
+                                objApplicationViewModel = objMenuViewModel.NewChild<ApplicationViewModel, DataModels.Application>("New Variable " + m_intCount++, objMenuViewModel);
+                            else if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
+                                objApplicationViewModel = objFolderViewModel.NewChild<ApplicationViewModel, DataModels.Application>("New Variable " + m_intCount++, objFolderViewModel);
+                            else
+                                throw new ArgumentException();
+                        }
+
                         if (objApplicationViewModel != null)
                         {
                             ModalDialog objNewApplicationDialog = new ModalDialog()
@@ -265,7 +293,14 @@ namespace AppLaunchMenu
                             ContentDialogResult objContentDialogResult = await objNewApplicationDialog.ShowAsync();
 
                             if (objContentDialogResult == ContentDialogResult.None)
-                                objTreeViewItemViewModel.Children.Add(objApplicationViewModel);
+                            {
+                                if (objTreeViewItemViewModel is MenuViewModel objMenuViewModel)
+                                    objMenuViewModel.AddChild<ApplicationViewModel, DataModels.Application>(objApplicationViewModel);
+                                else if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
+                                    objFolderViewModel.AddChild<ApplicationViewModel, DataModels.Application>(objApplicationViewModel);
+                                else
+                                    throw new ArgumentException();
+                            }
                         }
                     }
                 }
@@ -281,16 +316,14 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)objButton.DataContext;
                     if (objTreeViewItemViewModel != null)
                     {
                         VariableViewModel? objVariableViewModel = null;
 
                         {
-                            if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
-                                objVariableViewModel = objFolderViewModel.Environment.CreateVariable("New Variable " + m_intCount++);
-                            else if (objTreeViewItemViewModel is ApplicationViewModel objApplicationViewModel)
-                                objVariableViewModel = objApplicationViewModel.Environment.CreateVariable("New Variable " + m_intCount++);
+                            if (objTreeViewItemViewModel is EnvironmentViewModel objEnvironmentViewModel)
+                                objVariableViewModel = objEnvironmentViewModel.NewChild<VariableViewModel, Variable>("New Variable " + m_intCount++, objEnvironmentViewModel);
                             else
                                 throw new ArgumentException();
                         }
@@ -312,10 +345,8 @@ namespace AppLaunchMenu
 
                             if (objContentDialogResult == ContentDialogResult.None)
                             {
-                                if (objTreeViewItemViewModel is FolderViewModel objFolderViewModel)
-                                    objFolderViewModel.Environment.ExpandedVariables.Add(objVariableViewModel);
-                                else if (objTreeViewItemViewModel is ApplicationViewModel objApplicationViewModel)
-                                    objApplicationViewModel.Environment.ExpandedVariables.Add(objVariableViewModel);
+                                if (objTreeViewItemViewModel is EnvironmentViewModel objEnvironmentViewModel)
+                                    objEnvironmentViewModel.AddChild<VariableViewModel, Variable>(objVariableViewModel);
                                 else
                                     throw new ArgumentException();
                             }
@@ -334,7 +365,7 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)objButton.DataContext;
                     if (objTreeViewItemViewModel != null)
                     {
                         ModalDialog objRenameDialog = new ModalDialog()
@@ -374,7 +405,7 @@ namespace AppLaunchMenu
                 AppBarButton objButton = (AppBarButton)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)objButton.DataContext;
                     if (objTreeViewItemViewModel != null)
                     {
                         ModalDialog objDeleteDialog = new ModalDialog
@@ -400,7 +431,7 @@ namespace AppLaunchMenu
                 Button objButton = (Button)e.OriginalSource;
                 if (objButton.DataContext != null)
                 {
-                    TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)objButton.DataContext;
+                    ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)objButton.DataContext;
                     if (objTreeViewItemViewModel != null)
                     {
                         ModalDialog objDeleteDialog = new ModalDialog
@@ -437,7 +468,7 @@ namespace AppLaunchMenu
                             Position = objPoint
                         };
 
-                        TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)m_objTreeView.ItemFromContainer(objTreeViewItem);
+                        ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)m_objTreeView.ItemFromContainer(objTreeViewItem);
 
                         if (objTreeViewItemViewModel is FolderViewModel)
                             m_objFolderContextMenu.ShowAt(sender, objFlyoutShowOptions);
@@ -512,7 +543,7 @@ namespace AppLaunchMenu
         // Determines which template to use for each item in the TreeView based on its type.
         protected override DataTemplate? SelectTemplateCore(object item)
         {
-            TreeViewItemViewModel objTreeViewItemViewModel = (TreeViewItemViewModel)item;
+            ITreeViewItem objTreeViewItemViewModel = (ITreeViewItem)item;
 
             if (objTreeViewItemViewModel is VariableViewModel)
                 return VariableTreeViewItemTemplate;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AppLaunchMenu.DataModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -9,10 +10,22 @@ namespace AppLaunchMenu.ViewModels
 {
     public abstract class ViewModelNotifyBase : INotifyPropertyChanged
     {
+        private readonly DataModelBase m_objDataModelBase;
+
         /// <summary>
         /// Multicast event for property change notifications.
         /// </summary>
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected ViewModelNotifyBase(DataModelBase p_objDataModelBase)
+        {
+            m_objDataModelBase = p_objDataModelBase;
+        }
+
+        public DataModelBase DataModelBase
+        {
+            get { return m_objDataModelBase; }
+        }
 
         /// <summary>
         /// Checks if a property already matches a desired value.  Sets the property and

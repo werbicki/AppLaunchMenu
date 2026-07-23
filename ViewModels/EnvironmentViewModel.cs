@@ -7,41 +7,31 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public class EnvironmentViewModel : TreeViewItemViewModel
+    public class EnvironmentViewModel : ViewModelTreeBase<DataModels.Environment>
     {
-        DataModels.Environment m_objEnvironment;
         protected ObservableCollection<VariableViewModel> m_objExpandedVariables = new ObservableCollection<VariableViewModel>();
 
-        public EnvironmentViewModel(LaunchMenu p_objLaunchMenu, DataModels.Environment p_objEnvironment)
-            : base(p_objLaunchMenu, p_objEnvironment)
+        public EnvironmentViewModel(DataModels.Environment p_objEnvironment, LaunchMenu p_objLaunchMenu)
+            : base(p_objEnvironment, p_objLaunchMenu)
         {
-            m_objEnvironment = p_objEnvironment;
-
             foreach (Variable objVariable in p_objEnvironment)
-                m_objExpandedVariables.Add(new VariableViewModel(p_objLaunchMenu, this, objVariable));
-
-            m_objExpandedVariables.CollectionChanged += Variables_CollectionChanged;
+                m_objExpandedVariables.Add(new VariableViewModel(objVariable, p_objLaunchMenu, this));
         }
 
-        public EnvironmentViewModel(LaunchMenu p_objLaunchMenu, DataModels.Environment p_objEnvironment, TreeViewItemViewModel p_objParent)
-            : base(p_objLaunchMenu, p_objEnvironment, p_objParent)
+        public EnvironmentViewModel(DataModels.Environment p_objEnvironment, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
+            : base(p_objEnvironment, p_objLaunchMenu, p_objParent)
         {
-            m_objEnvironment = p_objEnvironment;
         }
 
-        public override string Name
+        protected override void OnLoadChildren()
         {
-            get
-            {
-                if (string.IsNullOrEmpty(m_objEnvironment.Name))
-                    return "Environment";
-                return m_objEnvironment.Name;
-            }
-            set
-            {
-                m_objEnvironment.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
+            foreach (VariableViewModel objVariableViewModel in Collection<VariableViewModel, Variable>(this))
+                Children.Add(objVariableViewModel);
+        }
+
+        internal DataModels.Environment Environment
+        {
+            get { return DataModel; }
         }
 
         public override bool Expanded
@@ -52,56 +42,6 @@ namespace AppLaunchMenu.ViewModels
         public ObservableCollection<VariableViewModel> ExpandedVariables
         {
             get { return m_objExpandedVariables; }
-        }
-
-        internal VariableViewModel? CreateVariable(String p_strVariableName)
-        {
-            VariableViewModel? objVariableViewModel = null;
-            Variable? objVariable = m_objEnvironment.CreateVariable(p_strVariableName);
-            if (objVariable != null)
-                objVariableViewModel = new VariableViewModel(LaunchMenu, new EnvironmentViewModel(LaunchMenu, m_objEnvironment), objVariable);
-
-            return objVariableViewModel;
-        }
-
-        protected override void Insert(object p_objItem, int p_intIndex)
-        {
-            if (p_objItem is VariableViewModel objVariableViewModel)
-                m_objEnvironment.InsertItem(objVariableViewModel.Variable, p_intIndex);
-        }
-
-        protected override void Remove(object p_objItem, int p_intIndex)
-        {
-            if (p_objItem is VariableViewModel objVariableViewModel)
-                m_objEnvironment.RemoveItem(objVariableViewModel.Variable);
-        }
-
-        private void Variables_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            if ((e.Action == NotifyCollectionChangedAction.Add) && (e.NewItems != null))
-            {
-                foreach (object objItem in e.NewItems)
-                    Insert(objItem, e.NewStartingIndex);
-            }
-            else if ((e.Action == NotifyCollectionChangedAction.Remove) && (e.OldItems != null))
-            {
-                foreach (object objItem in e.OldItems)
-                    Remove(objItem, e.NewStartingIndex);
-            }
-        }
-
-        internal DataModels.Environment Environment
-        {
-            get { return m_objEnvironment; }
-        }
-
-        protected override void OnLoadChildren()
-        {
-            foreach (DataModelBase objItem in m_objEnvironment.Items)
-            {
-                if (objItem is Variable objVariable)
-                    Children.Add(new VariableViewModel(LaunchMenu, this, objVariable));
-            }
         }
     }
 }

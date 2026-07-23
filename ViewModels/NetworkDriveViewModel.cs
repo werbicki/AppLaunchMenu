@@ -6,77 +6,74 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public class NetworkDriveViewModel : TreeViewItemViewModel
+    public class NetworkDriveViewModel : ViewModelTreeBase<NetworkDrive>
     {
-        protected NetworkDrive m_objNetworkDrive;
-
-        public NetworkDriveViewModel(LaunchMenu p_objLaunchMenu, NetworkDrive p_objVariable)
-            : base(p_objLaunchMenu, p_objVariable)
+        public NetworkDriveViewModel(NetworkDrive p_objNetworkDrive, LaunchMenu p_objLaunchMenu)
+            : base(p_objNetworkDrive, p_objLaunchMenu)
         {
-            m_objNetworkDrive = p_objVariable;
         }
 
         internal NetworkDrive NetworkDrive
         {
-            get { return m_objNetworkDrive; }
+            get { return DataModel; }
         }
 
         public override string Name
         {
-            get { return m_objNetworkDrive.Name; }
+            get { return DataModel.Name; }
             set
             {
-                m_objNetworkDrive.Name = value;
+                DataModel.Name = value;
                 OnPropertyChanged(nameof(Name));
             }
         }
 
         public string RemoteUncPath
         {
-            get { return m_objNetworkDrive.RemoteUncPath; }
+            get { return DataModel.RemoteUncPath; }
             set
             {
-                m_objNetworkDrive.RemoteUncPath = value;
+                DataModel.RemoteUncPath = value;
                 OnPropertyChanged(nameof(RemoteUncPath));
             }
         }
 
         public string LocalDriveLetter
         {
-            get { return m_objNetworkDrive.LocalDriveLetter; }
+            get { return DataModel.LocalDriveLetter; }
             set
             {
-                m_objNetworkDrive.LocalDriveLetter = value;
+                DataModel.LocalDriveLetter = value;
                 OnPropertyChanged(nameof(LocalDriveLetter));
             }
         }
 
         public bool Persistent
         {
-            get { return m_objNetworkDrive.Persistent; }
+            get { return DataModel.Persistent; }
             set
             {
-                m_objNetworkDrive.Persistent = value;
+                DataModel.Persistent = value;
                 OnPropertyChanged(nameof(Persistent));
             }
         }
 
         public bool UnmapFirst
         {
-            get { return m_objNetworkDrive.UnmapFirst; }
+            get { return DataModel.UnmapFirst; }
             set
             {
-                m_objNetworkDrive.UnmapFirst = value;
+                DataModel.UnmapFirst = value;
                 OnPropertyChanged(nameof(UnmapFirst));
             }
         }
 
         public bool ForceUnmap
         {
-            get { return m_objNetworkDrive.ForceUnmap; }
+            get { return DataModel.ForceUnmap; }
             set
             {
-                m_objNetworkDrive.ForceUnmap = value;
+                DataModel.ForceUnmap = value;
                 OnPropertyChanged(nameof(ForceUnmap));
             }
         }

@@ -163,11 +163,15 @@ namespace AppLaunchMenu.DataModels
             throw new ArgumentException();
         }
 
-        internal protected T CreateItem<T>(String p_strItemName = "") where T : DataModelBase
+        internal protected T NewItem<T>(String p_strItemName = "") where T : DataModelBase
         {
             T objItem = (T)CreateChildNode(typeof(T), p_strItemName);
 
             return objItem;
+        }
+
+        internal protected void DeleteItem<T>(T p_objItem) where T : DataModelBase
+        {
         }
 
         public virtual DataModelBase[] Items
@@ -215,7 +219,7 @@ namespace AppLaunchMenu.DataModels
             //throw new NotImplementedException();
         }
 
-        internal virtual void InsertItem(DataModelBase p_objObject, int p_intIndex)
+        internal virtual void InsertItem(DataModelBase p_objObject, int p_intIndex = -1)
         {
             Type? objType = GetValidChildNodeType(p_objObject);
 

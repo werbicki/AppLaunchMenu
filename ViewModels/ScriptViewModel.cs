@@ -6,47 +6,44 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public class ScriptViewModel : TreeViewItemViewModel
+    public class ScriptViewModel : ViewModelTreeBase<Script>
     {
-        protected Script m_objScript;
-
-        public ScriptViewModel(LaunchMenu p_objLaunchMenu, Script p_objScript)
-            : base(p_objLaunchMenu, p_objScript)
+        public ScriptViewModel(Script p_objScript, LaunchMenu p_objLaunchMenu)
+            : base(p_objScript, p_objLaunchMenu)
         {
-            m_objScript = p_objScript;
         }
 
         internal Script Script
         {
-            get { return m_objScript; }
+            get { return DataModel; }
         }
 
         public override string Name
         {
-            get { return m_objScript.Name; }
+            get { return DataModel.Name; }
             set
             {
-                m_objScript.Name = value;
+                DataModel.Name = value;
                 OnPropertyChanged(nameof(Name));
             }
         }
 
         public string Language
         {
-            get { return m_objScript.Language; }
+            get { return DataModel.Language; }
             set
             {
-                m_objScript.Language = value;
+                DataModel.Language = value;
                 OnPropertyChanged(nameof(Language));
             }
         }
 
         public string Code
         {
-            get { return m_objScript.Code; }
+            get { return DataModel.Code; }
             set
             {
-                m_objScript.Code = value;
+                DataModel.Code = value;
                 OnPropertyChanged(nameof(Code));
             }
         }

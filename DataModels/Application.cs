@@ -107,7 +107,7 @@ namespace AppLaunchMenu.DataModels
                     return new Environment(MenuFile, objEnvironmentNode);
                 else
                 {
-                    Environment objEnvironment = CreateItem<Environment>();
+                    Environment objEnvironment = NewItem<Environment>();
 
                     InsertItem(objEnvironment, 0);
 

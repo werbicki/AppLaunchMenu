@@ -8,16 +8,72 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public class EmptyViewModel : TreeViewItemViewModel
+    public class EmptyViewModel : ViewModelTreeBase<Empty>
     {
+        private static ITreeViewItem? m_objEmptyChild;
+
         public EmptyViewModel(LaunchMenu p_objLaunchMenu)
-            : base(p_objLaunchMenu)
+            : base(new Empty(), p_objLaunchMenu)
         {
         }
 
         public override string Name
         {
-            get { return "Empty"; }
+            get { return DataModel.Name; }
+        }
+
+        internal static ITreeViewItem? EmptyChild
+        {
+            get { return m_objEmptyChild; }
+            set { m_objEmptyChild = value; }
+        }
+    }
+
+    public interface ITreeViewItem : INotifyPropertyChanged
+    {
+        public string Name
+        {
+            get;
+        }
+
+        public ITreeViewItem Item
+        {
+            get;
+        }
+
+        public bool EditMode
+        {
+            get;
+        }
+
+        public ITreeViewItem? Parent
+        {
+            get;
+            set;
+        }
+
+        public GridLength TreeViewItemWidth
+        {
+            get;
+            set;
+        }
+
+        public bool Expanded
+        {
+            get;
+        }
+
+        public bool IsExpanded
+        {
+            get;
+            set;
+        }
+
+        public void LoadChildren();
+
+        public ObservableCollection<ITreeViewItem> Children
+        {
+            get;
         }
     }
 
@@ -25,61 +81,40 @@ namespace AppLaunchMenu.ViewModels
     /// Base class for all ViewModel classes displayed by TreeViewItems.  
     /// This acts as an adapter between a raw data object and a TreeViewItem.
     /// </summary>
-    public partial class TreeViewItemViewModel : ViewModelNotifyBase
+    public partial class ViewModelTreeBase<T> : ViewModelBase<T>, ITreeViewItem
+        where T : DataModelBase
     {
-        private static TreeViewItemViewModel? m_objEmptyChild = null;
-
-        private readonly LaunchMenu m_objLaunchMenu = new LaunchMenu(true);
-        private TreeViewItemViewModel? m_objParent = null;
-        private ObservableCollection<TreeViewItemViewModel> m_objChildren = [];
-        private string m_strName = "";
+        private ITreeViewItem? m_objParent = null;
+        private ObservableCollection<ITreeViewItem> m_objChildren = [];
         private bool m_blnLazyLoadChildren = false;
         private bool m_blnExpanded = false;
         private bool m_blnSelected = false;
 
-        // This is used to create the DummyChild instance.
-        protected TreeViewItemViewModel(LaunchMenu p_objLaunchMenu)
+        protected ViewModelTreeBase(T p_objDataModel, LaunchMenu p_objLaunchMenu, bool p_blnLazyLoadChildren = false)
+            : base(p_objDataModel, p_objLaunchMenu)
         {
-            m_objLaunchMenu = p_objLaunchMenu;
-        }
-
-        protected TreeViewItemViewModel(LaunchMenu p_objLaunchMenu, DataModelBase p_objDataModel, bool p_blnLazyLoadChildren = false)
-        {
-            m_objLaunchMenu = p_objLaunchMenu;
             m_blnLazyLoadChildren = p_blnLazyLoadChildren;
 
             if (EmptyChild != null)
                 m_objChildren.Add(EmptyChild);
-
-            if (m_objLaunchMenu != null)
-                m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
         }
 
-        protected TreeViewItemViewModel(LaunchMenu p_objLaunchMenu, DataModelBase p_objDataModel, TreeViewItemViewModel p_objParent, bool p_blnLazyLoadChildren = false)
+        protected ViewModelTreeBase(T p_objDataModel, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent, bool p_blnLazyLoadChildren = false)
+            : base(p_objDataModel, p_objLaunchMenu)
         {
-            m_objLaunchMenu = p_objLaunchMenu;
             m_objParent = p_objParent;
             m_blnLazyLoadChildren = p_blnLazyLoadChildren;
 
             if (EmptyChild != null)
                 m_objChildren.Add(EmptyChild);
 
-            if (m_objLaunchMenu != null)
-                m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
-
-            TreeViewItemViewModel? objTreeViewItemViewModel = Parent;
+            ITreeViewItem? objTreeViewItemViewModel = Parent;
 
             while ((objTreeViewItemViewModel != null) && (objTreeViewItemViewModel.Parent != null))
                 objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
 
             if (objTreeViewItemViewModel != null)
                 objTreeViewItemViewModel.PropertyChanged += MenuViewModel_PropertyChanged;
-        }
-
-        private void LaunchMenu_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == nameof(EditMode))
-                OnPropertyChanged(nameof(EditMode));
         }
 
         private void MenuViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -93,32 +128,21 @@ namespace AppLaunchMenu.ViewModels
             if ((e.Action == NotifyCollectionChangedAction.Add) && (e.NewItems != null))
             {
                 foreach (object objItem in e.NewItems)
-                    Insert(objItem, e.NewStartingIndex);
+                    InsertChild(objItem, e.NewStartingIndex);
             }
             else if ((e.Action == NotifyCollectionChangedAction.Remove) && (e.OldItems != null))
             {
                 foreach (object objItem in e.OldItems)
-                    Remove(objItem, e.NewStartingIndex);
+                    RemoveChild(objItem);
             }
-        }
-
-        virtual protected void Insert(object p_objItem, int p_intIndex)
-        {
-            throw new NotImplementedException();
-        }
-
-        virtual protected void Remove(object p_objItem, int p_intIndex)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
         /// Returns true if this object's Children have not yet been populated.
         /// </summary>
-        internal static TreeViewItemViewModel? EmptyChild
+        private ITreeViewItem? EmptyChild
         {
-            get { return m_objEmptyChild; }
-            set { m_objEmptyChild = value; }
+            get { return EmptyViewModel.EmptyChild; }
         }
 
         /// <summary>
@@ -134,52 +158,23 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
-        internal LaunchMenu LaunchMenu
-        {
-            get { return m_objLaunchMenu; }
-        }
-
-        /// <summary>
-        /// Returns the logical child items of this object.
-        /// </summary>
-        public virtual string Name
-        {
-            get { return m_strName; }
-            set { m_strName = value; }
-        }
-
-        /// <summary>
-        /// Returns a reference to the object itself.
-        /// </summary>
-        public virtual object Item
+        public virtual ITreeViewItem Item
         {
             get { return this; }
         }
 
-        internal TreeViewItemViewModel? Parent
+        public ITreeViewItem? Parent
         {
             get { return m_objParent; }
             set { m_objParent = value; }
         }
-
-        public virtual bool EditMode
-        {
-            get
-            {
-                if (LaunchMenu != null)
-                    return LaunchMenu.EditMode;
-                else
-                    return false;
-            }
-        }
-
 
         public virtual GridLength TreeViewItemWidth
         {
             get
             {
                 GridLength objTreeViewItemWidth = new(100.0);
-                TreeViewItemViewModel? objTreeViewItemViewModel = Parent;
+                ITreeViewItem? objTreeViewItemViewModel = Parent;
 
                 while ((objTreeViewItemViewModel != null)
                     && (objTreeViewItemViewModel is not MenuViewModel)
@@ -194,7 +189,7 @@ namespace AppLaunchMenu.ViewModels
             }
             set
             {
-                TreeViewItemViewModel? objTreeViewItemViewModel = Parent;
+                ITreeViewItem? objTreeViewItemViewModel = Parent;
 
                 while ((objTreeViewItemViewModel != null)
                     && (objTreeViewItemViewModel is not MenuViewModel)
@@ -251,10 +246,60 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        protected ObservableCollection<TViewModel> Collection<TViewModel, TDataModel>(ITreeViewItem p_objParent)
+        {
+            if (!m_objCollections.ContainsKey(typeof(TViewModel)))
+            {
+                ObservableCollection<TViewModel> objColleciton = new();
+
+                foreach (DataModelBase objDataModel in DataModel.Items)
+                {
+                    if (objDataModel.GetType() == typeof(TDataModel))
+                    {
+                        object[] arrConstructorArgs = new object[] { objDataModel, LaunchMenu, p_objParent };
+                        TViewModel? objViewModel = (TViewModel?)Activator.CreateInstance(typeof(TViewModel), arrConstructorArgs);
+
+                        if (objViewModel == null)
+                            throw new AccessViolationException();
+
+                        objColleciton.Add(objViewModel);
+                    }
+                }
+
+                objColleciton.CollectionChanged += ViewModelBase_OnCollectionChanged;
+
+                m_objCollections.Add(typeof(TViewModel), objColleciton);
+            }
+
+            return (ObservableCollection<TViewModel>)m_objCollections[typeof(TViewModel)];
+        }
+
+        public TViewModel NewChild<TViewModel, TDataModel>(String p_strItemName, ITreeViewItem p_objParent)
+            where TViewModel : ViewModelBase<TDataModel>
+            where TDataModel : DataModelBase
+        {
+            TDataModel objDataModel = DataModel.NewItem<TDataModel>(p_strItemName);
+
+            object[] arrConstructorArgs = new object[] { objDataModel, LaunchMenu, p_objParent };
+            TViewModel? objViewModel = (TViewModel?)Activator.CreateInstance(typeof(TViewModel), arrConstructorArgs);
+
+            if (objViewModel == null)
+                throw new AccessViolationException();
+
+            return objViewModel;
+        }
+
+        public override void AddChild<TViewModel, TDataModel>(TViewModel p_objViewModel)
+        {
+            base.AddChild<TViewModel, TDataModel>(p_objViewModel);
+
+            Children.Add((ITreeViewItem)p_objViewModel);
+        }
+
         /// <summary>
         /// Returns the logical child items of this object.
         /// </summary>
-        public ObservableCollection<TreeViewItemViewModel> Children
+        public ObservableCollection<ITreeViewItem> Children
         {
             get
             {
@@ -275,7 +320,7 @@ namespace AppLaunchMenu.ViewModels
             LoadChildren();
         }
 
-        private void LoadChildren()
+        public void LoadChildren()
         {
             m_objChildren.CollectionChanged -= Children_CollectionChanged;
 
@@ -286,7 +331,7 @@ namespace AppLaunchMenu.ViewModels
 
             if (!m_blnLazyLoadChildren)
             {
-                foreach (TreeViewItemViewModel objTreeViewItemViewModel in m_objChildren)
+                foreach (ITreeViewItem objTreeViewItemViewModel in m_objChildren)
                     objTreeViewItemViewModel.LoadChildren();
             }
 

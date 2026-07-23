@@ -9,32 +9,17 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
-    public partial class NetworkDriveListViewModel : TreeViewItemViewModel
+    public partial class NetworkDriveListViewModel : ViewModelTreeBase<NetworkDriveList>
     {
-        LaunchMenu m_objLaunchMenu;
-        NetworkDriveList m_objNetworkDriveList;
-        ObservableCollection<NetworkDriveViewModel> m_objNetworkDrives = new();
-
-        public NetworkDriveListViewModel(LaunchMenu p_objLaunchMenu, NetworkDriveList p_objNetworkDriveList)
-            : base(p_objLaunchMenu, p_objNetworkDriveList)
+        public NetworkDriveListViewModel(NetworkDriveList p_objNetworkDriveList, LaunchMenu p_objLaunchMenu)
+            : base(p_objNetworkDriveList, p_objLaunchMenu)
         {
-            m_objLaunchMenu = p_objLaunchMenu;
-            m_objNetworkDriveList = p_objNetworkDriveList;
         }
 
-        public override string Name
+        protected override void OnLoadChildren()
         {
-            get
-            {
-                if (string.IsNullOrEmpty(m_objNetworkDriveList.Name))
-                    return "NetworkDriveList";
-                return m_objNetworkDriveList.Name;
-            }
-            set
-            {
-                m_objNetworkDriveList.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
+            foreach (NetworkDriveViewModel objNetworkDriveViewModel in Collection<NetworkDriveViewModel, NetworkDrive>())
+                Children.Add(objNetworkDriveViewModel);
         }
 
         public override bool Expanded
@@ -44,41 +29,7 @@ namespace AppLaunchMenu.ViewModels
 
         public ObservableCollection<NetworkDriveViewModel> NetworkDrives
         {
-            get { return m_objNetworkDrives; }
-        }
-
-        public NetworkDriveViewModel? AddNetworkDrive(LaunchMenu p_objLaunchMenu, String p_strNetworkDrive)
-        {
-            NetworkDriveViewModel? objNetworkDriveViewModel = null;
-            NetworkDrive? objNetworkDrive = m_objNetworkDriveList.CreateItem<NetworkDrive>(p_strNetworkDrive);
-            if (objNetworkDrive != null)
-            {
-                objNetworkDriveViewModel = new NetworkDriveViewModel(p_objLaunchMenu, objNetworkDrive);
-                m_objNetworkDrives.Add(objNetworkDriveViewModel);
-
-                this.OnPropertyChanged(nameof(NetworkDrives));
-            }
-
-            return objNetworkDriveViewModel;
-        }
-
-        public void RemoveNetworkDrive(NetworkDriveViewModel p_objNetworkDriveViewModel)
-        {
-            if (m_objNetworkDrives.Remove(p_objNetworkDriveViewModel))
-            {
-                m_objNetworkDriveList.MenuFile.RemoveItem(p_objNetworkDriveViewModel.NetworkDrive);
-
-                this.OnPropertyChanged(nameof(NetworkDrives));
-            }
-        }
-
-        protected override void OnLoadChildren()
-        {
-            foreach (DataModelBase objItem in m_objNetworkDriveList.Items)
-            {
-                if (objItem is NetworkDrive objNetworkDrive)
-                    Children.Add(new NetworkDriveViewModel(LaunchMenu, objNetworkDrive));
-            }
+            get { return Collection<NetworkDriveViewModel, NetworkDrive>(); }
         }
     }
 }

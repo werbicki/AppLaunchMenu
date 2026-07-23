@@ -18,7 +18,7 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
-        <DataTemplate x:Key="DefaultTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
+        <DataTemplate x:Key="DefaultTreeViewItemTemplate" x:DataType="local1:ITreeViewItem">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
                 IsExpanded="{Binding IsExpanded, Mode=OneWay}"
@@ -161,7 +161,7 @@
                 </Grid>
             </TreeViewItem>
         </DataTemplate>
-        <DataTemplate x:Key="EnvironmentTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
+        <DataTemplate x:Key="EnvironmentTreeViewItemTemplate" x:DataType="local1:ITreeViewItem">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
                 ItemsSource="{x:Bind Children}"
@@ -202,7 +202,7 @@
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
-        <DataTemplate x:Key="VariableTreeViewItemTemplate" x:DataType="local1:TreeViewItemViewModel">
+        <DataTemplate x:Key="VariableTreeViewItemTemplate" x:DataType="local1:ITreeViewItem">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
                 ItemsSource="{x:Bind Children}"

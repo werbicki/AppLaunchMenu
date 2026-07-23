@@ -42,7 +42,7 @@ namespace AppLaunchMenu.DataModels
 
                 if (objEnvironmentNode == null)
                 {
-                    Environment objEnvironment = CreateItem<Environment>();
+                    Environment objEnvironment = NewItem<Environment>();
 
                     InsertItem(objEnvironment, 0);
 
