@@ -18,8 +18,15 @@ namespace AppLaunchMenu.ViewModels
 
         protected override void OnLoadChildren()
         {
-            foreach (NetworkDriveViewModel objNetworkDriveViewModel in Collection<NetworkDriveViewModel, NetworkDrive>())
+            foreach (NetworkDriveViewModel objNetworkDriveViewModel in Collection<NetworkDriveViewModel, NetworkDrive>(this))
                 Children.Add(objNetworkDriveViewModel);
+        }
+
+        [DialogContent("Network Drive List Name")]
+        public override string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
         }
 
         public override bool Expanded

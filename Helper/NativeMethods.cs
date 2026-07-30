@@ -22,6 +22,18 @@ namespace AppLaunchMenu.Helper
         [DllImport("User32.dll", CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
         internal static extern IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
+        [DllImport("User32.dll", CharSet = CharSet.Auto, EntryPoint = "GetDpiForWindow")]
+        internal static extern uint GetDpiForWindow(System.IntPtr hwnd);
+
+        [DllImport("User32.dll", CharSet = CharSet.Auto, EntryPoint = "GetSystemMetricsForDpi")]
+        internal static extern int GetSystemMetricsForDpi(SystemMetricsIndex nIndex, uint dpi);
+
+        internal enum SystemMetricsIndex
+        {
+            SM_CXSIZEFRAME = 32, // Width of window sizing border
+            SM_CYSIZEFRAME = 33, // Height of window sizing border
+            SM_CYCAPTION = 4     // Height of standard window title bar caption
+        }
 
         [DllImport("user32.dll")]
         internal static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, WindowMessage Msg, IntPtr wParam, IntPtr lParam);

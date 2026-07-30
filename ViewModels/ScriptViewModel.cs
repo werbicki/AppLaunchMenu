@@ -8,8 +8,8 @@ namespace AppLaunchMenu.ViewModels
 {
     public class ScriptViewModel : ViewModelTreeBase<Script>
     {
-        public ScriptViewModel(Script p_objScript, LaunchMenu p_objLaunchMenu)
-            : base(p_objScript, p_objLaunchMenu)
+        public ScriptViewModel(Script p_objScript, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
+            : base(p_objScript, p_objLaunchMenu, p_objParent)
         {
         }
 
@@ -18,16 +18,7 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModel; }
         }
 
-        public override string Name
-        {
-            get { return DataModel.Name; }
-            set
-            {
-                DataModel.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
-        }
-
+        [DialogContent("Language")]
         public string Language
         {
             get { return DataModel.Language; }
@@ -38,6 +29,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Code")]
         public string Code
         {
             get { return DataModel.Code; }

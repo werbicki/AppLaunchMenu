@@ -18,8 +18,15 @@ namespace AppLaunchMenu.ViewModels
 
         protected override void OnLoadChildren()
         {
-            foreach (ScriptViewModel objScriptViewModel in Collection<ScriptViewModel, Script>())
+            foreach (ScriptViewModel objScriptViewModel in Collection<ScriptViewModel, Script>(this))
                 Children.Add(objScriptViewModel);
+        }
+
+        [DialogContent("Script List Name")]
+        public override string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
         }
 
         public override bool Expanded

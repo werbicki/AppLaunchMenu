@@ -82,7 +82,7 @@ namespace AppLaunchMenu
         {
             if (e.PropertyName == "CanEdit")
             {
-                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(HasEditAccess));
                 OnPropertyChanged(nameof(EditMode));
             }
             else if (e.PropertyName == "Menus")
@@ -136,23 +136,23 @@ namespace AppLaunchMenu
             m_objMenuFileViewModel.MenuListViewModel.RemoveChild<MenuViewModel, Menu>((MenuViewModel)args.Item);
         }
 
-        private bool CanEdit
+        private bool HasEditAccess
         {
-            get { return m_objMenuFile.CanEdit; }
+            get { return m_objMenuFile.HasEditAccess; }
         }
 
         public bool EditMode
         {
             get
             {
-                if (m_objMenuFile.CanEdit)
+                if (m_objMenuFile.HasEditAccess)
                     return m_blnEditMode;
                 return
                     false;
             }
             set
             {
-                if (m_objMenuFile.CanEdit)
+                if (m_objMenuFile.HasEditAccess)
                 {
                     m_blnEditMode = value;
                     OnPropertyChanged(nameof(EditMode));
@@ -261,7 +261,7 @@ namespace AppLaunchMenu
                     //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme,
                     Title = p_objApplicationViewModel.Name,
                     IsResizable = true,
-                    Page = new EnvironmentReview(p_objApplicationViewModel),
+                    Page = new EnvironmentReview(p_objApplicationViewModel.Environment),
                     CloseButtonText = "Cancel",
                     PrimaryButtonText = "OK",
                     DefaultButton = ContentDialogButton.Primary

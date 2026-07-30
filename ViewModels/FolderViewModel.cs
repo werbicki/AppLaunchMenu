@@ -30,6 +30,14 @@ namespace AppLaunchMenu.ViewModels
                 Children.Add(objApplicationViewModel);
         }
 
+        [DialogContent("Folder Name")]
+        public override string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
+        }
+
+        [DialogContent("Expanded")]
         public override bool Expanded
         {
             get { return DataModel.Expanded; }

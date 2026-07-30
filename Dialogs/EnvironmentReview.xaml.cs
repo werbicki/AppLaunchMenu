@@ -29,31 +29,19 @@ namespace AppLaunchMenu
     /// </summary>
     public sealed partial class EnvironmentReview : PageNotifyPropertyChanged
     {
-        private DataModels.Application? m_objApplication;
-        private EnvironmentViewModel? m_objEnvironmentViewModel;
+        private EnvironmentViewModel m_objEnvironmentViewModel;
 
-        public EnvironmentReview()
+        public EnvironmentReview(EnvironmentViewModel p_objEnvironmentViewModel)
         {
-            this.InitializeComponent();
-        }
-
-        public EnvironmentReview(ApplicationViewModel p_objApplicationViewModel)
-        {
-            m_objApplication = p_objApplicationViewModel.Application;
-            m_objEnvironmentViewModel = p_objApplicationViewModel.Environment;
+            m_objEnvironmentViewModel = p_objEnvironmentViewModel;
 
             this.InitializeComponent();
-            m_objEnvironmentTable.DataContext = m_objEnvironmentViewModel;
+            DataContext = p_objEnvironmentViewModel;
         }
 
         public ObservableCollection<VariableViewModel> Variables
         {
-            get
-            {
-                if (m_objEnvironmentViewModel != null)
-                    return m_objEnvironmentViewModel.ExpandedVariables;
-                return [];
-            }
+            get { return m_objEnvironmentViewModel.AllVariables; }
         }
     }
 }

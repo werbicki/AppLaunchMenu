@@ -1,28 +1,10 @@
-using AppLaunchMenu;
 using AppLaunchMenu.Helper;
-using AppLaunchMenu.ViewModels;
-using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Graphics;
-using WinRT.Interop;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -49,13 +31,58 @@ namespace AppLaunchMenu.Dialogs
 
             m_objOverlappedPresenter = OverlappedPresenter.CreateForDialog();
             m_objOverlappedPresenter.IsModal = true;
+            m_objOverlappedPresenter.IsResizable = true;
             AppWindow.SetPresenter(m_objOverlappedPresenter);
 
+            ResizeClient(new Size(100, 100));
             CenterWindow();
 
-            OuterFrame.DataContext = this;
+            RootGrid.Loaded += RootGrid_Loaded;
+            RootGrid.DataContext = this;
 
             Closed += ModalDialog_Closed;
+            SizeChanged += ModalDialog_SizeChanged;
+        }
+
+        private void ModalDialog_SizeChanged(object sender, WindowSizeChangedEventArgs args)
+        {
+        }
+
+        private void ModalDialog_Closed(object sender, WindowEventArgs args)
+        {
+            App.MainWindow?.Activate();
+        }
+
+        private void RootGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 1. Force the layout engine to measure the required content size
+            RootGrid.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+
+            // 2. Obtain your intended content dimensions
+            double desiredWidth = RootGrid.DesiredSize.Width;
+            double desiredHeight = RootGrid.DesiredSize.Height;
+
+            // 3. Get the native window handle and look up display DPI
+            System.IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            uint dpi = NativeMethods.GetDpiForWindow(hWnd);
+            double scalingFactor = dpi / 96.0;
+
+            // 4. Convert XAML values (DIPs) to raw physical pixels
+            int physicalWidth = (int)(desiredWidth * scalingFactor);
+            int physicalHeight = (int)(desiredHeight * scalingFactor);
+
+            // 5. Account for the native OS title bar and border sizing metrics
+            // These system offsets ensure content isn't clipped by window borders
+            int extraWidth = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CXSIZEFRAME, dpi) * 2;
+            int extraHeight = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYSIZEFRAME, dpi) * 2
+                             + NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYCAPTION, dpi);
+
+            int finalWidth = physicalWidth + extraWidth;
+            int finalHeight = physicalHeight + extraHeight;
+
+            // 6. Apply dimensions to AppWindow
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            ResizeClient(new Size(finalWidth, finalHeight));
         }
 
         public bool IsResizable
@@ -67,36 +94,12 @@ namespace AppLaunchMenu.Dialogs
             }
         }
 
-        public new UIElement Content
-        {
-            get
-            {
-                return base.Content;
-            }
-            set
-            {
-                OuterFrame.Content = value;
-
-                OuterFrame.InvalidateMeasure();
-                //OuterFrame.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                OuterFrame.SizeChanged += Frame_SizeChanged;
-
-                ResizeClient(OuterFrame.DesiredSize);
-            }
-        }
-
         public Page Page
         {
             set
             {
                 InnerFrame.Content = value;
                 OnPropertyChanged(nameof(Page));
-
-                OuterFrame.InvalidateMeasure();
-                //OuterFrame.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-                InnerFrame.SizeChanged += Frame_SizeChanged;
-
-                ResizeClient(OuterFrame.DesiredSize);
             }
         }
 
@@ -113,10 +116,10 @@ namespace AppLaunchMenu.Dialogs
 
                 InnerMessage.Text = m_strMessage;
 
-                OuterFrame.InvalidateMeasure();
-                OuterFrame.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                RootGrid.InvalidateMeasure();
+                RootGrid.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
-                ResizeClient(OuterFrame.DesiredSize);
+                ResizeClient(RootGrid.DesiredSize);
             }
         }
 
@@ -242,19 +245,6 @@ namespace AppLaunchMenu.Dialogs
             await m_objDialogResultTrigger.Task;
 
             return DialogResult;
-        }
-
-        private void ModalDialog_Closed(object sender, WindowEventArgs args)
-        {
-            if (App.MainWindow != null)
-                App.MainWindow.Activate();
-        }
-
-        private void Frame_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            InnerFrame.SizeChanged -= Frame_SizeChanged;
-
-            ResizeClient(InnerFrame.DesiredSize);
         }
 
         private void PrimaryButton_Click(object sender, RoutedEventArgs e)

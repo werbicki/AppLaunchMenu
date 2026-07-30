@@ -28,11 +28,19 @@ namespace AppLaunchMenu.ViewModels
             get { return ViewModel<EnvironmentViewModel, DataModels.Environment>(DataModel.Environment); }
         }
 
+        [DialogContent("Application Name")]
+        public override string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
+        }
+
         public override bool Expanded
         {
             get { return false; }
         }
 
+        [DialogContent("Executable")]
         public string Executable
         {
             get { return DataModel.ExecutablePath; }
@@ -43,6 +51,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Working Directory")]
         public string WorkingDirectory
         {
             get { return DataModel.WorkingDirectory; }
@@ -53,6 +62,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Parameters")]
         public string Parameters
         {
             get { return DataModel.Parameters; }
@@ -63,6 +73,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Is Reservable")]
         public bool IsReservable
         {
             get { return DataModel.Reservable; }
@@ -73,6 +84,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Reservation Description")]
         public string ReservationDescription
         {
             get { return DataModel.ReservationDescription; }
@@ -83,6 +95,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Reservation Date")]
         public DateTimeOffset ReservationDate
         {
             get { return DataModel.ReservationDate; }
@@ -93,6 +106,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Reservation Owner")]
         public string ReservationOwner
         {
             get { return DataModel.ReservationOwner; }

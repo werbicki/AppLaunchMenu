@@ -10,6 +10,7 @@ namespace AppLaunchMenu.ViewModels
 {
     public abstract class ViewModelNotifyBase : INotifyPropertyChanged
     {
+        protected static Dictionary<Type, Type> m_objDataModelViewModelMappings = new();
         private readonly DataModelBase m_objDataModelBase;
 
         /// <summary>
@@ -25,6 +26,22 @@ namespace AppLaunchMenu.ViewModels
         public DataModelBase DataModelBase
         {
             get { return m_objDataModelBase; }
+        }
+
+        [DialogContent("Name")]
+        public virtual string Name
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(DataModelBase.Name))
+                    return DataModelBase.GetType().Name;
+                return DataModelBase.Name;
+            }
+            set
+            {
+                DataModelBase.Name = value;
+                OnPropertyChanged(nameof(Name));
+            }
         }
 
         /// <summary>

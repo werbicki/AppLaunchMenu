@@ -1,10 +1,12 @@
 ﻿using AppLaunchMenu.DataModels;
 using Microsoft.UI.Xaml;
 using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Xml;
 
 namespace AppLaunchMenu.ViewModels
 {
@@ -32,6 +34,11 @@ namespace AppLaunchMenu.ViewModels
     public interface ITreeViewItem : INotifyPropertyChanged
     {
         public string Name
+        {
+            get;
+        }
+
+        public Type[] ChildNodeTypes
         {
             get;
         }
@@ -68,6 +75,10 @@ namespace AppLaunchMenu.ViewModels
             get;
             set;
         }
+
+        public ViewModelNotifyBase NewChild(Type p_objType, String p_strItemName, ITreeViewItem p_objParent);
+
+        public void AddChild(ViewModelNotifyBase p_objViewModel);
 
         public void LoadChildren();
 
@@ -246,7 +257,27 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        protected TViewModel ViewModel<TViewModel, TDataModel>(TDataModel p_objDataModel, ITreeViewItem p_objParent)
+            where TViewModel : ViewModelBase<TDataModel>
+            where TDataModel : DataModelBase
+        {
+            if (!m_objViewModels.ContainsKey(typeof(TViewModel)))
+            {
+                object[] arrConstructorArgs = new object[] { p_objDataModel, LaunchMenu, p_objParent };
+                TViewModel? objViewModel = (TViewModel?)Activator.CreateInstance(typeof(TViewModel), arrConstructorArgs);
+
+                if (objViewModel == null)
+                    throw new AccessViolationException();
+
+                m_objViewModels.Add(typeof(TViewModel), objViewModel);
+            }
+
+            return (TViewModel)m_objViewModels[typeof(TViewModel)];
+        }
+
         protected ObservableCollection<TViewModel> Collection<TViewModel, TDataModel>(ITreeViewItem p_objParent)
+            where TViewModel : ViewModelBase<TDataModel>
+            where TDataModel : DataModelBase
         {
             if (!m_objCollections.ContainsKey(typeof(TViewModel)))
             {
@@ -274,6 +305,55 @@ namespace AppLaunchMenu.ViewModels
             return (ObservableCollection<TViewModel>)m_objCollections[typeof(TViewModel)];
         }
 
+        protected IList Collection(Type p_objViewModelType, Type p_objDataModelType)
+        {
+            if (!m_objCollections.ContainsKey(p_objViewModelType))
+            {
+                Type objOpenTemplateType = typeof(ObservableCollection<>);
+                Type[] arrTypeArguments = { p_objViewModelType };
+                Type objCollectionType = objOpenTemplateType.MakeGenericType(arrTypeArguments);
+                IList? objCollection = (IList?)Activator.CreateInstance(objCollectionType);
+
+                if (objCollection == null)
+                    throw new AccessViolationException();
+
+                foreach (DataModelBase objDataModel in DataModel.Items)
+                {
+                    if (objDataModel.GetType() == p_objDataModelType)
+                    {
+                        object[] arrConstructorArgs = new object[] { objDataModel, LaunchMenu };
+                        ViewModelNotifyBase? objViewModel = (ViewModelNotifyBase?)Activator.CreateInstance(p_objViewModelType, arrConstructorArgs);
+
+                        if (objViewModel == null)
+                            throw new AccessViolationException();
+
+                        objCollection.Add(objViewModel);
+                    }
+                }
+
+                ((INotifyCollectionChanged)objCollection).CollectionChanged += ViewModelBase_OnCollectionChanged;
+
+                m_objCollections.Add(p_objViewModelType, objCollection);
+            }
+
+            return (IList)m_objCollections[p_objViewModelType];
+        }
+
+        public ViewModelNotifyBase NewChild(Type p_objDataModelType, String p_strItemName, ITreeViewItem p_objParent)
+        {
+            DataModelBase objDataModel = (DataModelBase)DataModel.NewItem(p_objDataModelType, p_strItemName);
+            Type objViewModelType = ViewModelForDataModel(p_objDataModelType);
+
+            object[] arrConstructorArgs = new object[] { objDataModel, LaunchMenu, p_objParent };
+            ViewModelNotifyBase? objViewModel = (ViewModelNotifyBase?)Activator.CreateInstance(objViewModelType, arrConstructorArgs);
+
+            if (objViewModel == null)
+                throw new AccessViolationException();
+
+            return objViewModel;
+        }
+
+        /*
         public TViewModel NewChild<TViewModel, TDataModel>(String p_strItemName, ITreeViewItem p_objParent)
             where TViewModel : ViewModelBase<TDataModel>
             where TDataModel : DataModelBase
@@ -288,13 +368,24 @@ namespace AppLaunchMenu.ViewModels
 
             return objViewModel;
         }
+        */
 
+        public virtual void AddChild(ViewModelNotifyBase p_objViewModel)
+        {
+            var m_objCollection = Collection(p_objViewModel.GetType(), p_objViewModel.DataModelBase.GetType());
+
+            m_objCollection.Add(p_objViewModel);
+            OnPropertyChanged(p_objViewModel.DataModelBase.GetType().Name + "s");
+        }
+
+        /*
         public override void AddChild<TViewModel, TDataModel>(TViewModel p_objViewModel)
         {
             base.AddChild<TViewModel, TDataModel>(p_objViewModel);
 
             Children.Add((ITreeViewItem)p_objViewModel);
         }
+        */
 
         /// <summary>
         /// Returns the logical child items of this object.

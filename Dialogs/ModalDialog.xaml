@@ -12,68 +12,70 @@
         <MicaBackdrop />
     </local:WindowNotifyPropertyChanged.SystemBackdrop>
 
-    <Frame
-        x:Name="OuterFrame"
-        Margin="0,20,0,0"
+    <Grid
+        x:Name="RootGrid"
+        MaxHeight="1000"
+        Margin="10,10,10,0"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch">
 
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" MaxHeight="1000" />
+            <RowDefinition Height="75" />
+        </Grid.RowDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="75" />
-            </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="400" />
+        </Grid.ColumnDefinitions>
 
-            <Frame
-                x:Name="InnerFrame"
+        <Frame
+            x:Name="InnerFrame"
+            Grid.Row="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+            <Page
+                x:Name="InnerPage"
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch">
-                <Page
-                    x:Name="InnerPage"
-                    Grid.Row="0"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
-                    <TextBlock
-                        x:Name="InnerMessage"
-                        Margin="5,5,5,5"
-                        Text="{Binding Message, Mode=OneWay}"
-                        TextAlignment="Center" />
-                </Page>
-            </Frame>
+                <TextBlock
+                    x:Name="InnerMessage"
+                    Margin="5,5,5,5"
+                    Text="{Binding Message, Mode=OneWay}"
+                    TextAlignment="Center" />
+            </Page>
+        </Frame>
 
-            <StackPanel
-                Grid.Row="1"
-                Margin="10,10,10,10"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Orientation="Horizontal">
-                <Button
-                    x:Name="PrimaryButton"
-                    Width="80"
-                    Height="35"
-                    Margin="5,5,5,5"
-                    Click="PrimaryButton_Click"
-                    Content="{Binding PrimaryButtonText, Mode=TwoWay}"
-                    Visibility="{x:Bind PrimaryButtonVisible, Mode=OneWay}" />
-                <Button
-                    x:Name="SecondaryButton"
-                    Width="80"
-                    Height="35"
-                    Margin="5,5,5,5"
-                    Click="SecondaryButton_Click"
-                    Content="{Binding SecondaryButtonText, Mode=TwoWay}"
-                    Visibility="{x:Bind SecondaryButtonVisible, Mode=OneWay}" />
-                <Button
-                    x:Name="CloseButton"
-                    Width="80"
-                    Height="35"
-                    Margin="5,5,5,5"
-                    Click="CloseButton_Click"
-                    Content="{Binding CloseButtonText, Mode=TwoWay}"
-                    Visibility="{x:Bind CloseButtonVisible, Mode=OneWay}" />
-            </StackPanel>
-        </Grid>
-    </Frame>
+        <StackPanel
+            Grid.Row="1"
+            Margin="10,10,10,0"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Orientation="Horizontal">
+            <Button
+                x:Name="PrimaryButton"
+                Width="80"
+                Height="35"
+                Margin="5,5,5,0"
+                Click="PrimaryButton_Click"
+                Content="{Binding PrimaryButtonText, Mode=TwoWay}"
+                Visibility="{x:Bind PrimaryButtonVisible, Mode=OneWay}" />
+            <Button
+                x:Name="SecondaryButton"
+                Width="80"
+                Height="35"
+                Margin="5,5,5,0"
+                Click="SecondaryButton_Click"
+                Content="{Binding SecondaryButtonText, Mode=TwoWay}"
+                Visibility="{x:Bind SecondaryButtonVisible, Mode=OneWay}" />
+            <Button
+                x:Name="CloseButton"
+                Width="80"
+                Height="35"
+                Margin="5,5,5,0"
+                Click="CloseButton_Click"
+                Content="{Binding CloseButtonText, Mode=TwoWay}"
+                Visibility="{x:Bind CloseButtonVisible, Mode=OneWay}" />
+        </StackPanel>
+    </Grid>
 
 </local:WindowNotifyPropertyChanged>

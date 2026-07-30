@@ -325,7 +325,7 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        public new bool CanEdit
+        public new bool HasEditAccess
         {
             get { return MemberOf(SecurityGroup); }
         }

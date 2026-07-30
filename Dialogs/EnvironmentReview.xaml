@@ -12,11 +12,11 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <ScrollViewer
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        HorizontalScrollBarVisibility="Auto"
+        VerticalScrollBarVisibility="Auto">
 
         <controls:DataGrid
             x:Name="m_objEnvironmentTable"
@@ -30,10 +30,20 @@
             ItemsSource="{x:Bind Variables}">
 
             <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn Binding="{Binding Name}" Header="Name" />
-                <controls:DataGridTextColumn Binding="{Binding Group}" Header="Group" />
-                <controls:DataGridTextColumn Binding="{Binding Value}" Header="Value" />
                 <controls:DataGridTextColumn
+                    Width="200"
+                    Binding="{Binding Name}"
+                    Header="Name" />
+                <controls:DataGridTextColumn
+                    Width="200"
+                    Binding="{Binding Group}"
+                    Header="Group" />
+                <controls:DataGridTextColumn
+                    Width="Auto"
+                    Binding="{Binding Value}"
+                    Header="Value" />
+                <controls:DataGridTextColumn
+                    Width="400"
                     Binding="{Binding ExpandedValue}"
                     Header="Expanded Value"
                     IsReadOnly="True" />
@@ -47,5 +57,5 @@
             </controls:DataGrid.RowGroupHeaderStyles>
         </controls:DataGrid>
 
-    </Grid>
+    </ScrollViewer>
 </local:PageNotifyPropertyChanged>

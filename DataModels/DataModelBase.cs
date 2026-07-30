@@ -60,6 +60,11 @@ namespace AppLaunchMenu.DataModels
             }
         }
 
+        internal Type[] ChildNodeTypes
+        {
+            get { return m_objXmlChildNodeTypes; }
+        }
+
         internal MenuFile MenuFile
         {
             get
@@ -76,9 +81,9 @@ namespace AppLaunchMenu.DataModels
             get { return m_objXmlNode; }
         }
 
-        public bool CanEdit
+        public bool HasEditAccess
         {
-            get { return MenuFile.CanEdit; }
+            get { return MenuFile.HasEditAccess; }
         }
 
         protected abstract string _ElementName
@@ -118,6 +123,17 @@ namespace AppLaunchMenu.DataModels
             foreach (Type objType in m_objXmlChildNodeTypes)
             {
                 if (p_objXmlNode.Name == objType.Name)
+                    return objType;
+            }
+
+            return null;
+        }
+
+        internal Type? GetValidChildNodeType(string p_strTypeName)
+        {
+            foreach (Type objType in m_objXmlChildNodeTypes)
+            {
+                if (p_strTypeName == objType.Name)
                     return objType;
             }
 
@@ -166,6 +182,13 @@ namespace AppLaunchMenu.DataModels
         internal protected T NewItem<T>(String p_strItemName = "") where T : DataModelBase
         {
             T objItem = (T)CreateChildNode(typeof(T), p_strItemName);
+
+            return objItem;
+        }
+
+        internal protected object NewItem(Type p_objType, String p_strItemName = "")
+        {
+            object objItem = CreateChildNode(p_objType, p_strItemName);
 
             return objItem;
         }

@@ -26,6 +26,14 @@ namespace AppLaunchMenu.ViewModels
             get { return m_objEnvironment.Name; }
         }
 
+        [DialogContent("Variable Name")]
+        public override string Name
+        {
+            get { return base.Name; }
+            set { base.Name = value; }
+        }
+
+        [DialogContent("Description")]
         public string Description
         {
             get { return DataModel.Description; }
@@ -36,6 +44,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Group")]
         public string Group
         {
             get { return DataModel.Group; }
@@ -46,6 +55,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Value")]
         public string Value
         {
             get { return DataModel.Value; }

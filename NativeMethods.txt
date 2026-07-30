@@ -17,3 +17,4 @@ DebugBreak
 GetActiveWindow
 WM_GETMINMAXINFO
 MINMAXINFO
+GetSystemMetricsForDpi

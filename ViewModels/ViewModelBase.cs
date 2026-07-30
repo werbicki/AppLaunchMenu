@@ -11,6 +11,20 @@ using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    public class DialogContentAttribute : Attribute
+    {
+        public string Label { get; }
+
+        public DialogContentAttribute(string p_strLabel)
+        {
+            if (string.IsNullOrWhiteSpace(p_strLabel))
+                throw new ArgumentException("Label cannot be null or empty.", nameof(p_strLabel));
+
+            Label = p_strLabel;
+        }
+    }
+
     public abstract class ViewModelBase<T> : ViewModelNotifyBase
         where T : DataModelBase
     {
@@ -22,6 +36,9 @@ namespace AppLaunchMenu.ViewModels
         protected ViewModelBase(T p_objDataModel, LaunchMenu objLaunchMenu)
             : base(p_objDataModel)
         {
+            if (!m_objDataModelViewModelMappings.ContainsKey(typeof(T)))
+                m_objDataModelViewModelMappings.Add(typeof(T), this.GetType());
+
             m_objDataModel = p_objDataModel;
             m_objLaunchMenu = objLaunchMenu;
 
@@ -44,19 +61,14 @@ namespace AppLaunchMenu.ViewModels
             get { return m_objLaunchMenu; }
         }
 
-        public virtual string Name
+        public Type[] ChildNodeTypes
         {
-            get
-            {
-                if (string.IsNullOrEmpty(DataModel.Name))
-                    return DataModel.GetType().Name;
-                return DataModel.Name;
-            }
-            set
-            {
-                DataModel.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
+            get { return DataModel.ChildNodeTypes;  }
+        }
+
+        public Type ViewModelForDataModel(Type objDataModelType)
+        {
+            return m_objDataModelViewModelMappings[objDataModelType];
         }
 
         public virtual bool EditMode
@@ -71,6 +83,8 @@ namespace AppLaunchMenu.ViewModels
         }
 
         protected TViewModel ViewModel<TViewModel, TDataModel>(TDataModel p_objDataModel)
+            where TViewModel : ViewModelBase<TDataModel>
+            where TDataModel : DataModelBase
         {
             if (!m_objViewModels.ContainsKey(typeof(TViewModel)))
             {
@@ -90,7 +104,7 @@ namespace AppLaunchMenu.ViewModels
         {
             if (!m_objCollections.ContainsKey(typeof(TViewModel)))
             {
-                ObservableCollection<TViewModel> objColleciton = new();
+                ObservableCollection<TViewModel> objCollection = new();
 
                 foreach (DataModelBase objDataModel in DataModel.Items)
                 {
@@ -102,13 +116,13 @@ namespace AppLaunchMenu.ViewModels
                         if (objViewModel == null)
                             throw new AccessViolationException();
 
-                        objColleciton.Add(objViewModel);
+                        objCollection.Add(objViewModel);
                     }
                 }
 
-                objColleciton.CollectionChanged += ViewModelBase_OnCollectionChanged;
+                objCollection.CollectionChanged += ViewModelBase_OnCollectionChanged;
 
-                m_objCollections.Add(typeof(TViewModel), objColleciton);
+                m_objCollections.Add(typeof(TViewModel), objCollection);
             }
 
             return (ObservableCollection<TViewModel>)m_objCollections[typeof(TViewModel)];

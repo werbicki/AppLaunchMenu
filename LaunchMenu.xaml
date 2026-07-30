@@ -16,12 +16,18 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </local:PageNotifyPropertyChanged.Resources>
 
-    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid VerticalAlignment="Stretch"
+          HorizontalAlignment="Stretch">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="400" />
+        </Grid.ColumnDefinitions>
 
         <MenuBar x:Name="m_objMenuBar" Grid.Row="0">
             <MenuBarItem Title="File">
@@ -41,14 +47,13 @@
                     x:Name="m_mnuEditMode"
                     IsChecked="{x:Bind EditMode, Mode=TwoWay}"
                     Text="Edit Mode"
-                    Visibility="{x:Bind CanEdit, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                    Visibility="{x:Bind HasEditAccess, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem
                     x:Name="m_mnuExit"
                     Click="Exit_Click"
                     Text="Exit" />
             </MenuBarItem>
-
             <MenuBarItem Title="Help">
                 <MenuFlyoutItem
                     x:Name="m_mnuHelp"
@@ -62,6 +67,7 @@
             Grid.Row="1"
             Margin="5,5,5,5"
             VerticalAlignment="Stretch"
+            HorizontalAlignment="Stretch"
             AddTabButtonClick="Menus_AddMenu"
             IsAddTabButtonVisible="{x:Bind EditMode, Mode=OneWay}"
             SelectedIndex="{x:Bind SelectedMenuIndex, Mode=TwoWay}"

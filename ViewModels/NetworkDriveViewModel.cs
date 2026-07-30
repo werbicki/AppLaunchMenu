@@ -8,8 +8,8 @@ namespace AppLaunchMenu.ViewModels
 {
     public class NetworkDriveViewModel : ViewModelTreeBase<NetworkDrive>
     {
-        public NetworkDriveViewModel(NetworkDrive p_objNetworkDrive, LaunchMenu p_objLaunchMenu)
-            : base(p_objNetworkDrive, p_objLaunchMenu)
+        public NetworkDriveViewModel(NetworkDrive p_objNetworkDrive, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
+            : base(p_objNetworkDrive, p_objLaunchMenu, p_objParent)
         {
         }
 
@@ -18,16 +18,7 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModel; }
         }
 
-        public override string Name
-        {
-            get { return DataModel.Name; }
-            set
-            {
-                DataModel.Name = value;
-                OnPropertyChanged(nameof(Name));
-            }
-        }
-
+        [DialogContent("Remote UNC Path")]
         public string RemoteUncPath
         {
             get { return DataModel.RemoteUncPath; }
@@ -38,6 +29,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Local Drive Letter")]
         public string LocalDriveLetter
         {
             get { return DataModel.LocalDriveLetter; }
@@ -48,6 +40,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Persistent")]
         public bool Persistent
         {
             get { return DataModel.Persistent; }
@@ -58,6 +51,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Unmap First")]
         public bool UnmapFirst
         {
             get { return DataModel.UnmapFirst; }
@@ -68,6 +62,7 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("Force Unmap")]
         public bool ForceUnmap
         {
             get { return DataModel.ForceUnmap; }
