@@ -37,25 +37,27 @@
                         Text="{x:Bind Name, Mode=OneWay}" />
                     <Button
                         x:Name="m_objNewButton"
+                        Width="32"
+                        Height="25"
+                        Padding="0,0,0,0"
                         Margin="15,0,0,0"
+                        HorizontalAlignment="Center"
                         Click="TreeViewItem_OnAddContextMenu"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <Image
-                            Width="12"
-                            Height="12"
-                            Source="../Assets/e710.png" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
                     </Button>
                     <Button
                         x:Name="m_objDeleteButton"
+                        Width="32"
+                        Height="25"
+                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="m_objNewButton"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <Image
-                            Width="12"
-                            Height="12"
-                            Source="../Assets/e711.png" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
@@ -78,25 +80,27 @@
                         Text="{x:Bind Name, Mode=OneWay}" />
                     <Button
                         x:Name="m_objNewButton"
+                        Width="32"
+                        Height="25"
+                        Padding="0,0,0,0"
                         Margin="15,0,0,0"
+                        HorizontalAlignment="Center"
                         Click="TreeViewItem_OnAddContextMenu"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <Image
-                            Width="12"
-                            Height="12"
-                            Source="../Assets/e710.png" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
                     </Button>
                     <Button
                         x:Name="m_objDeleteButton"
+                        Width="32"
+                        Height="25"
+                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="m_objNewButton"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <Image
-                            Width="12"
-                            Height="12"
-                            Source="../Assets/e711.png" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
@@ -106,87 +110,91 @@
                 AllowFocusOnInteraction="True"
                 ContextRequested="TreeViewItem_ContextRequested"
                 ItemsSource="{x:Bind Children}"
-                Tag="{x:Bind Item, Mode=OneWay}">
-                <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="{x:Bind TreeViewItemWidth, Mode=OneWay}" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-                    <RelativePanel Grid.Column="0">
-                        <Image
-                            x:Name="ApplicationImage"
-                            Width="20"
-                            Margin="0,0,10,0"
-                            Source="../Assets/Application.png" />
-                        <TextBlock
-                            x:Name="TreeViewText"
-                            RelativePanel.RightOf="ApplicationImage"
-                            Text="{x:Bind Name, Mode=OneWay}" />
-                        <Button
-                            x:Name="m_objNewButton"
-                            Margin="15,0,0,0"
-                            Click="TreeViewItem_OnAddContextMenu"
-                            RelativePanel.RightOf="TreeViewText"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                Tag="{x:Bind Item}">
+                <RelativePanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{x:Bind TreeViewItemWidth, Mode=OneWay}" MinWidth="{x:Bind TreeViewItemMinWidth, Mode=OneWay}" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <RelativePanel Grid.Column="0">
                             <Image
-                                Width="12"
-                                Height="12"
-                                Source="../Assets/e710.png" />
-                        </Button>
-                        <Button
-                            x:Name="m_objDeleteButton"
-                            Margin="5,0,0,0"
-                            Click="OnDeleteClick"
-                            RelativePanel.RightOf="m_objNewButton"
-                            Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                            <Image
-                                Width="12"
-                                Height="12"
-                                Source="../Assets/e711.png" />
-                        </Button>
-                    </RelativePanel>
-                    <toolkit:GridSplitter
-                        x:Name="m_objTreeListView"
-                        Grid.Column="1"
-                        ManipulationCompleted="m_objTreeListView_ManipulationCompleted"
-                        ManipulationDelta="m_objTreeListView_ManipulationDelta"
-                        ManipulationStarted="m_objTreeListView_ManipulationStarted"
-                        Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
-                    <RelativePanel Grid.Column="2" Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <TextBox
-                            x:Name="m_objDescription"
-                            Width="120"
-                            Margin="5,0,5,0"
-                            IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
-                            Text="{x:Bind ReservationDescription, Mode=TwoWay}"
-                            TextWrapping="NoWrap"
-                            ToolTipService.ToolTip="{x:Bind ReservationDescription, Mode=OneWay}" />
-                        <CalendarDatePicker
-                            x:Name="m_objReservedDate"
-                            Width="120"
-                            Margin="5,0,5,0"
-                            Date="{x:Bind ReservationDate, Mode=TwoWay}"
-                            IsEnabled="{x:Bind EditMode, Mode=OneWay}"
-                            PlaceholderText="Date"
-                            RelativePanel.RightOf="m_objDescription" />
-                        <TextBox
-                            x:Name="m_objReservedOwner"
-                            Width="120"
-                            Margin="5,0,5,0"
-                            IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
-                            RelativePanel.RightOf="m_objReservedDate"
-                            Text="{x:Bind ReservationOwner, Mode=TwoWay}"
-                            TextWrapping="NoWrap" />
-                    </RelativePanel>
-                </Grid>
+                                x:Name="ApplicationImage"
+                                Width="20"
+                                Margin="0,0,10,0"
+                                Source="../Assets/Application.png" />
+                            <TextBlock
+                                x:Name="TreeViewText"
+                                RelativePanel.RightOf="ApplicationImage"
+                                Text="{x:Bind Name, Mode=OneWay}" />
+                            <Button
+                                x:Name="m_objNewButton"
+                                Width="32"
+                                Height="25"
+                                Padding="0,0,0,0"
+                                Margin="10,0,0,0"
+                                HorizontalAlignment="Center"
+                                Click="TreeViewItem_OnAddContextMenu"
+                                RelativePanel.RightOf="TreeViewText"
+                                Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
+                            </Button>
+                            <Button
+                                x:Name="m_objDeleteButton"
+                                Width="32"
+                                Height="25"
+                                Padding="0,0,0,0"
+                                Margin="5,0,10,0"
+                                HorizontalAlignment="Center"
+                                Click="OnDeleteClick"
+                                RelativePanel.RightOf="m_objNewButton"
+                                Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
+                            </Button>
+                        </RelativePanel>
+                        <toolkit:GridSplitter
+                            x:Name="m_objTreeViewItemSplitter"
+                            Grid.Column="1"
+                            ManipulationCompleted="TreeViewItemSplitter_ManipulationCompleted"
+                            ManipulationDelta="TreeViewItemSplitter_ManipulationDelta"
+                            ManipulationStarted="TreeViewItemSplitter_ManipulationStarted"
+                            Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                        <RelativePanel Grid.Column="2" Visibility="{x:Bind IsReservable, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                            <TextBox
+                                x:Name="m_objDescription"
+                                Width="120"
+                                Margin="5,0,5,0"
+                                IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
+                                Text="{x:Bind ReservationDescription, Mode=TwoWay}"
+                                TextWrapping="NoWrap"
+                                ToolTipService.ToolTip="{x:Bind ReservationDescription, Mode=OneWay}" />
+                            <CalendarDatePicker
+                                x:Name="m_objReservedDate"
+                                Width="120"
+                                Margin="5,0,5,0"
+                                Date="{x:Bind ReservationDate, Mode=TwoWay}"
+                                IsEnabled="{x:Bind EditMode, Mode=OneWay}"
+                                PlaceholderText="Date"
+                                RelativePanel.RightOf="m_objDescription" />
+                            <TextBox
+                                x:Name="m_objReservedOwner"
+                                Width="120"
+                                Margin="5,0,5,0"
+                                IsReadOnly="{x:Bind EditMode, Converter={StaticResource BoolNegationConverter}, Mode=OneWay}"
+                                RelativePanel.RightOf="m_objReservedDate"
+                                Text="{x:Bind ReservationOwner, Mode=TwoWay}"
+                                TextWrapping="NoWrap" />
+                        </RelativePanel>
+                    </Grid>
+                </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
         <DataTemplate x:Key="EnvironmentTreeViewItemTemplate" x:DataType="local1:ITreeViewItem">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
                 ItemsSource="{x:Bind Children}"
-                Tag="{x:Bind Item, Mode=OneWay}"
+                Tag="{x:Bind Item}"
                 Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                 <RelativePanel>
                     <Image
@@ -200,25 +208,27 @@
                         Text="{x:Bind Name, Mode=OneWay}" />
                     <Button
                         x:Name="m_objNewButton"
+                        Width="32"
+                        Height="25"
+                        Padding="0,0,0,0"
                         Margin="15,0,0,0"
+                        HorizontalAlignment="Center"
                         Click="TreeViewItem_OnAddContextMenu"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <Image
-                            Width="12"
-                            Height="12"
-                            Source="../Assets/e710.png" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
                     </Button>
                     <Button
                         x:Name="m_objDeleteButton"
+                        Width="32"
+                        Height="25"
+                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="m_objNewButton"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <Image
-                            Width="12"
-                            Height="12"
-                            Source="../Assets/e711.png" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
@@ -227,7 +237,7 @@
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
                 ItemsSource="{x:Bind Children}"
-                Tag="{x:Bind Item, Mode=OneWay}"
+                Tag="{x:Bind Item}"
                 Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}}">
                 <RelativePanel>
                     <Image
@@ -241,14 +251,15 @@
                         Text="{x:Bind Name, Mode=OneWay}" />
                     <Button
                         x:Name="m_objDeleteButton"
+                        Width="32"
+                        Height="25"
+                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <Image
-                            Width="12"
-                            Height="12"
-                            Source="../Assets/e711.png" />
+                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
@@ -284,9 +295,9 @@
             <AppBarButton
                 x:Name="m_objAddEditDeleteContextMenuDelete"
                 Click="OnDeleteClick"
-                Icon="Delete"
-                Label="Delete"
-                ToolTipService.ToolTip="Delete" />
+                Icon="Cancel"
+                Label="Cancel"
+                ToolTipService.ToolTip="Cancel" />
         </CommandBarFlyout>
         <CommandBarFlyout x:Name="m_objEditDeleteContextMenu" Placement="Right">
             <AppBarButton
@@ -298,17 +309,18 @@
             <AppBarButton
                 x:Name="m_objEditDeleteContextMenuDelete"
                 Click="OnDeleteClick"
-                Icon="Delete"
-                Label="Delete"
-                ToolTipService.ToolTip="Delete" />
+                Icon="Cancel"
+                Label="Cancel"
+                ToolTipService.ToolTip="Cancel" />
         </CommandBarFlyout>
     </local:PageNotifyPropertyChanged.Resources>
-    
-    <Grid x:Name="RootElement" 
-          VerticalAlignment="Stretch"
-          HorizontalAlignment="Stretch"
-          Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        
+
+    <Grid
+        x:Name="RootElement"
+        HorizontalAlignment="Stretch"
+        VerticalAlignment="Stretch"
+        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -327,26 +339,24 @@
             <TreeView
                 x:Name="m_objTreeView"
                 Margin="0,12,0,0"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
                 CanDragItems="{x:Bind DragDropEnabled, Mode=OneWay}"
                 CanReorderItems="{x:Bind DragDropEnabled, Mode=OneWay}"
                 DoubleTapped="Apps_DoubleTapped"
                 ItemInvoked="Apps_ItemInvoked"
                 ItemTemplateSelector="{StaticResource TreeViewItemTemplateSelector}"
-                ItemsSource="{x:Bind Menu.Children}" />
+                ItemsSource="{x:Bind MenuViewModel.Children}" />
         </ScrollViewer>
-        
+
         <Button
             x:Name="m_objNewFolderButton"
             Grid.Row="1"
+            Width="32"
+            Height="25"
+            Padding="0,0,0,0"
             Click="TreeViewItem_OnAddContextMenu"
             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <Image
-                Width="12"
-                Height="12"
-                Source="../Assets/e710.png" />
+            <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
         </Button>
-        
+
     </Grid>
 </local:PageNotifyPropertyChanged>

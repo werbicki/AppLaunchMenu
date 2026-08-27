@@ -1,0 +1,164 @@
+using AppLaunchMenu.ViewModels;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Reflection;
+
+// To learn more about WinUI, the WinUI project structure,
+// and more about our project templates, see: http://aka.ms/winui-project-info.
+
+namespace AppLaunchMenu.Dialogs
+{
+    /// <summary>
+    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// </summary>
+    public sealed partial class ViewModelDialogContent : Page
+    {
+        private ModalDialog m_objModalDialog;
+        private ViewModelNotifyBase m_objViewModel;
+        private StackPanel m_objStackPanel;
+
+        public ViewModelDialogContent(ModalDialog p_objModalDialog, ViewModelNotifyBase p_objViewModel)
+        {
+            m_objViewModel = p_objViewModel;
+
+            this.InitializeComponent();
+            DataContext = p_objViewModel;
+
+            m_objStackPanel = BuildDynamicForm(p_objViewModel);
+
+            Content = new ScrollViewer
+            {
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Content = m_objStackPanel
+            };
+
+            InvalidateMeasure();
+
+            m_objModalDialog = p_objModalDialog;
+            m_objModalDialog.Closed += ModalDialog_Closed;
+        }
+
+        private void ModalDialog_Closed(object sender, WindowEventArgs args)
+        {
+            ContentDialogResult objContentDialogResult = m_objModalDialog.DialogResult;
+
+            if (objContentDialogResult == ContentDialogResult.None)
+                UpdateProperties(m_objViewModel);
+        }
+
+        private StackPanel BuildDynamicForm(ViewModelNotifyBase p_objViewModel)
+        {
+            StackPanel objStackPanel = new StackPanel
+            {
+                Orientation = Orientation.Vertical,
+                Spacing = 8,
+                Padding = new Thickness(10)
+            };
+
+            Type objType = p_objViewModel.GetType();
+            foreach (PropertyInfo objProperty in objType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                DialogContentAttribute? objDialogContentAttribute = objProperty.GetCustomAttribute<DialogContentAttribute>();
+                if (objDialogContentAttribute != null)
+                {
+                    // Label
+                    objStackPanel.Children.Add(new TextBlock
+                    {
+                        Name = "MainPanel",
+                        Text = objDialogContentAttribute.Label,
+                        FontWeight = Microsoft.UI.Text.FontWeights.Bold
+                    });
+
+                    // Input control based on property type
+                    FrameworkElement objInputControl = CreateControlForProperty(objProperty, p_objViewModel);
+                    objStackPanel.Children.Add(objInputControl);
+                }
+            }
+
+            objStackPanel.InvalidateMeasure();
+
+            return objStackPanel;
+        }
+
+        /// <summary>
+        /// Creates an appropriate input control for a property type.
+        /// </summary>
+        private FrameworkElement CreateControlForProperty(PropertyInfo objPropertyInfo, object objObject)
+        {
+            object? objValue = objPropertyInfo.GetValue(objObject);
+
+            if (objPropertyInfo.PropertyType == typeof(bool))
+            {
+                return new CheckBox
+                {
+                    Name = objPropertyInfo.Name,
+                    IsChecked = (bool?)objValue ?? false
+                };
+            }
+            else if (objPropertyInfo.PropertyType == typeof(DateTime))
+            {
+                return new CalendarDatePicker
+                {
+                    Name = objPropertyInfo.Name,
+                    Date = (DateTimeOffset?)(objValue != null ? new DateTimeOffset((DateTime)objValue) : null)
+                };
+            }
+            else if (objPropertyInfo.PropertyType == typeof(DateTimeOffset))
+            {
+                return new CalendarDatePicker
+                {
+                    Name = objPropertyInfo.Name,
+                    Date = (DateTimeOffset?)(objValue != null ? objValue : null)
+                };
+            }
+            else
+            {
+                return new TextBox
+                {
+                    Name = objPropertyInfo.Name,
+                    Text = objValue?.ToString() ?? string.Empty
+                };
+            }
+        }
+
+        private void UpdateProperties(ViewModelNotifyBase p_objViewModel)
+        {
+            Type objType = p_objViewModel.GetType();
+            foreach (PropertyInfo objPropertyInfo in objType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                DialogContentAttribute? objDialogContentAttribute = objPropertyInfo.GetCustomAttribute<DialogContentAttribute>();
+                if (objDialogContentAttribute != null)
+                {
+                    foreach (FrameworkElement objFrameworkElement in m_objStackPanel.Children)
+                    {
+                        if (objFrameworkElement.Name == objPropertyInfo.Name)
+                        {
+                            if ((objPropertyInfo.PropertyType == typeof(bool))
+                                && (objFrameworkElement is CheckBox objCheckBox)
+                                )
+                            {
+                                objPropertyInfo.SetValue(p_objViewModel, objCheckBox.IsChecked);
+                            }
+                            else if (((objPropertyInfo.PropertyType == typeof(DateTime)) || (objPropertyInfo.PropertyType == typeof(DateTimeOffset)))
+                                && (objFrameworkElement is CalendarDatePicker objCalendarDatePicker)
+                                )
+                            {
+                                objPropertyInfo.SetValue(p_objViewModel, objCalendarDatePicker.Date);
+                            }
+                            else if ((objPropertyInfo.PropertyType == typeof(string) || (objPropertyInfo.PropertyType.IsPrimitive))
+                                && (objFrameworkElement is TextBox objTextBox)
+                                )
+                            {
+                                objPropertyInfo.SetValue(p_objViewModel, objTextBox.Text);
+                            }
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

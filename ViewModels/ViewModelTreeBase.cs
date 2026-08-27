@@ -132,6 +132,8 @@ namespace AppLaunchMenu.ViewModels
         {
             if (e.PropertyName == nameof(TreeViewItemWidth))
                 OnPropertyChanged(nameof(TreeViewItemWidth));
+            else if (e.PropertyName == nameof(TreeViewItemMinWidth))
+                OnPropertyChanged(nameof(TreeViewItemMinWidth));
         }
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -184,8 +186,8 @@ namespace AppLaunchMenu.ViewModels
         {
             get
             {
-                GridLength objTreeViewItemWidth = new(100.0);
-                ITreeViewItem? objTreeViewItemViewModel = Parent;
+                GridLength objTreeViewItemWidth = new GridLength();
+                ITreeViewItem? objTreeViewItemViewModel = this;
 
                 while ((objTreeViewItemViewModel != null)
                     && (objTreeViewItemViewModel is not MenuViewModel)
@@ -193,14 +195,16 @@ namespace AppLaunchMenu.ViewModels
                     )
                     objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
 
-                if (objTreeViewItemViewModel != null)
-                    return objTreeViewItemViewModel.TreeViewItemWidth;
+                if ((objTreeViewItemViewModel != null)
+                    && (objTreeViewItemViewModel is MenuViewModel)
+                    )
+                    objTreeViewItemWidth = objTreeViewItemViewModel.TreeViewItemWidth;
 
                 return objTreeViewItemWidth;
             }
             set
             {
-                ITreeViewItem? objTreeViewItemViewModel = Parent;
+                ITreeViewItem? objTreeViewItemViewModel = this;
 
                 while ((objTreeViewItemViewModel != null)
                     && (objTreeViewItemViewModel is not MenuViewModel)
@@ -208,8 +212,35 @@ namespace AppLaunchMenu.ViewModels
                     )
                     objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
 
-                if (objTreeViewItemViewModel != null)
+                if ((objTreeViewItemViewModel != null)
+                    && (objTreeViewItemViewModel is MenuViewModel)
+                    )
+                {
                     objTreeViewItemViewModel.TreeViewItemWidth = value;
+                    OnPropertyChanged(nameof(TreeViewItemWidth));
+                }
+            }
+        }
+
+        public virtual double TreeViewItemMinWidth
+        {
+            get
+            {
+                double dblTreeViewItemMinWidth = 200.0;
+                ITreeViewItem? objTreeViewItemViewModel = this;
+
+                while ((objTreeViewItemViewModel != null)
+                    && (objTreeViewItemViewModel is not MenuViewModel)
+                    && (objTreeViewItemViewModel.Parent != null)
+                    )
+                    objTreeViewItemViewModel = objTreeViewItemViewModel.Parent;
+
+                if ((objTreeViewItemViewModel != null)
+                    && (objTreeViewItemViewModel is MenuViewModel)
+                    )
+                    dblTreeViewItemMinWidth = ((MenuViewModel)objTreeViewItemViewModel).TreeViewItemMinWidth;
+
+                return dblTreeViewItemMinWidth;
             }
         }
 

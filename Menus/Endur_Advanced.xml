@@ -139,7 +139,7 @@ return strDateTime;
 		</Environment>
 		<Menu Name="Openlink Endur">
 			<Folder Name="Openlink Endur" Expanded="True">
-				<Application Name="Development01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Config="{Endur_Config}" ConfigFilePath="C:\Dev\Endur_%OLF_ENVIRONMENT%.cfg" Reservable="True" ReservationDate="{GetCurrentDate}">
+				<Application Name="Development01 Development01 Development01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Config="{Endur_Config}" ConfigFilePath="C:\Dev\Endur_%OLF_ENVIRONMENT%.cfg" Reservable="True" ReservationDate="{GetCurrentDate}">
 					<Environment Name="Common">
 						<Variable Group="Application" Name="OLF_ENVIRONMENT" Value="Dev01" />
 						<Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="14003" />

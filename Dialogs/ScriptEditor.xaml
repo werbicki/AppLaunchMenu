@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="AppLaunchMenu.Dialogs.ScriptEditor"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:editor="using:WinUIEditor"
+    xmlns:local="using:AppLaunchMenu.Dialogs"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:viewmodels="using:AppLaunchMenu.ViewModels"
+    d:DataContext="{d:DesignInstance Type=viewmodels:FolderViewModel}"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    mc:Ignorable="d">
+
+    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <editor:CodeEditorControl
+            x:Name="Editor"
+            MinHeight="400"
+            HighlightingLanguage="{x:Bind Language}"
+            Loaded="Editor_Loaded" />
+    </StackPanel>
+</Page>

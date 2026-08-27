@@ -1,6 +1,7 @@
 using AppLaunchMenu.DataModels;
 using AppLaunchMenu.Dialogs;
 using AppLaunchMenu.ViewModels;
+using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Controls;
 using CommunityToolkit.WinUI.Converters;
 using Microsoft.UI.Xaml;
@@ -8,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
@@ -22,11 +24,13 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Xml.Linq;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxTokenParser;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -63,6 +67,11 @@ namespace AppLaunchMenu
             m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
         }
 
+        private double GetTreeViewItemWidth()
+        {
+            return GetTreeViewItemWidth(m_objMenuViewModel.Children);
+        }
+
         private double GetTreeViewItemWidth(ObservableCollection<ITreeViewItem> p_objChildren, double p_dblWidth = 0)
         {
             double dblWidth = p_dblWidth;
@@ -72,16 +81,42 @@ namespace AppLaunchMenu
                 TreeViewItem? objTreeViewItem = (TreeViewItem)m_objTreeView.ContainerFromItem(objTreeViewItemViewModel);
                 if (objTreeViewItem != null)
                 {
-                    object objRelativePanel = objTreeViewItem.Content;
-                    if ((objRelativePanel != null)
-                        && ((objRelativePanel.GetType().Equals(typeof(RelativePanel)))
-                            || (objRelativePanel.GetType().GetTypeInfo().IsSubclassOf(typeof(RelativePanel)))
+                    object objContent = objTreeViewItem.Content;
+                    if ((objContent != null)
+                        && ((objContent.GetType().Equals(typeof(RelativePanel)))
+                            || (objContent.GetType().GetTypeInfo().IsSubclassOf(typeof(RelativePanel)))
                         ))
                     {
-                        double dblContentWidth = 100;
+                        RelativePanel objRelativePanel = (RelativePanel)objContent;
+                        double dblContentWidth = 0;
 
-                        foreach (var item in ((RelativePanel)objRelativePanel).Children)
-                            dblContentWidth += item.DesiredSize.Width;
+                        objRelativePanel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+
+                        // We measure the TreeItemView Image, Text and Edit commands to get the column width.
+
+                        foreach (var objItem in objRelativePanel.FindChildren().OfType<Microsoft.UI.Xaml.Controls.Image>())
+                            dblContentWidth += objItem.DesiredSize.Width;
+
+                        foreach (var objItem in objRelativePanel.FindChildren().OfType<TextBlock>())
+                            dblContentWidth += objItem.DesiredSize.Width;
+
+                        foreach (var objItem in objRelativePanel.FindChildren().OfType<Button>())
+                        {
+                            Visibility enumVisibility = objItem.Visibility;
+
+                            // Manually set the Visibility to measure in the correct state because the bindings may not
+                            // have updated.
+
+                            if (EditMode)
+                                objItem.Visibility = Visibility.Visible;
+                            else
+                                objItem.Visibility = Visibility.Collapsed;
+
+                            objItem.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                            dblContentWidth += objItem.DesiredSize.Width;
+
+                            objItem.Visibility = enumVisibility;
+                        }
 
                         if (dblContentWidth > dblWidth)
                             dblWidth = dblContentWidth;
@@ -100,7 +135,7 @@ namespace AppLaunchMenu
             {
                 m_blnLoaded = true;
 
-                TreeViewItemWidth = new GridLength(GetTreeViewItemWidth(m_objMenuViewModel.Children));
+                MenuViewModel.TreeViewItemMinWidth = GetTreeViewItemWidth();
             }
         }
 
@@ -110,10 +145,12 @@ namespace AppLaunchMenu
             {
                 OnPropertyChanged(nameof(EditMode));
                 OnPropertyChanged(nameof(DragDropEnabled));
+
+                MenuViewModel.TreeViewItemMinWidth = GetTreeViewItemWidth();
             }
         }
 
-        private MenuViewModel Menu
+        private MenuViewModel MenuViewModel
         {
             get { return m_objMenuViewModel; }
         }
@@ -135,16 +172,6 @@ namespace AppLaunchMenu
             {
                 m_blnDragDropEnabled = value;
                 OnPropertyChanged(nameof(DragDropEnabled));
-            }
-        }
-
-        private GridLength TreeViewItemWidth
-        {
-            get { return m_objMenuViewModel.TreeViewItemWidth; }
-            set
-            {
-                m_objMenuViewModel.TreeViewItemWidth = value;
-                OnPropertyChanged(nameof(TreeViewItemWidth));
             }
         }
 
@@ -218,18 +245,22 @@ namespace AppLaunchMenu
 
                         if (objViewModel != null)
                         {
-                            ModalDialog objNewVariableDialog = new ModalDialog()
+                            ModalDialog objNewItemDialog = new ModalDialog()
                             {
                                 //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                                 //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
                                 Title = "New",
-                                Page = new ViewModelDialogContent(objViewModel),
                                 CloseButtonText = "OK",
                                 PrimaryButtonText = "Cancel",
                                 DefaultButton = ContentDialogButton.Primary,
                             };
 
-                            ContentDialogResult objContentDialogResult = await objNewVariableDialog.ShowAsync();
+                            if (objNewType == typeof(ScriptViewModel))
+                                objNewItemDialog.Page = new ScriptEditor(objNewItemDialog, (ScriptViewModel)objViewModel);
+                            else
+                                objNewItemDialog.Page = new ViewModelDialogContent(objNewItemDialog, objViewModel);
+
+                            ContentDialogResult objContentDialogResult = await objNewItemDialog.ShowAsync();
 
                             if (objContentDialogResult == ContentDialogResult.None)
                             {
@@ -259,10 +290,13 @@ namespace AppLaunchMenu
                 if (objViewModelTag != null)
                 {
                     ITreeViewItem? objItemViewModel = objViewModelTag?.Item;
+                    Type? objEditType = objViewModelTag?.Type;
 
-                    if (objItemViewModel != null)
+                    if ((objItemViewModel != null)
+                        && (objEditType != null)
+                        )
                     {
-                        ModalDialog objEditDialog = new ModalDialog()
+                        ModalDialog objEditItemDialog = new ModalDialog()
                         {
                             //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                             //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme
@@ -272,9 +306,12 @@ namespace AppLaunchMenu
                             DefaultButton = ContentDialogButton.Primary,
                         };
 
-                        objEditDialog.Page = new ViewModelDialogContent((ViewModelNotifyBase)objItemViewModel);
+                        if (objEditType == typeof(ScriptViewModel))
+                            objEditItemDialog.Page = new ScriptEditor(objEditItemDialog, (ScriptViewModel)objItemViewModel);
+                        else
+                            objEditItemDialog.Page = new ViewModelDialogContent(objEditItemDialog, (ViewModelNotifyBase)objItemViewModel);
 
-                        ContentDialogResult objContentDialogResult = await objEditDialog.ShowAsync();
+                        ContentDialogResult objContentDialogResult = await objEditItemDialog.ShowAsync();
 
                         //if (objContentDialogResult == ContentDialogResult.None)
                         //    objButton.DataContext = objTreeViewItemViewModel;
@@ -438,11 +475,13 @@ namespace AppLaunchMenu
 
                             m_objAddEditDeleteContextMenuEdit.Tag = new ViewModelTag()
                             {
+                                Type = objViewModel.GetType(),
                                 Item = objViewModel,
                             };
 
                             m_objAddEditDeleteContextMenuDelete.Tag = new ViewModelTag()
                             {
+                                Type = objViewModel.GetType(),
                                 Parent = objViewModel.Parent,
                                 Item = objViewModel,
                             };
@@ -453,11 +492,13 @@ namespace AppLaunchMenu
                         {
                             m_objEditDeleteContextMenuEdit.Tag = new ViewModelTag()
                             {
+                                Type = objViewModel.GetType(),
                                 Item = objViewModel,
                             };
 
                             m_objEditDeleteContextMenuDelete.Tag = new ViewModelTag()
                             {
+                                Type = objViewModel.GetType(),
                                 Parent = objViewModel.Parent,
                                 Item = objViewModel,
                             };
@@ -471,12 +512,12 @@ namespace AppLaunchMenu
                 args.Handled = true;
         }
 
-        private void m_objTreeListView_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        private void TreeViewItemSplitter_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
         {
             DragDropEnabled = false;
         }
 
-        private void m_objTreeListView_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        private void TreeViewItemSplitter_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
             if (e.OriginalSource is GridSplitter)
             {
@@ -485,12 +526,12 @@ namespace AppLaunchMenu
                 if (objGridSplitter.Parent is Grid)
                 {
                     Grid objGrid = (Grid)objGridSplitter.Parent;
-                    TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
+                    MenuViewModel.TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
                 }
             }
         }
 
-        private void m_objTreeListView_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        private void TreeViewItemSplitter_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             if (e.OriginalSource is GridSplitter)
             {
@@ -499,7 +540,7 @@ namespace AppLaunchMenu
                 if (objGridSplitter.Parent is Grid)
                 {
                     Grid objGrid = (Grid)objGridSplitter.Parent;
-                    TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
+                    MenuViewModel.TreeViewItemWidth = objGrid.ColumnDefinitions[0].Width;
                 }
             }
 

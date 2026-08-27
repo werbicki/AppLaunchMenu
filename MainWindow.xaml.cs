@@ -1,15 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.Dialogs;
 using AppLaunchMenu.Helper;
 using AppLaunchMenu.ViewModels;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -19,6 +12,14 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Enumeration;
 using Windows.Foundation;
@@ -52,6 +53,11 @@ namespace AppLaunchMenu
             // Hides the default system title bar and replaces the  system title bar with the WinUI TitleBar control. 
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(TitleBar);
+
+            OverlappedPresenter presenter = OverlappedPresenter.Create();
+            presenter.PreferredMinimumWidth = 420;
+            presenter.PreferredMinimumHeight = 550;
+            AppWindow.SetPresenter(presenter);
 
             ResizeClient(new Size(800, 700));
             CenterWindow();

@@ -35,7 +35,6 @@ namespace AppLaunchMenu.Dialogs
             AppWindow.SetPresenter(m_objOverlappedPresenter);
 
             ResizeClient(new Size(100, 100));
-            CenterWindow();
 
             RootGrid.Loaded += RootGrid_Loaded;
             RootGrid.DataContext = this;

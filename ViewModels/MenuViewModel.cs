@@ -14,7 +14,8 @@ namespace AppLaunchMenu.ViewModels
         private readonly Menu m_objMenu;
         private readonly Page m_objMenuPage;
         private readonly IconSource m_objDataIconSource = new SymbolIconSource() { Symbol = Symbol.Placeholder };
-        GridLength m_objTreeViewItemWidth = new(200.0);
+        private GridLength m_objTreeViewItemWidth = new GridLength(0.0, GridUnitType.Auto);
+        private double m_dblTreeViewItemMinWidth = 200.0;
 
         public MenuViewModel(Menu p_objMenu, LaunchMenu p_objLaunchMenu)
             : base(p_objMenu, p_objLaunchMenu)
@@ -58,6 +59,19 @@ namespace AppLaunchMenu.ViewModels
                 OnPropertyChanged(nameof(TreeViewItemWidth));
             }
         }
+
+        public new double TreeViewItemMinWidth
+        {
+            get { return m_dblTreeViewItemMinWidth; }
+            set
+            {
+                m_dblTreeViewItemMinWidth = value;
+                OnPropertyChanged(nameof(TreeViewItemMinWidth));
+
+                TreeViewItemWidth = new GridLength(value, GridUnitType.Auto);
+            }
+        }
+
         public override bool Expanded
         {
             get { return true; }

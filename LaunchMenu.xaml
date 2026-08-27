@@ -16,9 +16,8 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </local:PageNotifyPropertyChanged.Resources>
 
-    <Grid VerticalAlignment="Stretch"
-          HorizontalAlignment="Stretch">
-        
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -66,8 +65,8 @@
             x:Name="m_objMenus"
             Grid.Row="1"
             Margin="5,5,5,5"
-            VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
             AddTabButtonClick="Menus_AddMenu"
             IsAddTabButtonVisible="{x:Bind EditMode, Mode=OneWay}"
             SelectedIndex="{x:Bind SelectedMenuIndex, Mode=TwoWay}"
