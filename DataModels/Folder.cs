@@ -8,12 +8,12 @@ namespace AppLaunchMenu.DataModels
 {
     public class Folder : DataModelBase
     {
-        public Folder(MenuFile p_objMenuFile, XmlNode p_objFolderNode)
+        public Folder(LaunchMenuFile p_objMenuFile, XmlNode p_objFolderNode)
             : base(p_objMenuFile, new Type[] { typeof(Folder), typeof(Environment), typeof(Application) }, p_objFolderNode)
         {
         }
 
-        public Folder(MenuFile p_objMenuFile, string p_strName)
+        public Folder(LaunchMenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, new Type[] { typeof(Folder), typeof(Environment), typeof(Application) }, p_strName)
         {
         }

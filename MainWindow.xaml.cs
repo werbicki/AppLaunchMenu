@@ -39,10 +39,10 @@ namespace AppLaunchMenu
     /// </summary>
     public sealed partial class MainWindow : WindowNotifyPropertyChanged
     {
-        private MenuFile m_objMenuFile;
+        private LaunchMenuFile m_objMenuFile;
         private bool m_blnCloseRequested = false;
 
-        public MainWindow(MenuFile p_objMenuFile)
+        public MainWindow(LaunchMenuFile p_objMenuFile)
         {
             m_objMenuFile = p_objMenuFile;
             m_objMenuFile.DataChanged += MenuFile_DataChanged;

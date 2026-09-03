@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <local:PageNotifyPropertyChanged
-    x:Class="AppLaunchMenu.EnvironmentReview"
+    x:Class="AppLaunchMenu.MapNetworkDrives"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
@@ -9,35 +9,30 @@
     xmlns:local1="using:AppLaunchMenu.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tv="using:WinUI.TableView"
-    x:Name="EnvironmentReviewPage"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    x:Name="MapNetworkDrivesPage"
     mc:Ignorable="d">
 
     <tv:TableView
         x:Name="m_objEnvironmentTable"
         AutoGenerateColumns="False"
         HeadersVisibility="Columns"
-        ItemsSource="{x:Bind Variables}">
+        ItemsSource="{x:Bind NetworkDrives}"
+        Loaded="EnvironmentTable_Loaded">
         <tv:TableView.Columns>
             <tv:TableViewTextColumn
                 Width="Auto"
-                Binding="{Binding Name}"
-                Header="Name"
+                Binding="{Binding RemoteUncPath}"
+                Header="Remote UNC Path"
                 IsReadOnly="True" />
             <tv:TableViewTextColumn
                 Width="Auto"
-                Binding="{Binding Group}"
-                Header="Group"
+                Binding="{Binding LocalDriveLetter}"
+                Header="Local Drive Letter"
                 IsReadOnly="True" />
             <tv:TableViewTextColumn
-                Width="1*"
-                Binding="{Binding Value}"
-                Header="Value"
-                IsReadOnly="True" />
-            <tv:TableViewTextColumn
-                Width="1*"
-                Binding="{Binding ExpandedValue}"
-                Header="Expanded Value" />
+                Width="Auto"
+                Binding="{Binding Status}"
+                Header="Status" />
         </tv:TableView.Columns>
     </tv:TableView>
 

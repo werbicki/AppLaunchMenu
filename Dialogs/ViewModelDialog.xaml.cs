@@ -1,4 +1,5 @@
 using AppLaunchMenu.ViewModels;
+using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
@@ -50,36 +51,71 @@ namespace AppLaunchMenu.Dialogs
 
         private StackPanel BuildDynamicForm(ViewModelNotifyBase p_objViewModel)
         {
-            StackPanel objStackPanel = new StackPanel
+            StackPanel objPropertiesStackPanel = new StackPanel
             {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
                 Orientation = Orientation.Vertical,
                 Spacing = 8,
                 Padding = new Thickness(10)
             };
 
-            Type objType = p_objViewModel.GetType();
-            foreach (PropertyInfo objProperty in objType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            Expander objInheritedExpander = new Expander
             {
-                DialogContentAttribute? objDialogContentAttribute = objProperty.GetCustomAttribute<DialogContentAttribute>();
+                Header = "Advanced Settings",
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                IsExpanded = false
+            };
+
+            StackPanel objInheritedStackPanel = new StackPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Orientation = Orientation.Vertical,
+                Spacing = 8,
+                Padding = new Thickness(10)
+            };
+
+            objInheritedExpander.Content = objInheritedStackPanel;
+
+            Type objType = p_objViewModel.GetType();
+            bool blnAdvancedSettings = false;
+
+            foreach (PropertyInfo objPropertyInfo in objType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                bool blnIsInherited = objPropertyInfo.DeclaringType != objPropertyInfo.ReflectedType;
+
+                DialogContentAttribute? objDialogContentAttribute = objPropertyInfo.GetCustomAttribute<DialogContentAttribute>();
                 if (objDialogContentAttribute != null)
                 {
-                    // Label
-                    objStackPanel.Children.Add(new TextBlock
+                    TextBlock objLabel = new TextBlock
                     {
                         Name = "MainPanel",
                         Text = objDialogContentAttribute.Label,
                         FontWeight = Microsoft.UI.Text.FontWeights.Bold
-                    });
+                    };
+                    FrameworkElement objInputControl = CreateControlForProperty(objPropertyInfo, p_objViewModel);
 
-                    // Input control based on property type
-                    FrameworkElement objInputControl = CreateControlForProperty(objProperty, p_objViewModel);
-                    objStackPanel.Children.Add(objInputControl);
+                    if (blnIsInherited)
+                    {
+                        blnAdvancedSettings = true;
+
+                        objInheritedStackPanel.Children.Add(objLabel);
+                        objInheritedStackPanel.Children.Add(objInputControl);
+                    }
+                    else
+                    {
+                        objPropertiesStackPanel.Children.Add(objLabel);
+                        objPropertiesStackPanel.Children.Add(objInputControl);
+                    }
                 }
             }
 
-            objStackPanel.InvalidateMeasure();
+            if (blnAdvancedSettings)
+                objPropertiesStackPanel.Children.Add(objInheritedExpander);
 
-            return objStackPanel;
+            objPropertiesStackPanel.InvalidateMeasure();
+
+            return objPropertiesStackPanel;
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace AppLaunchMenu.DataModels
     {
         DataModelCollection<Menu> m_objMenus;
 
-        public MenuList(MenuFile p_objMenuFile, XmlNode p_objMenuNode)
+        public MenuList(LaunchMenuFile p_objMenuFile, XmlNode p_objMenuNode)
             : base(p_objMenuFile, new Type[] { typeof(Menu), typeof(Environment) }, p_objMenuNode)
         {
             m_objMenus = new(this, null);
@@ -20,7 +20,7 @@ namespace AppLaunchMenu.DataModels
             UpdateItems();
         }
 
-        public MenuList(MenuFile p_objMenuFile, string p_strName)
+        public MenuList(LaunchMenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, new Type[] { typeof(Menu), typeof(Environment) }, p_strName)
         {
             m_objMenus = new(this, null);

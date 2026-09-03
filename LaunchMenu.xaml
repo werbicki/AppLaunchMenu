@@ -8,8 +8,7 @@
     xmlns:local="using:AppLaunchMenu"
     xmlns:local1="using:AppLaunchMenu.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    AllowFocusOnInteraction="False"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    AllowFocusOnInteraction="True"
     mc:Ignorable="d">
 
     <local:PageNotifyPropertyChanged.Resources>
@@ -22,11 +21,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition MinWidth="400" />
-        </Grid.ColumnDefinitions>
 
         <MenuBar x:Name="m_objMenuBar" Grid.Row="0">
             <MenuBarItem Title="File">
@@ -42,6 +38,10 @@
                     x:Name="m_mnuShowEnvironmentOnLaunch"
                     IsChecked="{x:Bind ShowEnvironment, Mode=TwoWay}"
                     Text="Show Environment on Launch" />
+                <MenuFlyoutItem
+                    x:Name="m_mnuMapNetworkDrives"
+                    Click="MapNetworkDrives_ClickAsync"
+                    Text="Map Network Drives" />
                 <ToggleMenuFlyoutItem
                     x:Name="m_mnuEditMode"
                     IsChecked="{x:Bind EditMode, Mode=TwoWay}"
@@ -83,14 +83,24 @@
             </TabView.TabItemTemplate>
         </TabView>
 
-        <StackPanel Grid.Row="2">
-            <TextBlock
+        <RelativePanel
+            Grid.Row="2"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+            <Image
+                x:Name="m_objLogoImage"
+                Height="100"
+                Margin="10,0,10,10" />
+            <TextBox
                 x:Name="m_objCommandLine"
                 Height="55"
-                Margin="5,0,5,0"
-                VerticalAlignment="Bottom"
+                Margin="0,0,15,0"
+                AcceptsReturn="True"
                 FontSize="12"
-                IsTextSelectionEnabled="True"
+                IsReadOnly="True"
+                RelativePanel.AlignRightWithPanel="True"
+                RelativePanel.RightOf="m_objLogoImage"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
                 Text="{x:Bind CommandLine}"
                 TextWrapping="Wrap" />
             <Button
@@ -101,9 +111,17 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Click="LaunchButton_Click"
-                Content="Launch" />
-            <TextBlock x:Name="m_objStatusText" Text="{x:Bind StatusText, Mode=OneWay}" />
-        </StackPanel>
+                Content="Launch"
+                RelativePanel.AlignBottomWithPanel="True"
+                RelativePanel.AlignRightWithPanel="True" />
+        </RelativePanel>
+
+        <TextBlock
+            x:Name="m_objStatusText"
+            Grid.Row="3"
+            Height="26"
+            Margin="10,0,0,0"
+            Text="{x:Bind StatusText, Mode=OneWay}" />
     </Grid>
 
 </local:PageNotifyPropertyChanged>

@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using Windows.Win32.Foundation;
 
 namespace AppLaunchMenu.Helper
@@ -102,5 +103,37 @@ namespace AppLaunchMenu.Helper
 
             return null;
         }
+
+        [DllImport("mpr.dll")]
+        public static extern int WNetAddConnection2(ref NETRESOURCE lpNetResource, string? lpPassword, string? lpUsername, int dwFlags);
+
+        [DllImport("mpr.dll")]
+        public static extern int WNetCancelConnection2(string lpName, uint dwFlags, int fForce);
+
+        [StructLayout(LayoutKind.Sequential)]
+        public class NETRESOURCE
+        {
+            public int dwScope;
+            public int dwType;
+            public int dwDisplayType;
+            public int dwUsage;
+            public string? lpLocalName;
+            public string? lpRemoteName;
+            public string? lpComment;
+            public string? lpProvider;
+        }
+
+
+        [DllImport("mpr.dll", CharSet = CharSet.Unicode)]
+        public static extern int WNetGetConnection(
+            string lpLocalName,
+            StringBuilder lpRemoteName,
+            ref int lpnLength
+        );
+
+        // Error codes returned by WNetGetConnection
+        public const int NO_ERROR = 0;
+        public const int ERROR_NOT_CONNECTED = 2250;
+        public const int ERROR_BAD_DEVICE = 1200;
     }
 }

@@ -10,12 +10,12 @@ namespace AppLaunchMenu.DataModels
     {
         protected string m_strExpandedValue = "";
 
-        public Variable(MenuFile p_objMenuFile, XmlNode p_objVariableNode)
+        public Variable(LaunchMenuFile p_objMenuFile, XmlNode p_objVariableNode)
             : base(p_objMenuFile, new Type[] { }, p_objVariableNode)
         {
         }
 
-        public Variable(MenuFile p_objMenuFile, string p_strName)
+        public Variable(LaunchMenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, new Type[] { }, p_strName)
         {
         }

@@ -20,6 +20,9 @@
     <None Remove="LaunchMenu.xaml" />
     <None Remove="MenuPage.xaml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Menus\CompanyLogo.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
@@ -45,6 +48,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="*" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="*" />
     <PackageReference Include="System.CommandLine" Version="*" />
+    <PackageReference Include="WinUI.TableView" Version="*" />
     <PackageReference Include="WinUIEdit" Version="0.0.5-prerelease" />
   </ItemGroup>
   <ItemGroup>

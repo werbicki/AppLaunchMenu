@@ -1,33 +1,41 @@
 ﻿using AppLaunchMenu.DataModels;
+using Microsoft.UI.Dispatching;
 using System;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Xml;
 using Environment = AppLaunchMenu.DataModels.Environment;
 
 namespace AppLaunchMenu.DataAccess
 {
-    public class MenuFile : DataAccessBase
+    public class LaunchMenuFile : DataAccessBase
     {
+        private readonly DispatcherQueue m_objDispatcherQueue = DispatcherQueue.GetForCurrentThread();
         public delegate void FileChangedEventHandler(object? sender, DataChangedEventArgs e);
         public event FileChangedEventHandler? FileChanged;
+        private bool m_blnEditMode = false;
 
         protected virtual void OnFileChanged()
         {
-            var eventHandler = FileChanged;
-            if (eventHandler != null)
-                eventHandler(this, new DataChangedEventArgs());
+            m_objDispatcherQueue.TryEnqueue(() =>
+            {
+                var eventHandler = FileChanged;
+                if (eventHandler != null)
+                    eventHandler(this, new DataChangedEventArgs());
+            });
         }
 
-        private string? m_strFilename;
+        private string m_strFilename = "";
         private FileSystemWatcher m_objFileSystemWatcher = new FileSystemWatcher();
 
-        public MenuFile()
+        public LaunchMenuFile()
             : base(new Type[] { typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
         {
             CreateFile("New AppLaunchMenu");
         }
 
-        public MenuFile(string p_strFilename)
+        public LaunchMenuFile(string p_strFilename)
             : base(new Type[] { typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
         {
             FileInfo objFileInfo = new FileInfo(p_strFilename);
@@ -44,6 +52,21 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
+        internal static string ElementName
+        {
+            get { return "AppLaunchMenu"; }
+        }
+
+        protected override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
+        internal override LaunchMenuFile MenuFile
+        {
+            get { return this; }
+        }
+
         public String Filename
         {
             get
@@ -57,14 +80,97 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        internal static string ElementName
+        public new bool HasEditAccess
         {
-            get { return "AppLaunchMenu"; }
+            get { return MemberOf(SecurityGroup); }
         }
 
-        protected override string _ElementName
+        public bool EditMode
         {
-            get { return ElementName; }
+            get
+            {
+                if (HasEditAccess)
+                    return m_blnEditMode;
+                return
+                    false;
+            }
+            set
+            {
+                if (HasEditAccess)
+                    m_blnEditMode = value;
+            }
+        }
+
+        public string LocalDomainName
+        {
+            get { return System.Environment.UserDomainName; }
+        }
+
+        public string LocalUsername
+        {
+            get { return System.Environment.UserName; }
+        }
+
+        public string LocalHostname
+        {
+            get
+            {
+                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+                    return Dns.GetHostName();
+
+                return "localhost";
+            }
+        }
+
+        public IPAddress LocalIpAddress
+        {
+            get
+            {
+                //System.Environment.MachineName
+
+                if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+                {
+                    var objIPHostEntry = Dns.GetHostEntry(Dns.GetHostName());
+
+                    foreach (var objIPAddress in objIPHostEntry.AddressList)
+                    {
+                        if (objIPAddress.AddressFamily == AddressFamily.InterNetwork)
+                            return objIPAddress;
+                    }
+                }
+
+                return IPAddress.Parse("127.0.0.1");
+            }
+        }
+
+        public string LocalDataCenter
+        {
+            get
+            {
+                return "None";
+            }
+        }
+
+        public string LogoImage
+        {
+            get { return GetXmlAttribute(nameof(LogoImage)); }
+            set
+            {
+                FileInfo objLogoFileInfo = new FileInfo(value);
+
+                SetXmlAttribute(nameof(LogoImage), objLogoFileInfo.Name);
+            }
+        }
+
+        public string LogoImagePath
+        {
+            get
+            {
+                FileInfo objFileInfo = new FileInfo(m_strFilename);
+                FileInfo objLogoFileInfo = new FileInfo(GetXmlAttribute(nameof(LogoImage)));
+
+                return objFileInfo.DirectoryName + Path.DirectorySeparatorChar + objLogoFileInfo.Name;
+            }
         }
 
         public void Load()
@@ -74,7 +180,11 @@ namespace AppLaunchMenu.DataAccess
                 FileInfo objFileInfo = new FileInfo(m_strFilename);
 
                 if (objFileInfo.Exists)
+                {
                     ReadFile(m_strFilename);
+
+                    OnFileChanged();
+                }
             }
         }
 
@@ -101,7 +211,11 @@ namespace AppLaunchMenu.DataAccess
                 FileInfo objFileInfo = new FileInfo(m_strFilename);
 
                 if (objFileInfo.Exists)
+                {
                     ReadFile(m_strFilename);
+
+                    OnFileChanged();
+                }
             }
         }
 
@@ -253,7 +367,7 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objScriptListNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + ScriptList.ElementName);
+                XmlNode? objScriptListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + ScriptList.ElementName);
 
                 if (objScriptListNode == null)
                 {
@@ -272,7 +386,7 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objNetworkDriveListNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + NetworkDriveList.ElementName);
+                XmlNode? objNetworkDriveListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + NetworkDriveList.ElementName);
 
                 if (objNetworkDriveListNode == null)
                 {
@@ -291,7 +405,7 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objMenuListNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName);
+                XmlNode? objMenuListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + MenuList.ElementName);
 
                 if (objMenuListNode == null)
                 {
@@ -310,7 +424,7 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
-                XmlNode? objEnvironmentNode = XmlNode?.SelectSingleNode("/" + MenuFile.ElementName + "/" + MenuList.ElementName + "/" + Environment.ElementName);
+                XmlNode? objEnvironmentNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + MenuList.ElementName + "/" + Environment.ElementName);
 
                 if (objEnvironmentNode == null)
                 {
@@ -323,11 +437,6 @@ namespace AppLaunchMenu.DataAccess
                 else
                     return new Environment(this, objEnvironmentNode);
             }
-        }
-
-        public new bool HasEditAccess
-        {
-            get { return MemberOf(SecurityGroup); }
         }
     }
 }

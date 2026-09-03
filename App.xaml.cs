@@ -50,9 +50,9 @@ namespace AppLaunchMenu
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            List<MenuFile> objMenuFiles = new List<MenuFile>();
+            List<LaunchMenuFile> objMenuFiles = new List<LaunchMenuFile>();
 
-            MenuFile objMenuFile = new MenuFile(m_strMenuFilePath);
+            LaunchMenuFile objMenuFile = new LaunchMenuFile(m_strMenuFilePath);
             objMenuFiles.Add(objMenuFile);
 
             if (objMenuFiles.Count > 0)

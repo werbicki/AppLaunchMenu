@@ -2,12 +2,16 @@ using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
 using AppLaunchMenu.Dialogs;
 using AppLaunchMenu.ViewModels;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Windows.Foundation;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -19,13 +23,12 @@ namespace AppLaunchMenu
     /// </summary>
     public sealed partial class LaunchMenu : PageNotifyPropertyChanged
     {
-        private MenuFile m_objMenuFile = new();
+        private LaunchMenuFile m_objMenuFile = new();
         private MenuFileViewModel m_objMenuFileViewModel;
         private ApplicationViewModel? m_objSelectedApplication = null;
         private bool m_blnShowEnvironment = false;
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
         private string m_strStatusText = "";
-        private bool m_blnEditMode = false;
 
         public LaunchMenu()
         {
@@ -37,7 +40,8 @@ namespace AppLaunchMenu
             m_objMenuFileViewModel = new MenuFileViewModel(m_objMenuFile, this);
             m_objMenuFileViewModel.MenuListViewModel.PropertyChanged += MenuListViewModel_OnPropertyChanged;
 
-            StatusText = "Hostname: " + System.Environment.MachineName + ", Username: " + System.Environment.UserDomainName + "\\" + System.Environment.UserName;
+            m_objLogoImage.Source = new BitmapImage(new Uri("ms-appx:///Assets/CompanyName.png"));
+            StatusText = "Username: " + m_objMenuFile.LocalDomainName + "\\" + m_objMenuFile.LocalUsername + ", Hostname: " + m_objMenuFile.LocalHostname + " (" + m_objMenuFile.LocalIpAddress.ToString() + "), Data Center: " + m_objMenuFile.LocalDataCenter;
         }
 
         public LaunchMenu(bool p_blnEmptyConstructor)
@@ -49,10 +53,10 @@ namespace AppLaunchMenu
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             MainWindowPageArgs args = (MainWindowPageArgs)e.Parameter;
-            MenuFile? objMenuFile = null;
+            LaunchMenuFile? objMenuFile = null;
 
             if (args.Parameter != null)
-                objMenuFile = (MenuFile)args.Parameter;
+                objMenuFile = (LaunchMenuFile)args.Parameter;
 
             if (objMenuFile != null)
             {
@@ -67,6 +71,8 @@ namespace AppLaunchMenu
 
                 m_objMenuFileViewModel = new MenuFileViewModel(m_objMenuFile, this);
                 m_objMenuFileViewModel.PropertyChanged += MenuListViewModel_OnPropertyChanged;
+
+                m_objLogoImage.Source = new BitmapImage(new Uri(m_objMenuFile.LogoImagePath, UriKind.Absolute));
 
                 OnPropertyChanged(nameof(Menus));
             }
@@ -99,6 +105,33 @@ namespace AppLaunchMenu
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             m_objMenuFile.Save();
+        }
+
+        private async void MapNetworkDrives_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            MapNetworkDrives objMapNetworkDrives = new MapNetworkDrives(m_objMenuFileViewModel.NetworkDriveListViewModel);
+
+            ModalDialog objMapNetworkDrivesDialog = new ModalDialog()
+            {
+                //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
+                //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme,
+                Title = "Map Network Drives",
+                IsResizable = true,
+                Page = objMapNetworkDrives,
+                CloseButtonText = "OK",
+                DefaultButton = ContentDialogButton.Close
+            };
+
+            // Allow the Page to request the ModalDialog to Close() itself.
+            objMapNetworkDrives.CloseRequested += (s, e) =>
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    objMapNetworkDrivesDialog.Close();
+                });
+            };
+
+            ContentDialogResult objResult = await objMapNetworkDrivesDialog.ShowAsync();
         }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
@@ -143,18 +176,12 @@ namespace AppLaunchMenu
 
         public bool EditMode
         {
-            get
-            {
-                if (m_objMenuFile.HasEditAccess)
-                    return m_blnEditMode;
-                return
-                    false;
-            }
+            get { return m_objMenuFile.EditMode; }
             set
-            {
+            { 
                 if (m_objMenuFile.HasEditAccess)
                 {
-                    m_blnEditMode = value;
+                    m_objMenuFile.EditMode = value;
                     OnPropertyChanged(nameof(EditMode));
                 }
             }
@@ -255,7 +282,7 @@ namespace AppLaunchMenu
 
             if (ShowEnvironment)
             {
-                ModalDialog objEnvironmentReviewDialog = new ModalDialog()
+                ModalDialog objEnvironmentReviewDialog = new ModalDialog(new Size(1100, 700))
                 {
                     //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                     //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme,

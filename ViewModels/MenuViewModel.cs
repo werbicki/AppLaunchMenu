@@ -14,7 +14,7 @@ namespace AppLaunchMenu.ViewModels
         private readonly Menu m_objMenu;
         private readonly Page m_objMenuPage;
         private readonly IconSource m_objDataIconSource = new SymbolIconSource() { Symbol = Symbol.Placeholder };
-        private GridLength m_objTreeViewItemWidth = new GridLength(0.0, GridUnitType.Auto);
+        private GridLength m_objTreeViewItemWidth = new GridLength(200.0, GridUnitType.Auto);
         private double m_dblTreeViewItemMinWidth = 200.0;
 
         public MenuViewModel(Menu p_objMenu, LaunchMenu p_objLaunchMenu)
@@ -26,9 +26,7 @@ namespace AppLaunchMenu.ViewModels
 
         protected override void OnLoadChildren()
         {
-            Children.Add(LaunchMenu.MenuFileViewModel.NetworkDriveListViewModel);
-            Children.Add(LaunchMenu.MenuFileViewModel.ScriptListViewModel);
-            Children.Add(LaunchMenu.MenuFileViewModel.EnvironmentViewModel);
+            Children.Add(LaunchMenu.MenuFileViewModel);
 
             foreach (EnvironmentViewModel objEnvironmentViewModel in Collection<EnvironmentViewModel, DataModels.Environment>(this))
                 Children.Add(objEnvironmentViewModel);
@@ -65,10 +63,13 @@ namespace AppLaunchMenu.ViewModels
             get { return m_dblTreeViewItemMinWidth; }
             set
             {
-                m_dblTreeViewItemMinWidth = value;
-                OnPropertyChanged(nameof(TreeViewItemMinWidth));
+                if (value >= 200.0)
+                {
+                    m_dblTreeViewItemMinWidth = value;
+                    OnPropertyChanged(nameof(TreeViewItemMinWidth));
 
-                TreeViewItemWidth = new GridLength(value, GridUnitType.Auto);
+                    TreeViewItemWidth = new GridLength(value, GridUnitType.Pixel);
+                }
             }
         }
 

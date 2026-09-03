@@ -15,12 +15,12 @@ namespace AppLaunchMenu.DataModels
 {
     public class Application : DataModelBase
     {
-        public Application(MenuFile p_objMenuFile, XmlNode p_objApplicationNode)
+        public Application(LaunchMenuFile p_objMenuFile, XmlNode p_objApplicationNode)
             : base(p_objMenuFile, new Type[] { typeof(Environment) }, p_objApplicationNode)
         {
         }
 
-        public Application(MenuFile p_objMenuFile, string p_strName)
+        public Application(LaunchMenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, new Type[] { typeof(Environment) }, p_strName)
         {
         }

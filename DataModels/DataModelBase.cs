@@ -18,7 +18,7 @@ namespace AppLaunchMenu.DataModels
 {
     public abstract class DataModelBase : IComparable
     {
-        private readonly MenuFile? m_objMenuFile;
+        private readonly LaunchMenuFile? m_objMenuFile;
         private readonly Type[] m_objXmlChildNodeTypes = [];
         private XmlNode m_objXmlNode;
 
@@ -28,14 +28,14 @@ namespace AppLaunchMenu.DataModels
             m_objXmlNode = p_objXmlDocument;
         }
 
-        protected DataModelBase(MenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, XmlNode p_objXmlNode)
+        protected DataModelBase(LaunchMenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, XmlNode p_objXmlNode)
         {
             m_objMenuFile = p_objMenuFile;
             m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
             m_objXmlNode = p_objXmlNode;
         }
 
-        protected DataModelBase(MenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, string p_strName)
+        protected DataModelBase(LaunchMenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, string p_strName)
         {
             m_objMenuFile = p_objMenuFile;
             m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
@@ -65,7 +65,7 @@ namespace AppLaunchMenu.DataModels
             get { return m_objXmlChildNodeTypes; }
         }
 
-        internal MenuFile MenuFile
+        internal virtual LaunchMenuFile MenuFile
         {
             get
             {
@@ -295,6 +295,20 @@ namespace AppLaunchMenu.DataModels
             return "";
         }
 
+        protected bool GetXmlAttributeBool(string p_strPropertyName, bool p_blnEmptyIsTrue = false)
+        {
+            string strValue = GetXmlAttribute(p_strPropertyName);
+
+            if (p_blnEmptyIsTrue)
+            {
+                return ((String.IsNullOrEmpty(strValue))
+                    || (strValue.ToLower() == "true")
+                    );
+            }
+            else
+                return (strValue.ToLower() == "true");
+        }
+
         protected void SetXmlAttribute(string p_strPropertyName, string value)
         {
             if ((m_objMenuFile != null)
@@ -322,6 +336,15 @@ namespace AppLaunchMenu.DataModels
                 }
             }
         }
+
+        protected void SetXmlAttributeBool(string p_strPropertyName, bool value, bool p_blnEmptyIsTrue = false)
+        {
+            if (p_blnEmptyIsTrue)
+                SetXmlAttribute(p_strPropertyName, value ? "" : "False");
+            else
+                SetXmlAttribute(p_strPropertyName, value ? "True" : "");
+        }
+
 
         protected string GetXmlCData()
         {
@@ -372,22 +395,16 @@ namespace AppLaunchMenu.DataModels
             get { return MemberOf(SecurityGroup); }
         }
 
-        public string CloudAccount
+        public bool Enabled
         {
-            get { return GetXmlAttribute(nameof(CloudAccount)); }
-            set { SetXmlAttribute(nameof(CloudAccount), value); }
+            get { return GetXmlAttributeBool(nameof(Enabled), true); }
+            set { SetXmlAttributeBool(nameof(Enabled), value, true); }
         }
 
-        public string Domain
+        public string Username
         {
-            get { return GetXmlAttribute(nameof(Domain)); }
-            set { SetXmlAttribute(nameof(Domain), value); }
-        }
-
-        public string Subnet
-        {
-            get { return GetXmlAttribute(nameof(Subnet)); }
-            set { SetXmlAttribute(nameof(Subnet), value); }
+            get { return GetXmlAttribute(nameof(Username)); }
+            set { SetXmlAttribute(nameof(Username), value); }
         }
 
         public string Hostname
@@ -396,48 +413,16 @@ namespace AppLaunchMenu.DataModels
             set { SetXmlAttribute(nameof(Hostname), value); }
         }
 
-        private static string GetCloudAccountName()
+        public string Subnet
         {
-            string strAccountName = "Local";
-
-            try
-            {
-                /*
-                if (RoleEnvironment.IsAvailable)
-                    strAccountName = RoleEnvironment.CurrentRoleInstance.Id;
-                else
-                {
-                    AmazonS3Client objAmazonS3Client = new AmazonS3Client();
-                    strAccountName = objAmazonS3Client.Config.RegionEndpoint);
-                }
-                */
-            }
-            catch (Exception)
-            {
-            }
-
-            return strAccountName;
+            get { return GetXmlAttribute(nameof(Subnet)); }
+            set { SetXmlAttribute(nameof(Subnet), value); }
         }
 
-        private static string[] GetAllLocalIPv4(NetworkInterfaceType p_objNetworkInterfaceType)
+        public string DataCenter
         {
-            List<string> arrAddresses = new List<string>();
-
-            foreach (NetworkInterface objNetworkInterface in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if ((objNetworkInterface.NetworkInterfaceType == p_objNetworkInterfaceType) && (objNetworkInterface.OperationalStatus == OperationalStatus.Up))
-                {
-                    foreach (UnicastIPAddressInformation objUnicastIPAddressInformation in objNetworkInterface.GetIPProperties().UnicastAddresses)
-                    {
-                        if (objUnicastIPAddressInformation.Address.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            arrAddresses.Add(objUnicastIPAddressInformation.Address.ToString());
-                        }
-                    }
-                }
-            }
-
-            return arrAddresses.ToArray();
+            get { return GetXmlAttribute(nameof(DataCenter)); }
+            set { SetXmlAttribute(nameof(DataCenter), value); }
         }
 
         private bool Matches(string p_strPattern, string[] p_strValues)
@@ -477,14 +462,15 @@ namespace AppLaunchMenu.DataModels
             return blnResult;
         }
 
-        public bool Visible
+        public bool IsVisible
         {
             get
             {
-                return Matches(CloudAccount, GetCloudAccountName())
-                    && Matches(Domain, System.Environment.UserDomainName)
-                    && Matches(Hostname, GetAllLocalIPv4(NetworkInterfaceType.Ethernet))
-                    && Matches(Hostname, System.Environment.MachineName)
+                return Enabled
+                    && Matches(Username, MenuFile.LocalUsername)
+                    && Matches(Hostname, MenuFile.LocalHostname)
+                    && Matches(Subnet, MenuFile.LocalIpAddress.ToString())
+                    && Matches(DataCenter, MenuFile.LocalDataCenter)
                     ;
             }
         }
@@ -517,7 +503,7 @@ namespace AppLaunchMenu.DataModels
                     }
                     catch (Exception)
                     {
-                        // ignored
+                        // Ignored
                     }
                 }
 

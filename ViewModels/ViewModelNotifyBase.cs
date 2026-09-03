@@ -1,4 +1,5 @@
 ﻿using AppLaunchMenu.DataModels;
+using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -10,6 +11,7 @@ namespace AppLaunchMenu.ViewModels
 {
     public abstract class ViewModelNotifyBase : INotifyPropertyChanged
     {
+        private readonly DispatcherQueue m_objDispatcherQueue = DispatcherQueue.GetForCurrentThread();
         protected static Dictionary<Type, Type> m_objDataModelViewModelMappings = new();
         private readonly DataModelBase m_objDataModelBase;
 
@@ -44,6 +46,72 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        [DialogContent("SecurityGroup")]
+        public virtual string SecurityGroup
+        {
+            get { return DataModelBase.SecurityGroup; }
+            set
+            {
+                DataModelBase.SecurityGroup = value;
+                OnPropertyChanged(nameof(SecurityGroup));
+            }
+        }
+
+        [DialogContent("Enabled")]
+        public virtual bool Enabled
+        {
+            get { return DataModelBase.Enabled; }
+            set
+            {
+                DataModelBase.Enabled = value;
+                OnPropertyChanged(nameof(Enabled));
+            }
+        }
+
+        [DialogContent("Username")]
+        public virtual string Username
+        {
+            get { return DataModelBase.Username; }
+            set
+            {
+                DataModelBase.Username = value;
+                OnPropertyChanged(nameof(Username));
+            }
+        }
+
+        [DialogContent("Hostname")]
+        public virtual string Hostname
+        {
+            get { return DataModelBase.Hostname; }
+            set
+            {
+                DataModelBase.Hostname = value;
+                OnPropertyChanged(nameof(Hostname));
+            }
+        }
+
+        [DialogContent("Subnet")]
+        public virtual string Subnet
+        {
+            get { return DataModelBase.Subnet; }
+            set
+            {
+                DataModelBase.Subnet = value;
+                OnPropertyChanged(nameof(Subnet));
+            }
+        }
+
+        [DialogContent("DataCenter")]
+        public virtual string DataCenter
+        {
+            get { return DataModelBase.DataCenter; }
+            set
+            {
+                DataModelBase.DataCenter = value;
+                OnPropertyChanged(nameof(DataCenter));
+            }
+        }
+
         /// <summary>
         /// Checks if a property already matches a desired value.  Sets the property and
         /// notifies listeners only when necessary.
@@ -75,7 +143,17 @@ namespace AppLaunchMenu.ViewModels
         {
             var eventHandler = PropertyChanged;
             if (eventHandler != null)
-                eventHandler(this, new PropertyChangedEventArgs(propertyName));
+            {
+                if (m_objDispatcherQueue.HasThreadAccess)
+                    eventHandler(this, new PropertyChangedEventArgs(propertyName));
+                else
+                {
+                    m_objDispatcherQueue.TryEnqueue(() =>
+                    {
+                        eventHandler(this, new PropertyChangedEventArgs(propertyName));
+                    });
+                }
+            }
         }
     }
 }

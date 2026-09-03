@@ -16,7 +16,7 @@ namespace AppLaunchMenu.DataModels
         DataModelCollection<Variable> m_objVariables;
         DataModelCollection<Variable> m_objAllVariables;
 
-        public Environment(MenuFile p_objMenuFile, XmlNode p_objEnvironmentNode)
+        public Environment(LaunchMenuFile p_objMenuFile, XmlNode p_objEnvironmentNode)
              : base(p_objMenuFile, new Type[] { typeof(Variable) }, p_objEnvironmentNode)
         {
             m_objVariables = new(this, null);

@@ -23,12 +23,13 @@
                 x:Name="TitleBarIcon"
                 Grid.Column="1"
                 Width="16"
-                Height="16"
+                Height="26"
                 Margin="8,0,4,0"
                 Source="ms-appx:///Assets/StoreLogo.png" />
             <TextBlock
                 x:Name="TitleBarTextBlock"
                 Grid.Column="2"
+                Height="26"
                 Margin="10,0,0,0"
                 VerticalAlignment="Center"
                 Text="{x:Bind AppTitle, Mode=OneWay}" />

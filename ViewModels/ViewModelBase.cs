@@ -8,6 +8,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Windows.UI.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
@@ -48,7 +49,11 @@ namespace AppLaunchMenu.ViewModels
         private void LaunchMenu_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(EditMode))
+            {
                 OnPropertyChanged(nameof(EditMode));
+                OnPropertyChanged(nameof(IsVisible));
+                OnPropertyChanged(nameof(ShowItem));
+            }
         }
 
         protected T DataModel
@@ -77,9 +82,19 @@ namespace AppLaunchMenu.ViewModels
             {
                 if (LaunchMenu != null)
                     return LaunchMenu.EditMode;
-                else
-                    return false;
+
+                return false;
             }
+        }
+
+        public virtual bool IsVisible
+        {
+            get { return DataModel.IsVisible; }
+        }
+
+        public virtual bool ShowItem
+        {
+            get { return EditMode || IsVisible; }
         }
 
         protected TViewModel ViewModel<TViewModel, TDataModel>(TDataModel p_objDataModel)

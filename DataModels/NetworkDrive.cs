@@ -1,4 +1,5 @@
 ﻿using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.Helper;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
@@ -16,12 +17,12 @@ namespace AppLaunchMenu.DataModels
 {
     public class NetworkDrive : DataModelBase
     {
-        public NetworkDrive(MenuFile p_objMenuFile, XmlNode p_objNetworkDriveNode)
+        public NetworkDrive(LaunchMenuFile p_objMenuFile, XmlNode p_objNetworkDriveNode)
             : base(p_objMenuFile, new Type[] { }, p_objNetworkDriveNode)
         {
         }
 
-        public NetworkDrive(MenuFile p_objMenuFile, string p_strName)
+        public NetworkDrive(LaunchMenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, new Type[] { }, p_strName)
         {
         }
@@ -50,42 +51,23 @@ namespace AppLaunchMenu.DataModels
 
         public bool Persistent
         {
-            get { return GetXmlAttribute(nameof(Persistent)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
-            set { SetXmlAttribute(nameof(Persistent), value ? "true" : "false"); }
+            get { return GetXmlAttributeBool(nameof(Persistent)); }
+            set { SetXmlAttributeBool(nameof(Persistent), value); }
         }
 
         public bool UnmapFirst
         {
-            get { return GetXmlAttribute(nameof(UnmapFirst)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
-            set { SetXmlAttribute(nameof(UnmapFirst), value ? "true" : "false"); }
+            get { return GetXmlAttributeBool(nameof(UnmapFirst)); }
+            set { SetXmlAttributeBool(nameof(UnmapFirst), value); }
         }
 
         public bool ForceUnmap
         {
-            get { return GetXmlAttribute(nameof(ForceUnmap)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
-            set { SetXmlAttribute(nameof(ForceUnmap), value ? "true" : "false"); }
+            get { return GetXmlAttributeBool(nameof(ForceUnmap)); }
+            set { SetXmlAttributeBool(nameof(ForceUnmap), value); }
         }
 
-        [DllImport("mpr.dll")]
-        private static extern int WNetAddConnection2(ref NETRESOURCE lpNetResource, string? lpPassword, string? lpUsername, int dwFlags);
-
-        [DllImport("mpr.dll")]
-        private static extern int WNetCancelConnection2(string lpName, uint dwFlags, int fForce);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private class NETRESOURCE
-        {
-            public int dwScope;
-            public int dwType;
-            public int dwDisplayType;
-            public int dwUsage;
-            public string? lpLocalName;
-            public string? lpRemoteName;
-            public string? lpComment;
-            public string? lpProvider;
-        }
-
-        public bool MapNetworkDrive()
+        public string MapNetworkDrive()
         {
             if (UnmapFirst)
                 UnmapNetworkDrive();
@@ -96,7 +78,7 @@ namespace AppLaunchMenu.DataModels
             string strRemoveUncPath = RemoteUncPath;
             string strLocalDriveLetter = LocalDriveLetter;
 
-            NETRESOURCE objNetResource = new NETRESOURCE
+            NativeMethods.NETRESOURCE objNetResource = new NativeMethods.NETRESOURCE
             {
                 dwType = 1, // RESOURCETYPE_DISK
                 lpLocalName = strLocalDriveLetter,
@@ -105,9 +87,16 @@ namespace AppLaunchMenu.DataModels
 
             int intFlags = Persistent ? 1 : 0; // RESOURCE_REMEMBERED flag value might vary, often 1 or a specific enum
 
-            int intResult = WNetAddConnection2(ref objNetResource, null, null, intFlags);
+            int intResult = NativeMethods.WNetAddConnection2(ref objNetResource, null, null, intFlags);
 
-            return (intResult != 0);
+            if (intResult == NativeMethods.NO_ERROR)
+                return "Mapped";
+            //else if (intResult == NativeMethods.ERROR_ACCESS_DENIED)
+            //    return "Access denied";
+            else if (intResult == NativeMethods.ERROR_BAD_DEVICE)
+                return "Invalid device";
+            else
+                return "Error";
         }
 
         public bool UnmapNetworkDrive()
@@ -118,7 +107,7 @@ namespace AppLaunchMenu.DataModels
 
             // dwFlags can be 0 or CONNECT_UPDATE_PROFILE (1) to make changes permanent/persistent
             // fForce can be 0 (false) or 1 (true)
-            WNetCancelConnection2(strLocalDriveLetter, 0, ForceUnmap ? 1 : 0);
+            NativeMethods.WNetCancelConnection2(strLocalDriveLetter, 0, ForceUnmap ? 1 : 0);
 
             return false;
         }

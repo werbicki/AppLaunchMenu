@@ -9,7 +9,7 @@ namespace AppLaunchMenu.DataModels
     public class Empty : DataModelBase
     {
         public Empty()
-            : base(new MenuFile(), new Type[] { }, "Empty")
+            : base(new LaunchMenuFile(), new Type[] { }, "Empty")
         {
         }
 

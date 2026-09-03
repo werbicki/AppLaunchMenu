@@ -46,7 +46,15 @@ namespace AppLaunchMenu.DataModels
 
         protected void XmlDocument_NodeChanged(object sender, XmlNodeChangedEventArgs e)
         {
-            IsDirty = true;
+            if ((e.Action == XmlNodeChangedAction.Insert)
+                && (e.Node != null)
+                )
+            {
+                if (e.Node.Name != "Environment")
+                    IsDirty = true;
+            }
+            else
+                IsDirty = true;
         }
 
         internal XmlDocument XmlDocument

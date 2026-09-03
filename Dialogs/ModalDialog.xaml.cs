@@ -14,6 +14,7 @@ namespace AppLaunchMenu.Dialogs
     public partial class ModalDialog : WindowNotifyPropertyChanged
     {
         private OverlappedPresenter? m_objOverlappedPresenter = null;
+        private bool m_blnSizeProvided = false;
         private TaskCompletionSource<bool> m_objDialogResultTrigger = new TaskCompletionSource<bool>();
         private ContentDialogResult m_objDialogResult = ContentDialogResult.None;
         private ContentDialogButton m_objDefaultButton = ContentDialogButton.None;
@@ -23,6 +24,17 @@ namespace AppLaunchMenu.Dialogs
         private String m_strCloseButtonText = "OK";
 
         public ModalDialog()
+        {
+            Initialize(new Size(100, 100));
+        }
+
+        public ModalDialog(Size p_objSize)
+        {
+            m_blnSizeProvided = true;
+            Initialize(p_objSize);
+        }
+
+        private void Initialize(Size p_objSize)
         {
             this.InitializeComponent();
 
@@ -34,7 +46,7 @@ namespace AppLaunchMenu.Dialogs
             m_objOverlappedPresenter.IsResizable = true;
             AppWindow.SetPresenter(m_objOverlappedPresenter);
 
-            ResizeClient(new Size(100, 100));
+            ResizeClient(p_objSize);
 
             RootGrid.Loaded += RootGrid_Loaded;
             RootGrid.DataContext = this;
@@ -54,34 +66,37 @@ namespace AppLaunchMenu.Dialogs
 
         private void RootGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            // 1. Force the layout engine to measure the required content size
-            RootGrid.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
+            if (!m_blnSizeProvided)
+            {
+                // 1. Force the layout engine to measure the required content size
+                RootGrid.Measure(new Windows.Foundation.Size(double.PositiveInfinity, double.PositiveInfinity));
 
-            // 2. Obtain your intended content dimensions
-            double desiredWidth = RootGrid.DesiredSize.Width;
-            double desiredHeight = RootGrid.DesiredSize.Height;
+                // 2. Obtain your intended content dimensions
+                double desiredWidth = RootGrid.DesiredSize.Width;
+                double desiredHeight = RootGrid.DesiredSize.Height;
 
-            // 3. Get the native window handle and look up display DPI
-            System.IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            uint dpi = NativeMethods.GetDpiForWindow(hWnd);
-            double scalingFactor = dpi / 96.0;
+                // 3. Get the native window handle and look up display DPI
+                System.IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                uint dpi = NativeMethods.GetDpiForWindow(hWnd);
+                double scalingFactor = dpi / 96.0;
 
-            // 4. Convert XAML values (DIPs) to raw physical pixels
-            int physicalWidth = (int)(desiredWidth * scalingFactor);
-            int physicalHeight = (int)(desiredHeight * scalingFactor);
+                // 4. Convert XAML values (DIPs) to raw physical pixels
+                int physicalWidth = (int)(desiredWidth * scalingFactor);
+                int physicalHeight = (int)(desiredHeight * scalingFactor);
 
-            // 5. Account for the native OS title bar and border sizing metrics
-            // These system offsets ensure content isn't clipped by window borders
-            int extraWidth = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CXSIZEFRAME, dpi) * 2;
-            int extraHeight = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYSIZEFRAME, dpi) * 2
-                             + NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYCAPTION, dpi);
+                // 5. Account for the native OS title bar and border sizing metrics
+                // These system offsets ensure content isn't clipped by window borders
+                int extraWidth = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CXSIZEFRAME, dpi) * 2;
+                int extraHeight = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYSIZEFRAME, dpi) * 2
+                                 + NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYCAPTION, dpi);
 
-            int finalWidth = physicalWidth + extraWidth;
-            int finalHeight = physicalHeight + extraHeight;
+                int finalWidth = physicalWidth + extraWidth;
+                int finalHeight = physicalHeight + extraHeight;
 
-            // 6. Apply dimensions to AppWindow
-            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
-            ResizeClient(new Size(finalWidth, finalHeight));
+                // 6. Apply dimensions to AppWindow
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+                ResizeClient(new Size(finalWidth, finalHeight));
+            }
         }
 
         public bool IsResizable

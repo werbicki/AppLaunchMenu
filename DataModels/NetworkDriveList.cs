@@ -12,7 +12,7 @@ namespace AppLaunchMenu.DataModels
     {
         DataModelCollection<NetworkDrive> m_objNetworkDrives;
 
-        public NetworkDriveList(MenuFile p_objMenuFile, XmlNode p_objFolderNode)
+        public NetworkDriveList(LaunchMenuFile p_objMenuFile, XmlNode p_objFolderNode)
             : base(p_objMenuFile, new Type[] { typeof(NetworkDrive) }, p_objFolderNode)
         {
             m_objNetworkDrives = new(this, null);
@@ -20,7 +20,7 @@ namespace AppLaunchMenu.DataModels
             UpdateItems();
         }
 
-        public NetworkDriveList(MenuFile p_objMenuFile, string p_strName)
+        public NetworkDriveList(LaunchMenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, new Type[] { typeof(NetworkDrive) }, p_strName)
         {
             m_objNetworkDrives = new(this, null);

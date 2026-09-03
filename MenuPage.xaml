@@ -5,18 +5,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:helpers="using:AppLaunchMenu.Helpers"
     xmlns:local="using:AppLaunchMenu"
     xmlns:local1="using:AppLaunchMenu.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     x:Name="ParentPage"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     Loaded="ParentPage_Loaded"
     mc:Ignorable="d">
 
     <local:PageNotifyPropertyChanged.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+        <helpers:BoolToTextDecorationsConverter x:Key="BoolToTextDecorationsConverter" />
 
         <DataTemplate x:Key="DefaultTreeViewItemTemplate" x:DataType="local1:ITreeViewItem">
             <TreeViewItem
@@ -34,40 +35,49 @@
                     <TextBlock
                         x:Name="TreeViewText"
                         RelativePanel.RightOf="DefaultImage"
-                        Text="{x:Bind Name, Mode=OneWay}" />
+                        Text="{x:Bind Name, Mode=OneWay}"
+                        TextDecorations="{x:Bind IsVisible, Converter={StaticResource BoolToTextDecorationsConverter}, Mode=OneWay}" />
                     <Button
                         x:Name="m_objNewButton"
                         Width="32"
                         Height="25"
-                        Padding="0,0,0,0"
                         Margin="15,0,0,0"
+                        Padding="0,0,0,0"
                         HorizontalAlignment="Center"
                         Click="TreeViewItem_OnAddContextMenu"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
+                        <FontIcon
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="11"
+                            Glyph="&#xE710;" />
                     </Button>
                     <Button
                         x:Name="m_objDeleteButton"
                         Width="32"
                         Height="25"
-                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        Padding="0,0,0,0"
                         HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="m_objNewButton"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
+                        <FontIcon
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="11"
+                            Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
+
         <DataTemplate x:Key="FolderTreeViewItemTemplate" x:DataType="local1:FolderViewModel">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
                 IsExpanded="{Binding IsExpanded, Mode=OneWay}"
                 ItemsSource="{x:Bind Children}"
-                Tag="{x:Bind Item}">
+                Tag="{x:Bind Item}"
+                Visibility="{x:Bind ShowItem, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                 <RelativePanel>
                     <Image
                         x:Name="FolderImage"
@@ -77,40 +87,49 @@
                     <TextBlock
                         x:Name="TreeViewText"
                         RelativePanel.RightOf="FolderImage"
-                        Text="{x:Bind Name, Mode=OneWay}" />
+                        Text="{x:Bind Name, Mode=OneWay}"
+                        TextDecorations="{x:Bind IsVisible, Converter={StaticResource BoolToTextDecorationsConverter}, Mode=OneWay}" />
                     <Button
                         x:Name="m_objNewButton"
                         Width="32"
                         Height="25"
-                        Padding="0,0,0,0"
                         Margin="15,0,0,0"
+                        Padding="0,0,0,0"
                         HorizontalAlignment="Center"
                         Click="TreeViewItem_OnAddContextMenu"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
+                        <FontIcon
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="11"
+                            Glyph="&#xE710;" />
                     </Button>
                     <Button
                         x:Name="m_objDeleteButton"
                         Width="32"
                         Height="25"
-                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        Padding="0,0,0,0"
                         HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="m_objNewButton"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
+                        <FontIcon
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="11"
+                            Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
+
         <DataTemplate x:Key="ApplicationTreeViewItemTemplate" x:DataType="local1:ApplicationViewModel">
             <TreeViewItem
                 AllowFocusOnInteraction="True"
                 ContextRequested="TreeViewItem_ContextRequested"
                 ItemsSource="{x:Bind Children}"
-                Tag="{x:Bind Item}">
+                Tag="{x:Bind Item}"
+                Visibility="{x:Bind ShowItem, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                 <RelativePanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -127,30 +146,37 @@
                             <TextBlock
                                 x:Name="TreeViewText"
                                 RelativePanel.RightOf="ApplicationImage"
-                                Text="{x:Bind Name, Mode=OneWay}" />
+                                Text="{x:Bind Name, Mode=OneWay}"
+                                TextDecorations="{x:Bind IsVisible, Converter={StaticResource BoolToTextDecorationsConverter}, Mode=OneWay}" />
                             <Button
                                 x:Name="m_objNewButton"
                                 Width="32"
                                 Height="25"
-                                Padding="0,0,0,0"
                                 Margin="10,0,0,0"
+                                Padding="0,0,0,0"
                                 HorizontalAlignment="Center"
                                 Click="TreeViewItem_OnAddContextMenu"
                                 RelativePanel.RightOf="TreeViewText"
                                 Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
+                                <FontIcon
+                                    FontFamily="Segoe MDL2 Assets"
+                                    FontSize="11"
+                                    Glyph="&#xE710;" />
                             </Button>
                             <Button
                                 x:Name="m_objDeleteButton"
                                 Width="32"
                                 Height="25"
-                                Padding="0,0,0,0"
                                 Margin="5,0,10,0"
+                                Padding="0,0,0,0"
                                 HorizontalAlignment="Center"
                                 Click="OnDeleteClick"
                                 RelativePanel.RightOf="m_objNewButton"
                                 Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                                <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
+                                <FontIcon
+                                    FontFamily="Segoe MDL2 Assets"
+                                    FontSize="11"
+                                    Glyph="&#xE711;" />
                             </Button>
                         </RelativePanel>
                         <toolkit:GridSplitter
@@ -190,6 +216,7 @@
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
+
         <DataTemplate x:Key="EnvironmentTreeViewItemTemplate" x:DataType="local1:ITreeViewItem">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
@@ -205,34 +232,42 @@
                     <TextBlock
                         x:Name="TreeViewText"
                         RelativePanel.RightOf="EnvironmentImage"
-                        Text="{x:Bind Name, Mode=OneWay}" />
+                        Text="{x:Bind Name, Mode=OneWay}"
+                        TextDecorations="{x:Bind IsVisible, Converter={StaticResource BoolToTextDecorationsConverter}, Mode=OneWay}" />
                     <Button
                         x:Name="m_objNewButton"
                         Width="32"
                         Height="25"
-                        Padding="0,0,0,0"
                         Margin="15,0,0,0"
+                        Padding="0,0,0,0"
                         HorizontalAlignment="Center"
                         Click="TreeViewItem_OnAddContextMenu"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
+                        <FontIcon
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="11"
+                            Glyph="&#xE710;" />
                     </Button>
                     <Button
                         x:Name="m_objDeleteButton"
                         Width="32"
                         Height="25"
-                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        Padding="0,0,0,0"
                         HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="m_objNewButton"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
+                        <FontIcon
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="11"
+                            Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
+
         <DataTemplate x:Key="VariableTreeViewItemTemplate" x:DataType="local1:ITreeViewItem">
             <TreeViewItem
                 ContextRequested="TreeViewItem_ContextRequested"
@@ -248,22 +283,27 @@
                     <TextBlock
                         x:Name="TreeViewText"
                         RelativePanel.RightOf="VariableImage"
-                        Text="{x:Bind Name, Mode=OneWay}" />
+                        Text="{x:Bind Name, Mode=OneWay}"
+                        TextDecorations="{x:Bind IsVisible, Converter={StaticResource BoolToTextDecorationsConverter}, Mode=OneWay}" />
                     <Button
                         x:Name="m_objDeleteButton"
                         Width="32"
                         Height="25"
-                        Padding="0,0,0,0"
                         Margin="5,0,0,0"
+                        Padding="0,0,0,0"
                         HorizontalAlignment="Center"
                         Click="OnDeleteClick"
                         RelativePanel.RightOf="TreeViewText"
                         Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                        <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE711;" />
+                        <FontIcon
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="11"
+                            Glyph="&#xE711;" />
                     </Button>
                 </RelativePanel>
             </TreeViewItem>
         </DataTemplate>
+
         <local:TreeViewItemTemplateSelector
             x:Key="TreeViewItemTemplateSelector"
             ApplicationTreeViewItemTemplate="{StaticResource ApplicationTreeViewItemTemplate}"
@@ -271,10 +311,28 @@
             EnvironmentTreeViewItemTemplate="{StaticResource EnvironmentTreeViewItemTemplate}"
             FolderTreeViewItemTemplate="{StaticResource FolderTreeViewItemTemplate}"
             VariableTreeViewItemTemplate="{StaticResource VariableTreeViewItemTemplate}" />
+
+        <Style x:Key="CustomMenuFlyoutItemStyle" TargetType="MenuFlyoutItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuFlyoutItem">
+                        <TextBlock Text="{TemplateBinding Text}" />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <CommandBarFlyout x:Name="m_objAddContextMenu" Placement="Right">
             <AppBarButton Click="OnNewClick" Label="New" />
         </CommandBarFlyout>
+
         <CommandBarFlyout x:Name="m_objAddEditDeleteContextMenu" Placement="Right">
+            <AppBarButton
+                x:Name="m_objAddEditDeleteContextMenuEdit"
+                Click="OnEditClick"
+                Icon="Edit"
+                Label="Edit"
+                ToolTipService.ToolTip="Edit" />
             <AppBarButton
                 x:Name="m_objAddEditDeleteContextMenuNew"
                 Icon="Add"
@@ -287,18 +345,13 @@
                 </AppBarButton.Flyout>
             </AppBarButton>
             <AppBarButton
-                x:Name="m_objAddEditDeleteContextMenuEdit"
-                Click="OnEditClick"
-                Icon="Edit"
-                Label="Edit"
-                ToolTipService.ToolTip="Edit" />
-            <AppBarButton
                 x:Name="m_objAddEditDeleteContextMenuDelete"
                 Click="OnDeleteClick"
                 Icon="Cancel"
-                Label="Cancel"
-                ToolTipService.ToolTip="Cancel" />
+                Label="Delete"
+                ToolTipService.ToolTip="Delete" />
         </CommandBarFlyout>
+
         <CommandBarFlyout x:Name="m_objEditDeleteContextMenu" Placement="Right">
             <AppBarButton
                 x:Name="m_objEditDeleteContextMenuEdit"
@@ -310,8 +363,8 @@
                 x:Name="m_objEditDeleteContextMenuDelete"
                 Click="OnDeleteClick"
                 Icon="Cancel"
-                Label="Cancel"
-                ToolTipService.ToolTip="Cancel" />
+                Label="Delete"
+                ToolTipService.ToolTip="Delete" />
         </CommandBarFlyout>
     </local:PageNotifyPropertyChanged.Resources>
 
@@ -355,7 +408,10 @@
             Padding="0,0,0,0"
             Click="TreeViewItem_OnAddContextMenu"
             Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-            <FontIcon FontFamily="Segoe MDL2 Assets" FontSize="11" Glyph="&#xE710;" />
+            <FontIcon
+                FontFamily="Segoe MDL2 Assets"
+                FontSize="11"
+                Glyph="&#xE710;" />
         </Button>
 
     </Grid>

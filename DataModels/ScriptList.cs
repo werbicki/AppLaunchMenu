@@ -12,7 +12,7 @@ namespace AppLaunchMenu.DataModels
     {
         DataModelCollection<Script> m_objScripts;
 
-        public ScriptList(MenuFile p_objMenuFile, XmlNode p_objScriptListNode)
+        public ScriptList(LaunchMenuFile p_objMenuFile, XmlNode p_objScriptListNode)
             : base(p_objMenuFile, new Type[] { typeof(Script) }, p_objScriptListNode)
         {
             m_objScripts = new(this, null);
@@ -20,7 +20,7 @@ namespace AppLaunchMenu.DataModels
             UpdateItems();
         }
 
-        public ScriptList(MenuFile p_objMenuFile, string p_strName)
+        public ScriptList(LaunchMenuFile p_objMenuFile, string p_strName)
             : base(p_objMenuFile, new Type[] { typeof(Script) }, p_strName)
         {
             m_objScripts = new(this, null);
@@ -62,7 +62,7 @@ namespace AppLaunchMenu.DataModels
                 XmlNode? objConfigListNode = null;
 
                 if (objRoot != null)
-                    objConfigListNode = objRoot.SelectSingleNode("/" + MenuFile.ElementName + "/" + ScriptList.ElementName + "/" + Script.ElementName + "[@Name='" + p_strConfig + "']");
+                    objConfigListNode = objRoot.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + ScriptList.ElementName + "/" + Script.ElementName + "[@Name='" + p_strConfig + "']");
 
                 if (objConfigListNode != null)
                     objConfig = new Script(MenuFile, objConfigListNode);

@@ -469,6 +469,12 @@ namespace AppLaunchMenu
                                     }
                                 };
                                 objMenuFlyoutItem.Click += OnNewClick;
+                                // Retrieve the Style from your Page or App resources
+                                if (App.Current.Resources.TryGetValue("CustomMenuFlyoutItemStyle", out var resource) &&
+                                    resource is Microsoft.UI.Xaml.Style customStyle)
+                                {
+                                    objMenuFlyoutItem.Style = customStyle;
+                                }
 
                                 m_objAddEditDeleteMenuFlyout.Items.Add(objMenuFlyoutItem);
                             }

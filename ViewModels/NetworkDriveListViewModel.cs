@@ -11,9 +11,13 @@ namespace AppLaunchMenu.ViewModels
 {
     public partial class NetworkDriveListViewModel : ViewModelTreeBase<NetworkDriveList>
     {
+        protected ObservableCollection<NetworkDriveViewModel> m_objAllNetworkDrives = new ObservableCollection<NetworkDriveViewModel>();
+
         public NetworkDriveListViewModel(NetworkDriveList p_objNetworkDriveList, LaunchMenu p_objLaunchMenu)
             : base(p_objNetworkDriveList, p_objLaunchMenu)
         {
+            foreach (NetworkDrive objNetworkDrive in DataModel.NetworkDrives)
+                m_objAllNetworkDrives.Add(new NetworkDriveViewModel(objNetworkDrive, p_objLaunchMenu, this));
         }
 
         protected override void OnLoadChildren()
@@ -37,6 +41,11 @@ namespace AppLaunchMenu.ViewModels
         public ObservableCollection<NetworkDriveViewModel> NetworkDrives
         {
             get { return Collection<NetworkDriveViewModel, NetworkDrive>(); }
+        }
+
+        public ObservableCollection<NetworkDriveViewModel> AllNetworkDrives
+        {
+            get { return m_objAllNetworkDrives; }
         }
     }
 }
