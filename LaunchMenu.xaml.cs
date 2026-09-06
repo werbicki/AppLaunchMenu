@@ -8,9 +8,12 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.Windows.Storage.Pickers;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Threading.Tasks;
 using Windows.Foundation;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -28,7 +31,6 @@ namespace AppLaunchMenu
         private ApplicationViewModel? m_objSelectedApplication = null;
         private bool m_blnShowEnvironment = false;
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
-        private string m_strStatusText = "";
 
         public LaunchMenu()
         {
@@ -41,7 +43,6 @@ namespace AppLaunchMenu
             m_objMenuFileViewModel.MenuListViewModel.PropertyChanged += MenuListViewModel_OnPropertyChanged;
 
             m_objLogoImage.Source = new BitmapImage(new Uri("ms-appx:///Assets/CompanyName.png"));
-            StatusText = "Username: " + m_objMenuFile.LocalDomainName + "\\" + m_objMenuFile.LocalUsername + ", Hostname: " + m_objMenuFile.LocalHostname + " (" + m_objMenuFile.LocalIpAddress.ToString() + "), Data Center: " + m_objMenuFile.LocalDataCenter;
         }
 
         public LaunchMenu(bool p_blnEmptyConstructor)
@@ -91,6 +92,13 @@ namespace AppLaunchMenu
                 OnPropertyChanged(nameof(HasEditAccess));
                 OnPropertyChanged(nameof(EditMode));
             }
+            else if ((e.PropertyName == "LocalDomainName")
+                || (e.PropertyName == "LocalUsername")
+                || (e.PropertyName == "LocalHostname")
+                || (e.PropertyName == "LocalIpAddress")
+                || (e.PropertyName == "LocalDataCenter")
+                )
+                OnPropertyChanged(nameof(StatusText));
             else if (e.PropertyName == "Menus")
                 OnPropertyChanged(nameof(Menus));
             else if (e.PropertyName == "SelectedMenu")
@@ -107,11 +115,37 @@ namespace AppLaunchMenu
             m_objMenuFile.Save();
         }
 
+        private async void SaveAs_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            FileOpenPicker objFileOpenPicker = new FileOpenPicker(App.MainWindow.AppWindow.Id)
+            {
+                // (Optional) Specify the initial location for the picker. 
+                //     If the specified location doesn't exist on the user's machine, it falls back to the DocumentsLibrary.
+                //     If not set, it defaults to PickerLocationId.Unspecified, and the system will use its default location.
+                SuggestedStartFolder = m_objMenuFile.Directory,
+
+                // (Optional) specify the text displayed on the commit button. 
+                //     If not specified, the system uses a default label of "Open" (suitably translated).
+                CommitButtonText = "Choose selected files",
+
+                // (Optional) specify file extension filters. If not specified, defaults to all files (*.*).
+                FileTypeFilter = { ".xml" },
+
+                // (Optional) specify the view mode of the picker dialog. If not specified, defaults to List.
+                ViewMode = PickerViewMode.List,
+            };
+
+            PickFileResult objPickFileResult = await objFileOpenPicker.PickSingleFileAsync();
+
+            if (objPickFileResult != null)
+                m_objMenuFile.SaveAs(objPickFileResult.Path);
+        }
+
         private async void MapNetworkDrives_ClickAsync(object sender, RoutedEventArgs e)
         {
             MapNetworkDrives objMapNetworkDrives = new MapNetworkDrives(m_objMenuFileViewModel.NetworkDriveListViewModel);
 
-            ModalDialog objMapNetworkDrivesDialog = new ModalDialog()
+            ModalDialog objMapNetworkDrivesDialog = new ModalDialog(new Size(500, 300))
             {
                 //Style = Microsoft.UI.Xaml.Application.Current.Resources["DefaultContentDialogStyle"] as Style,
                 //RequestedTheme = (VisualTreeHelper.GetParent(sender as Button) as StackPanel).ActualTheme,
@@ -257,17 +291,7 @@ namespace AppLaunchMenu
 
         public string StatusText
         {
-            get
-            {
-                return m_strStatusText;
-            }
-            set
-            {
-                m_strStatusText = value;
-                m_objStatusText.Text = m_strStatusText;
-
-                OnPropertyChanged(nameof(StatusText));
-            }
+            get { return "Username: " + m_objMenuFileViewModel.LocalDomainName + "\\" + m_objMenuFileViewModel.LocalUsername + ", Hostname: " + m_objMenuFileViewModel.LocalHostname + " (" + m_objMenuFileViewModel.LocalIpAddress.ToString() + "), Data Center: " + m_objMenuFileViewModel.LocalDataCenter; }
         }
 
         public void Execute()

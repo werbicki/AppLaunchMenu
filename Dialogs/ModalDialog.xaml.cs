@@ -5,6 +5,9 @@ using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -76,8 +79,8 @@ namespace AppLaunchMenu.Dialogs
                 double desiredHeight = RootGrid.DesiredSize.Height;
 
                 // 3. Get the native window handle and look up display DPI
-                System.IntPtr hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-                uint dpi = NativeMethods.GetDpiForWindow(hWnd);
+                HWND hWnd = (HWND)WinRT.Interop.WindowNative.GetWindowHandle(this);
+                uint dpi = PInvoke.GetDpiForWindow(hWnd);
                 double scalingFactor = dpi / 96.0;
 
                 // 4. Convert XAML values (DIPs) to raw physical pixels
@@ -86,9 +89,9 @@ namespace AppLaunchMenu.Dialogs
 
                 // 5. Account for the native OS title bar and border sizing metrics
                 // These system offsets ensure content isn't clipped by window borders
-                int extraWidth = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CXSIZEFRAME, dpi) * 2;
-                int extraHeight = NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYSIZEFRAME, dpi) * 2
-                                 + NativeMethods.GetSystemMetricsForDpi(NativeMethods.SystemMetricsIndex.SM_CYCAPTION, dpi);
+                int extraWidth = PInvoke.GetSystemMetricsForDpi(SYSTEM_METRICS_INDEX.SM_CXSIZEFRAME, dpi) * 2;
+                int extraHeight = PInvoke.GetSystemMetricsForDpi(SYSTEM_METRICS_INDEX.SM_CYSIZEFRAME, dpi) * 2
+                                 + PInvoke.GetSystemMetricsForDpi(SYSTEM_METRICS_INDEX.SM_CYCAPTION, dpi);
 
                 int finalWidth = physicalWidth + extraWidth;
                 int finalHeight = physicalHeight + extraHeight;

@@ -2,7 +2,9 @@ using AppLaunchMenu.ViewModels;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.VisualBasic;
 using System;
+using System.Collections.ObjectModel;
 using System.Reflection;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -18,6 +20,7 @@ namespace AppLaunchMenu.Dialogs
         private ModalDialog m_objModalDialog;
         private ViewModelNotifyBase m_objViewModel;
         private StackPanel m_objStackPanel;
+        private Collection<FrameworkElement> m_objInputControls = new Collection<FrameworkElement>();
 
         public ViewModelDialogContent(ModalDialog p_objModalDialog, ViewModelNotifyBase p_objViewModel)
         {
@@ -107,6 +110,8 @@ namespace AppLaunchMenu.Dialogs
                         objPropertiesStackPanel.Children.Add(objLabel);
                         objPropertiesStackPanel.Children.Add(objInputControl);
                     }
+
+                    m_objInputControls.Add(objInputControl);
                 }
             }
 
@@ -167,7 +172,7 @@ namespace AppLaunchMenu.Dialogs
                 DialogContentAttribute? objDialogContentAttribute = objPropertyInfo.GetCustomAttribute<DialogContentAttribute>();
                 if (objDialogContentAttribute != null)
                 {
-                    foreach (FrameworkElement objFrameworkElement in m_objStackPanel.Children)
+                    foreach (FrameworkElement objFrameworkElement in m_objInputControls)
                     {
                         if (objFrameworkElement.Name == objPropertyInfo.Name)
                         {

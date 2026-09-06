@@ -46,14 +46,24 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
+        public virtual bool IsVisible
+        {
+            get { return DataModelBase.IsVisible; }
+        }
+
         [DialogContent("SecurityGroup")]
         public virtual string SecurityGroup
         {
             get { return DataModelBase.SecurityGroup; }
             set
             {
-                DataModelBase.SecurityGroup = value;
-                OnPropertyChanged(nameof(SecurityGroup));
+                if (DataModelBase.SecurityGroup != value)
+                {
+                    DataModelBase.SecurityGroup = value;
+
+                    OnPropertyChanged(nameof(SecurityGroup));
+                    OnPropertyChanged(nameof(IsVisible));
+                }
             }
         }
 
@@ -63,8 +73,13 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModelBase.Enabled; }
             set
             {
-                DataModelBase.Enabled = value;
-                OnPropertyChanged(nameof(Enabled));
+                if (DataModelBase.Enabled != value)
+                {
+                    DataModelBase.Enabled = value;
+
+                    OnPropertyChanged(nameof(Enabled));
+                    OnPropertyChanged(nameof(IsVisible));
+                }
             }
         }
 
@@ -74,8 +89,13 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModelBase.Username; }
             set
             {
-                DataModelBase.Username = value;
-                OnPropertyChanged(nameof(Username));
+                if (DataModelBase.Username != value)
+                {
+                    DataModelBase.Username = value;
+
+                    OnPropertyChanged(nameof(Username));
+                    OnPropertyChanged(nameof(IsVisible));
+                }
             }
         }
 
@@ -85,8 +105,13 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModelBase.Hostname; }
             set
             {
-                DataModelBase.Hostname = value;
-                OnPropertyChanged(nameof(Hostname));
+                if (DataModelBase.Hostname != value)
+                {
+                    DataModelBase.Hostname = value;
+
+                    OnPropertyChanged(nameof(Hostname));
+                    OnPropertyChanged(nameof(IsVisible));
+                }
             }
         }
 
@@ -96,8 +121,13 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModelBase.Subnet; }
             set
             {
-                DataModelBase.Subnet = value;
-                OnPropertyChanged(nameof(Subnet));
+                if (DataModelBase.Subnet != value)
+                {
+                    DataModelBase.Subnet = value;
+
+                    OnPropertyChanged(nameof(Subnet));
+                    OnPropertyChanged(nameof(IsVisible));
+                }
             }
         }
 
@@ -107,8 +137,13 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModelBase.DataCenter; }
             set
             {
-                DataModelBase.DataCenter = value;
-                OnPropertyChanged(nameof(DataCenter));
+                if (DataModelBase.DataCenter != value)
+                {
+                    DataModelBase.DataCenter = value;
+
+                    OnPropertyChanged(nameof(DataCenter));
+                    OnPropertyChanged(nameof(IsVisible));
+                }
             }
         }
 

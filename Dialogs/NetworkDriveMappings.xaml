@@ -30,7 +30,7 @@
                 Header="Local Drive Letter"
                 IsReadOnly="True" />
             <tv:TableViewTextColumn
-                Width="Auto"
+                Width="*"
                 Binding="{Binding Status}"
                 Header="Status" />
         </tv:TableView.Columns>

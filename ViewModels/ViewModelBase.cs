@@ -87,11 +87,6 @@ namespace AppLaunchMenu.ViewModels
             }
         }
 
-        public virtual bool IsVisible
-        {
-            get { return DataModel.IsVisible; }
-        }
-
         public virtual bool ShowItem
         {
             get { return EditMode || IsVisible; }

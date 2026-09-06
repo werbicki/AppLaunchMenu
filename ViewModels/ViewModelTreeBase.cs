@@ -187,18 +187,6 @@ namespace AppLaunchMenu.ViewModels
             get { return this; }
         }
 
-        [DialogContent("Enabled")]
-        public override bool Enabled
-        {
-            get { return base.Enabled; }
-            set
-            {
-                base.Enabled = value;
-                OnPropertyChanged(nameof(IsVisible));
-                OnPropertyChanged(nameof(ShowItem));
-            }
-        }
-
         public ITreeViewItem? Parent
         {
             get { return m_objParent; }

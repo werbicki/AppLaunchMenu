@@ -1,4 +1,16 @@
-<AppLaunchMenu SecurityGroup="Everyone" LogoImage="CompanyLogo.png">
+<AppLaunchMenu SecurityGroup="Everyone" MapNetworkDrives="True" LogoImage="CompanyLogo.png">
+  <DataCenterList>
+    <DataCenter Name="Local" Hostname="localhost" />
+    <DataCenter Name="Internal" Subnet="192.168.1.*" />
+  </DataCenterList>
+  <NetworkDriveList>
+    <NetworkDrive Name="Public Share" RemoteUncPath="\\Storage\Public" LocalDriveLetter="Z:" UnmapFirst="True" ForceUnmap="True" />
+  </NetworkDriveList>
+  <Servers>
+    <Server Name="Server01" Hostname="ENBCOWJSJ01" User="svc_olf_app01">
+      <ApplicationService Application="Dev01" Service="Compute" />
+    </Server>
+  </Servers>
   <ScriptList>
     <Script Name="Endur_Config" Language="C#"><![CDATA[
 WriteLine($"# Endur configuration file");
@@ -78,9 +90,6 @@ catch (HttpRequestException e)
 return strDateTime;
 			]]></Script>
   </ScriptList>
-  <NetworkDriveList>
-    <NetworkDrive Name="Public Share" RemoteUncPath="\\Storage\Public" LocalDriveLetter="X:" Persistent="False" UnmapFirst="True" ForceUnmap="True" />
-  </NetworkDriveList>
   <MenuList>
     <Environment Name="Common">
       <Variable Group="FileSystem" Name="OLF_MENU_FILE" Description="The file location of this Menu file." Value="\\%OLF_FILESHARE%\Environments\Endur_Sample.xml" />
@@ -137,6 +146,10 @@ return strDateTime;
             <Variable Group="Messaging" Name="OLF_ECOM_PORT" Value="14003" />
             <Variable Group="Theme" Name="AB_GRAPHICS_THEME" Value="ngx_red" />
           </Environment>
+          <Services>
+            <Service Name="Spread" Executable="spnetsvc.exe" ConfigFile="" WorkingDirectory="%AB_BIN%" Install="-install SpreadNetwork -exe &quot;%AB_BIN%/spread.exe&quot; -c &quot;%AB_BIN%/../SpreadNetwork.cfg&quot;" Uninstall="-delete SpreadNetwork" />
+            <Service Name="Compute" Executable="ntservice_install.exe" WorkingDirectory="%AB_BIN%" Install="-I -N OpenLink_%AB_ENVIRONMENT% -E &quot;%AB_BIN%/master.exe&quot; -C &quot;%AB_BIN%/../OpenLink_%AB_ENVIRONMENT%.cfg&quot; -D endur -S %AB_LOGON_SERVER% -U %USER%" Uninstall="-R -N OpenLink_%AB_ENVIRONMENT%" />
+          </Services>
         </Application>
         <Application Name="Test01" ExecutablePath="master.exe" Parameters="-olisten" WorkingDirectory="%OLF_BIN%" Reservable="true" ReservationDate="2026-09-02" Enabled="False">
           <Environment Name="Common">

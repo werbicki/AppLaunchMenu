@@ -19,7 +19,7 @@ namespace AppLaunchMenu
     /// </summary>
     public partial class App : Application
     {
-        static private MainWindow? m_objWindow;
+        static private MainWindow m_objWindow = new MainWindow();
         private string m_strMenuFilePath = AppDomain.CurrentDomain.BaseDirectory + AppDomain.CurrentDomain.FriendlyName + ".menu";
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace AppLaunchMenu
             this.InitializeComponent();
         }
 
-        static public MainWindow? MainWindow
+        static public MainWindow MainWindow
         {
             get { return m_objWindow; }
         }

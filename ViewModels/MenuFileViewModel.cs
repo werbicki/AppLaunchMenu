@@ -1,5 +1,7 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
+using System.Net;
+using System.Net.Sockets;
 
 namespace AppLaunchMenu.ViewModels
 {
@@ -14,6 +16,37 @@ namespace AppLaunchMenu.ViewModels
         private void MenuFile_FileChanged(object? sender, DataAccessBase.DataChangedEventArgs e)
         {
             ReloadChildren();
+            OnPropertyChanged(nameof(LocalDomainName));
+            OnPropertyChanged(nameof(LocalUsername));
+            OnPropertyChanged(nameof(LocalHostname));
+            OnPropertyChanged(nameof(LocalIpAddress));
+            OnPropertyChanged(nameof(LocalDataCenter));
+            OnPropertyChanged(nameof(LogoImage));
+        }
+
+        public string LocalDomainName
+        {
+            get { return DataModel.LocalDomainName; }
+        }
+
+        public string LocalUsername
+        {
+            get { return DataModel.LocalUsername; }
+        }
+
+        public string LocalHostname
+        {
+            get { return DataModel.LocalHostname; }
+        }
+
+        public IPAddress LocalIpAddress
+        {
+            get { return DataModel.LocalIpAddress; }
+        }
+
+        public string LocalDataCenter
+        {
+            get { return DataModel.LocalDataCenter; }
         }
 
         [DialogContent("Logo Image")]
@@ -25,6 +58,11 @@ namespace AppLaunchMenu.ViewModels
                 DataModel.LogoImage = value;
                 OnPropertyChanged(nameof(LogoImage));
             }
+        }
+
+        public DataCenterListViewModel DataCenterListViewModel
+        {
+            get { return ViewModel<DataCenterListViewModel, DataCenterList>(DataModel.DataCenterList); }
         }
 
         public NetworkDriveListViewModel NetworkDriveListViewModel
@@ -56,7 +94,9 @@ namespace AppLaunchMenu.ViewModels
 
         protected override void OnLoadChildren()
         {
+            Children.Add(DataCenterListViewModel);
             Children.Add(NetworkDriveListViewModel);
+            //Children.Add(ServerListViewModel);
             Children.Add(ScriptListViewModel);
             Children.Add(EnvironmentViewModel);
         }

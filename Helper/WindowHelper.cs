@@ -15,11 +15,14 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Storage;
+using Windows.Win32;
+using Windows.Win32.Foundation;
 using WinRT.Interop;
 
 namespace AppLaunchMenu.Helper
@@ -149,6 +152,33 @@ namespace AppLaunchMenu.Helper
 
                 appWindow?.MoveAndResize(new RectInt32((int)startX, (int)startY, (int)p_objSize.Width, (int)p_objSize.Height));
             }
+        }
+
+        internal unsafe static void SetWindowKeyHook()
+        {
+            delegate* unmanaged[Stdcall]<int, WPARAM, LPARAM, LRESULT> callback = &HookCallback;
+
+            var moduleHandle = PInvoke.GetModuleHandle(string.Empty);
+            var threadId = PInvoke.GetCurrentThreadId();
+
+            var res = PInvoke.SetWindowsHookEx(Windows.Win32.UI.WindowsAndMessaging.WINDOWS_HOOK_ID.WH_KEYBOARD, callback, moduleHandle, threadId);
+
+            [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+            static LRESULT HookCallback(int msg, WPARAM wPARAM, LPARAM lPARAM)
+            {
+                if (msg >= 0 && IsKeyDownHook(lPARAM))
+                {
+                    //RootFrameNavigationHelper.RaiseKeyPressed((uint)wPARAM);
+                }
+                return PInvoke.CallNextHookEx(null, msg, wPARAM, lPARAM);
+            }
+        }
+
+        internal static bool IsKeyDownHook(IntPtr lWord)
+        {
+            // The 30th bit tells what the previous key state is with 0 being the "UP" state
+            // For more info see https://learn.microsoft.com/windows/win32/winmsg/keyboardproc#lparam-in
+            return (lWord >> 30 & 1) == 0;
         }
     }
 }

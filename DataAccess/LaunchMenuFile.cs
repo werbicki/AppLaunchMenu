@@ -30,13 +30,13 @@ namespace AppLaunchMenu.DataAccess
         private FileSystemWatcher m_objFileSystemWatcher = new FileSystemWatcher();
 
         public LaunchMenuFile()
-            : base(new Type[] { typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
+            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
         {
             CreateFile("New AppLaunchMenu");
         }
 
         public LaunchMenuFile(string p_strFilename)
-            : base(new Type[] { typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
+            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
         {
             FileInfo objFileInfo = new FileInfo(p_strFilename);
 
@@ -65,6 +65,24 @@ namespace AppLaunchMenu.DataAccess
         internal override LaunchMenuFile MenuFile
         {
             get { return this; }
+        }
+
+        public String Directory
+        {
+            get
+            {
+                if (m_strFilename != null)
+                {
+                    FileInfo objFileInfo = new FileInfo(m_strFilename);
+                    if (objFileInfo.DirectoryName != null)
+                        return objFileInfo.DirectoryName;
+                }
+
+                if (System.Environment.ProcessPath != null)
+                    return System.Environment.ProcessPath;
+
+                return AppDomain.CurrentDomain.BaseDirectory;
+            }
         }
 
         public String Filename
@@ -147,6 +165,24 @@ namespace AppLaunchMenu.DataAccess
         {
             get
             {
+                foreach (DataCenter objDataCenter in DataCenterList.DataCenters)
+                {
+                    if ((!string.IsNullOrWhiteSpace(objDataCenter.Username))
+                        || (!string.IsNullOrWhiteSpace(objDataCenter.Hostname))
+                        || (!string.IsNullOrWhiteSpace(objDataCenter.Subnet))
+                        )
+                    {
+                        // Omit LocalDataCenter to prevent stack overflow.
+                        if (Matches(objDataCenter.Username, MenuFile.LocalUsername)
+                            && Matches(objDataCenter.Hostname, MenuFile.LocalHostname)
+                            && Matches(objDataCenter.Subnet, MenuFile.LocalIpAddress.ToString())
+                            )
+                        {
+                            return objDataCenter.Name;
+                        }
+                    }
+                }
+
                 return "None";
             }
         }
@@ -199,7 +235,25 @@ namespace AppLaunchMenu.DataAccess
                 }
                 catch (XmlException e)
                 {
-                    throw new Exception("Unable to Load Menu file '" + m_strFilename + "'\n\n" + e.Message, e);
+                    throw new Exception("Unable to Save file '" + m_strFilename + "'\n\n" + e.Message, e);
+                }
+            }
+        }
+
+        public void SaveAs(string p_strFilename)
+        {
+            if (!string.IsNullOrEmpty(p_strFilename))
+            {
+                try
+                {
+                    XmlDocument.Save(p_strFilename);
+
+                    m_strFilename = p_strFilename;
+                    IsDirty = false;
+                }
+                catch (XmlException e)
+                {
+                    throw new Exception("Unable to Save file as '" + p_strFilename + "'\n\n" + e.Message, e);
                 }
             }
         }
@@ -324,11 +378,7 @@ namespace AppLaunchMenu.DataAccess
 
         internal override void InsertItem(DataModelBase p_objObject, int p_intIndex)
         {
-            if ((p_objObject is NetworkDriveList)
-                || (p_objObject is ScriptList)
-                || (p_objObject is MenuList)
-                || (p_objObject is Environment)
-                )
+            if (IsValidChildNodeType(p_objObject.GetType()))
             {
                 if (p_intIndex >= 0)
                     XmlNode?.InsertBefore(p_objObject.XmlNode, XmlNode?.ChildNodes[p_intIndex]);
@@ -339,16 +389,22 @@ namespace AppLaunchMenu.DataAccess
                 throw new ArgumentException();
         }
 
-        private ScriptList CreateScriptList()
+        private DataCenterList CreateDataCenterList()
         {
-            XmlElement objElement = XmlDocument.CreateElement(ScriptList.ElementName);
-            return new ScriptList(this, objElement);
+            XmlElement objElement = XmlDocument.CreateElement(DataModels.DataCenterList.ElementName);
+            return new DataCenterList(this, objElement);
         }
 
         private NetworkDriveList CreateNetworkDriveList()
         {
             XmlElement objElement = XmlDocument.CreateElement(DataModels.NetworkDriveList.ElementName);
             return new NetworkDriveList(this, objElement);
+        }
+
+        private ScriptList CreateScriptList()
+        {
+            XmlElement objElement = XmlDocument.CreateElement(ScriptList.ElementName);
+            return new ScriptList(this, objElement);
         }
 
         private MenuList CreateMenuList()
@@ -363,22 +419,22 @@ namespace AppLaunchMenu.DataAccess
             return new Environment(this, objEnvironmentElement);
         }
 
-        public ScriptList ScriptList
+        public DataCenterList DataCenterList
         {
             get
             {
-                XmlNode? objScriptListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + ScriptList.ElementName);
+                XmlNode? objDataCenterListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + DataCenterList.ElementName);
 
-                if (objScriptListNode == null)
+                if (objDataCenterListNode == null)
                 {
-                    ScriptList objConfigList = CreateScriptList();
+                    DataCenterList objDataCenterList = CreateDataCenterList();
 
-                    InsertItem(objConfigList, 0);
+                    InsertItem(objDataCenterList, 0);
 
-                    return objConfigList;
+                    return objDataCenterList;
                 }
                 else
-                    return new ScriptList(this, objScriptListNode);
+                    return new DataCenterList(this, objDataCenterListNode);
             }
         }
 
@@ -398,6 +454,25 @@ namespace AppLaunchMenu.DataAccess
                 }
                 else
                     return new NetworkDriveList(this, objNetworkDriveListNode);
+            }
+        }
+
+        public ScriptList ScriptList
+        {
+            get
+            {
+                XmlNode? objScriptListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + ScriptList.ElementName);
+
+                if (objScriptListNode == null)
+                {
+                    ScriptList objConfigList = CreateScriptList();
+
+                    InsertItem(objConfigList, 0);
+
+                    return objConfigList;
+                }
+                else
+                    return new ScriptList(this, objScriptListNode);
             }
         }
 

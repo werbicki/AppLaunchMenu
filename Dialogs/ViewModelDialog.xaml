@@ -11,13 +11,13 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     mc:Ignorable="d">
 
-    <ScrollViewer 
-        HorizontalAlignment="Stretch" 
+    <ScrollViewer
+        HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch"
-        VerticalScrollBarVisibility="Auto" 
-        HorizontalScrollBarVisibility="Auto">
-        
+        HorizontalScrollBarVisibility="Auto"
+        VerticalScrollBarVisibility="Auto">
+
         <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
-        
+
     </ScrollViewer>
 </Page>

@@ -42,6 +42,11 @@ namespace AppLaunchMenu
         private LaunchMenuFile m_objMenuFile;
         private bool m_blnCloseRequested = false;
 
+        public MainWindow()
+        {
+            m_objMenuFile = new LaunchMenuFile();
+        }
+
         public MainWindow(LaunchMenuFile p_objMenuFile)
         {
             m_objMenuFile = p_objMenuFile;

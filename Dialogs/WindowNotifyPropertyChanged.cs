@@ -11,6 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using WinRT.Interop;
 
 namespace AppLaunchMenu
@@ -44,20 +47,20 @@ namespace AppLaunchMenu
             m_objParentWindow = App.MainWindow;
 
             // Get the HWND (window handle) of the owner window (main window).
-            IntPtr ownerHwnd = WindowNative.GetWindowHandle(owner);
+            HWND ownerHwnd = (HWND)WindowNative.GetWindowHandle(owner);
 
             // Get the HWND of the AppWindow (modal window).
-            IntPtr ownedHwnd = Win32Interop.GetWindowFromWindowId(AppWindow.Id);
+            HWND ownedHwnd = (HWND)Win32Interop.GetWindowFromWindowId(AppWindow.Id);
 
             // Set the owner window using SetWindowLongPtr for 64-bit systems
             // or SetWindowLong for 32-bit systems.
             if (IntPtr.Size == 8) // Check if the system is 64-bit
             {
-                NativeMethods.SetWindowLongPtr(ownedHwnd, -8, ownerHwnd); // -8 = GWLP_HWNDPARENT
+                PInvoke.SetWindowLongPtr(ownedHwnd, (WINDOW_LONG_PTR_INDEX)(-8), ownerHwnd); // -8 = GWLP_HWNDPARENT
             }
             else // 32-bit system
             {
-                NativeMethods.SetWindowLong(ownedHwnd, -8, ownerHwnd); // -8 = GWL_HWNDPARENT
+                PInvoke.SetWindowLong(ownedHwnd, (WINDOW_LONG_PTR_INDEX)(-8), (int)ownerHwnd); // -8 = GWL_HWNDPARENT
             }
         }
 

@@ -2,6 +2,7 @@
 GetModuleHandle
 GetDpiForWindow
 SetWindowLongPtr
+SetWindowLong
 CallWindowProc
 GetCurrentThreadId
 SetWindowsHookEx
@@ -21,3 +22,4 @@ GetSystemMetricsForDpi
 WNetGetConnection
 WNetAddConnection2
 WNetCancelConnection2
+NETRESOURCEW

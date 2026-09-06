@@ -1,17 +1,12 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.Helper;
-using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
-using System.Windows.Input;
 using System.Xml;
+using Windows.Media.Core;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.NetworkManagement.WNet;
 
 namespace AppLaunchMenu.DataModels
 {
@@ -67,36 +62,109 @@ namespace AppLaunchMenu.DataModels
             set { SetXmlAttributeBool(nameof(ForceUnmap), value); }
         }
 
+        public string GetDriveMapping()
+        {
+            string strStatus = "";
+
+            if (!string.IsNullOrWhiteSpace(LocalDriveLetter))
+            {
+                string strLocalDriveLetter = LocalDriveLetter.Trim().Substring(0, 1).ToUpper() + ":";
+
+                try
+                {
+                    unsafe
+                    {
+                        uint intBufferSize = 512;
+                        Span<char> pBuffer = stackalloc char[(int)intBufferSize];
+
+                        WIN32_ERROR enumResult = PInvoke.WNetGetConnection(strLocalDriveLetter, pBuffer, ref intBufferSize);
+
+                        // If the buffer was too small, retry with the updated capacity returned by the API
+                        if (enumResult == WIN32_ERROR.ERROR_MORE_DATA)
+                        {
+                            Span<char> pLargerBuffer = stackalloc char[(int)intBufferSize];
+
+                            enumResult = PInvoke.WNetGetConnection(strLocalDriveLetter, pLargerBuffer, ref intBufferSize);
+                            if (enumResult == WIN32_ERROR.ERROR_SUCCESS)
+                                strStatus = new string(pLargerBuffer);
+                        }
+
+                        if (enumResult == WIN32_ERROR.NO_ERROR)
+                            strStatus = new string(pBuffer);
+                        else if (enumResult == WIN32_ERROR.ERROR_NOT_CONNECTED)
+                            strStatus = "Not mapped";
+                        else if (enumResult == WIN32_ERROR.ERROR_BAD_DEVICE)
+                            strStatus = "Invalid device";
+                        else
+                            return "Error";
+                    }
+                }
+                catch
+                {
+                    strStatus = "Exception";
+                }
+            }
+            else
+                strStatus = "No drive assigned";
+
+            return strStatus;
+        }
+
         public string MapNetworkDrive()
         {
+            string strStatus = "Unknown";
+
             if (UnmapFirst)
                 UnmapNetworkDrive();
 
             //Environment objEnvironment = m_objNetworkDrives.Folder.Environment;
             //string strRemoveUncPath = objEnvironment.ExpandVariable(RemoteUncPath);
             //string strLocalDriveLetter = objEnvironment.ExpandVariable(LocalDriveLetter);
+
             string strRemoveUncPath = RemoteUncPath;
             string strLocalDriveLetter = LocalDriveLetter;
 
-            NativeMethods.NETRESOURCE objNetResource = new NativeMethods.NETRESOURCE
+            // Allocate unmanaged memory for the strings
+            IntPtr pRemote = Marshal.StringToHGlobalUni(strRemoveUncPath);
+            IntPtr pLocal = Marshal.StringToHGlobalUni(strLocalDriveLetter);
+
+            try
             {
-                dwType = 1, // RESOURCETYPE_DISK
-                lpLocalName = strLocalDriveLetter,
-                lpRemoteName = strRemoveUncPath
-            };
+                unsafe
+                {
+                    // Initialize the struct
+                    NETRESOURCEW objNetResource = new NETRESOURCEW
+                    {
+                        //dwScope = NETRESOURCE_SCOPE.RESOURCE_GLOBALNET, // Or other scope flags
+                        dwType = NET_RESOURCE_TYPE.RESOURCETYPE_DISK,
+                        //dwDisplayType = NETRESOURCE_DISPLAY_TYPE.RESOURCEDISPLAYTYPE_SHARE,
+                        //dwUsage = NETRESOURCE_USAGE.RESOURCEUSAGE_CONNECTABLE,
+                        lpLocalName = (PWSTR)(void*)pLocal,
+                        lpRemoteName = (PWSTR)(void*)pRemote,
+                        lpComment = null,
+                        lpProvider = null
+                    };
 
-            int intFlags = Persistent ? 1 : 0; // RESOURCE_REMEMBERED flag value might vary, often 1 or a specific enum
+                    NET_CONNECT_FLAGS enumNetConnectFlags = Persistent ? NET_CONNECT_FLAGS.CONNECT_UPDATE_PROFILE : 0;
+                    WIN32_ERROR enumResult = PInvoke.WNetAddConnection2W(objNetResource, null, null, enumNetConnectFlags);
 
-            int intResult = NativeMethods.WNetAddConnection2(ref objNetResource, null, null, intFlags);
+                    if (enumResult == WIN32_ERROR.NO_ERROR)
+                        strStatus = GetDriveMapping();
+                    else if (enumResult == WIN32_ERROR.ERROR_ACCESS_DENIED)
+                        strStatus = "Access denied";
+                    else if (enumResult == WIN32_ERROR.ERROR_BAD_DEVICE)
+                        strStatus = "Invalid device";
+                    else
+                        strStatus = "Error";
+                }
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(pLocal);
+                Marshal.FreeHGlobal(pRemote);
+            }
 
-            if (intResult == NativeMethods.NO_ERROR)
-                return "Mapped";
-            //else if (intResult == NativeMethods.ERROR_ACCESS_DENIED)
-            //    return "Access denied";
-            else if (intResult == NativeMethods.ERROR_BAD_DEVICE)
-                return "Invalid device";
-            else
-                return "Error";
+            return strStatus;
         }
 
         public bool UnmapNetworkDrive()
@@ -105,9 +173,7 @@ namespace AppLaunchMenu.DataModels
             //string strLocalDriveLetter = objEnvironment.ExpandVariable(LocalDriveLetter);
             string strLocalDriveLetter = LocalDriveLetter;
 
-            // dwFlags can be 0 or CONNECT_UPDATE_PROFILE (1) to make changes permanent/persistent
-            // fForce can be 0 (false) or 1 (true)
-            NativeMethods.WNetCancelConnection2(strLocalDriveLetter, 0, ForceUnmap ? 1 : 0);
+            PInvoke.WNetCancelConnection2W(strLocalDriveLetter, 0, ForceUnmap ? true : false);
 
             return false;
         }

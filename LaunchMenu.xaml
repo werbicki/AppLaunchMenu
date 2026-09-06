@@ -33,7 +33,13 @@
                 <MenuFlyoutItem
                     x:Name="m_mnuSave"
                     Click="Save_Click"
-                    Text="Save" />
+                    Text="Save"
+                    Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
+                <MenuFlyoutItem
+                    x:Name="m_mnuSaveAs"
+                    Click="SaveAs_ClickAsync"
+                    Text="Save As..."
+                    Visibility="{x:Bind EditMode, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" />
                 <ToggleMenuFlyoutItem
                     x:Name="m_mnuShowEnvironmentOnLaunch"
                     IsChecked="{x:Bind ShowEnvironment, Mode=TwoWay}"

@@ -1,8 +1,11 @@
 ﻿using AppLaunchMenu.DataAccess;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.CompilerServices;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Reflection;
@@ -13,6 +16,7 @@ using System.Xml;
 using System.Xml.Linq;
 using Windows.Devices.Power;
 using Windows.Media.Audio;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppLaunchMenu.DataModels
 {
@@ -179,14 +183,14 @@ namespace AppLaunchMenu.DataModels
             throw new ArgumentException();
         }
 
-        internal protected T NewItem<T>(String p_strItemName = "") where T : DataModelBase
+        internal protected T NewItem<T>(string p_strItemName = "") where T : DataModelBase
         {
             T objItem = (T)CreateChildNode(typeof(T), p_strItemName);
 
             return objItem;
         }
 
-        internal protected object NewItem(Type p_objType, String p_strItemName = "")
+        internal protected object NewItem(Type p_objType, string p_strItemName = "")
         {
             object objItem = CreateChildNode(p_objType, p_strItemName);
 
@@ -301,7 +305,7 @@ namespace AppLaunchMenu.DataModels
 
             if (p_blnEmptyIsTrue)
             {
-                return ((String.IsNullOrEmpty(strValue))
+                return ((string.IsNullOrEmpty(strValue))
                     || (strValue.ToLower() == "true")
                     );
             }
@@ -435,13 +439,22 @@ namespace AppLaunchMenu.DataModels
             return blnResult;
         }
 
-        private bool Matches(string p_strPattern, string p_strValue)
+        protected bool Matches(string p_strPattern, string p_strValue)
         {
-            bool blnResult = true;
+            bool blnResult = false;
 
             if (!string.IsNullOrWhiteSpace(p_strPattern))
             {
-                if (p_strPattern == p_strValue)
+                if (IPAddress.TryParse(p_strValue, out IPAddress? objIPAddress))
+                {
+                    if (LikeOperator.LikeString(p_strValue, p_strPattern, CompareMethod.Text))
+                        blnResult = true;
+                    else if (IPNetwork.TryParse(p_strPattern, out IPNetwork objIPNetwork))
+                        blnResult = objIPNetwork.Contains(objIPAddress);
+                }
+                else if (p_strPattern == p_strValue)
+                    blnResult = true;
+                else if (LikeOperator.LikeString(p_strValue, p_strPattern, CompareMethod.Text))
                     blnResult = true;
                 else
                 {
@@ -458,6 +471,8 @@ namespace AppLaunchMenu.DataModels
                     }
                 }
             }
+            else
+                return true; // Empty is a match
 
             return blnResult;
         }
