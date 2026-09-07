@@ -51,6 +51,13 @@ namespace AppLaunchMenu
             m_objMenuFileViewModel.MenuListViewModel.PropertyChanged += MenuListViewModel_OnPropertyChanged;
         }
 
+
+        private void LaunchMenu_Loaded(object sender, RoutedEventArgs e)
+        {
+            //if (m_objMenuFileViewModel.MapNetworkDrives)
+            //    MapNetworkDrives_ClickAsync(this, new RoutedEventArgs());
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             MainWindowPageArgs args = (MainWindowPageArgs)e.Parameter;

@@ -1,25 +1,23 @@
 ﻿using AppLaunchMenu.DataAccess;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.CompilerServices;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Principal;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
-using System.Xml.Linq;
-using Windows.Devices.Power;
-using Windows.Media.Audio;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppLaunchMenu.DataModels
 {
+    public interface IElementName
+    {
+        static abstract string ElementName { get; }
+    }
+
     public abstract class DataModelBase : IComparable
     {
         private readonly LaunchMenuFile? m_objMenuFile;
@@ -90,14 +88,19 @@ namespace AppLaunchMenu.DataModels
             get { return MenuFile.HasEditAccess; }
         }
 
-        protected abstract string _ElementName
+        internal abstract string _ElementName
         {
             get;
         }
 
-        protected XmlNode CreateNode()
+        private XmlNode CreateNode()
         {
             return MenuFile.XmlDocument.CreateNode("element", _ElementName, "");
+        }
+
+        protected XmlNode CreateNode<T>() where T : IElementName
+        {
+            return MenuFile.XmlDocument.CreateNode("element", T.ElementName, "");
         }
 
         protected bool IsValidChildNodeType(Type p_objType)
@@ -148,7 +151,7 @@ namespace AppLaunchMenu.DataModels
         {
             if ((XmlNode != null) && (IsValidChildNodeType(p_objChildNodeType)))
             {
-                PropertyInfo? objPropertyInfo = p_objChildNodeType.GetProperty("ElementName", BindingFlags.Static | BindingFlags.NonPublic);
+                PropertyInfo? objPropertyInfo = p_objChildNodeType.GetProperty("ElementName", BindingFlags.Static | BindingFlags.Public);
                 string strElementName = "";
 
                 if ((objPropertyInfo != null) && (objPropertyInfo.GetValue(null) != null))
@@ -239,6 +242,49 @@ namespace AppLaunchMenu.DataModels
 
                 return [.. objItems];
             }
+        }
+
+        public T GetItem<T>() where T : DataModelBase, IElementName
+        {
+            XmlNode? objItemsNode = XmlNode.SelectSingleNode($"./{T.ElementName}");
+            if (objItemsNode != null)
+            {
+                object[] arrConstructorArgs = new object[] { MenuFile, objItemsNode };
+                DataModelBase? objObject = (DataModelBase?)Activator.CreateInstance(typeof(T), arrConstructorArgs);
+
+                if (objObject != null)
+                    return (T)objObject;
+            }
+            else
+            {
+                T objItems = NewItem<T>();
+
+                InsertItem(objItems, 0);
+
+                return objItems;
+            }
+
+            throw new ArgumentException();
+        }
+
+        public Collection<T> GetItems<T>() where T : DataModelBase, IElementName
+        {
+            Collection<T> objItems = new Collection<T>();
+            XmlNodeList? objItemNodes = XmlNode.SelectNodes($"./{T.ElementName}");
+
+            if (objItemNodes != null)
+            {
+                foreach (XmlElement objItemNode in objItemNodes)
+                {
+                    object[] arrConstructorArgs = new object[] { MenuFile, objItemNodes };
+                    DataModelBase? objObject = (DataModelBase?)Activator.CreateInstance(typeof(T), arrConstructorArgs);
+
+                    if (objObject != null)
+                        objItems.Add((T)objObject);
+                }
+            }
+
+            return objItems;
         }
 
         virtual protected void UpdateItems()

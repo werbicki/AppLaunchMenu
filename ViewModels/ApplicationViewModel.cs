@@ -12,20 +12,25 @@ namespace AppLaunchMenu.ViewModels
         {
         }
 
-        protected override void OnLoadChildren()
-        {
-            foreach (EnvironmentViewModel objEnvironmentViewModel in Collection<EnvironmentViewModel, DataModels.Environment>(this))
-                Children.Add(objEnvironmentViewModel);
-        }
-
         public Application Application
         {
             get { return DataModel; }
         }
 
+        protected override void OnLoadChildren()
+        {
+            Children.Add(Environment);
+            Children.Add(ServiceList);
+        }
+
         public EnvironmentViewModel Environment
         {
             get { return ViewModel<EnvironmentViewModel, DataModels.Environment>(DataModel.Environment); }
+        }
+
+        public ServiceListViewModel ServiceList
+        {
+            get { return ViewModel<ServiceListViewModel, DataModels.ServiceList>(DataModel.ServiceList); }
         }
 
         [DialogContent("Application Name")]

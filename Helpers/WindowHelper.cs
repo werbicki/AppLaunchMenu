@@ -8,7 +8,6 @@
 //
 //*********************************************************
 
-using ABI.Windows.Foundation;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -18,7 +17,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Storage;
 using Windows.Win32;

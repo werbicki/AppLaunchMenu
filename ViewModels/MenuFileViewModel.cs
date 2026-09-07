@@ -49,6 +49,17 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModel.LocalDataCenter; }
         }
 
+        [DialogContent("Map Network Drives")]
+        public bool MapNetworkDrives
+        {
+            get { return DataModel.MapNetworkDrives; }
+            set
+            {
+                DataModel.MapNetworkDrives = value;
+                OnPropertyChanged(nameof(MapNetworkDrives));
+            }
+        }
+
         [DialogContent("Logo Image")]
         public string LogoImage
         {

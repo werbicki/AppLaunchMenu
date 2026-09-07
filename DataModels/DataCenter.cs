@@ -1,21 +1,10 @@
 ﻿using AppLaunchMenu.DataAccess;
-using AppLaunchMenu.Helper;
-using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
-using System.Windows.Input;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class DataCenter : DataModelBase
+    public class DataCenter : DataModelBase, IElementName
     {
         public DataCenter(LaunchMenuFile p_objMenuFile, XmlNode p_objDataCenterNode)
             : base(p_objMenuFile, new Type[] { }, p_objDataCenterNode)
@@ -27,14 +16,14 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(DataCenter); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(DataCenter); }
         }
     }
 }

@@ -9,6 +9,7 @@
     xmlns:local1="using:AppLaunchMenu.ViewModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     AllowFocusOnInteraction="True"
+    Loaded="LaunchMenu_Loaded"
     mc:Ignorable="d">
 
     <local:PageNotifyPropertyChanged.Resources>

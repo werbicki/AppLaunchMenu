@@ -1,12 +1,10 @@
 ﻿using AppLaunchMenu.DataAccess;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class Variable : DataModelBase
+    public class Variable : DataModelBase, IElementName
     {
         protected string m_strExpandedValue = "";
 
@@ -20,14 +18,14 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(Variable); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(Variable); }
         }
 
         public string Description

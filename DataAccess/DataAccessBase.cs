@@ -1,14 +1,5 @@
-﻿using AppLaunchMenu.DataAccess;
-using Microsoft.UI.Xaml.Controls;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Security.Principal;
-using System.Text;
+﻿using System;
 using System.Xml;
-using System.Xml.Linq;
-using Windows.Media.Audio;
 
 namespace AppLaunchMenu.DataModels
 {

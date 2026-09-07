@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Text;
-using System.Xml;
-using AppLaunchMenu.DataAccess;
+﻿using AppLaunchMenu.DataAccess;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
-using Microsoft.CodeAnalysis.Scripting;
+using System;
+using System.IO;
+using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
@@ -78,7 +74,7 @@ namespace AppLaunchMenu.DataModels
         }
     }
 
-    public class Script : DataModelBase
+    public class Script : DataModelBase, IElementName
     {
         public Script(LaunchMenuFile p_objMenuFile, XmlNode p_objMenuNode)
             : base(p_objMenuFile, new Type[] { }, p_objMenuNode)
@@ -90,14 +86,14 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(Script); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(Script); }
         }
 
         public string Language        

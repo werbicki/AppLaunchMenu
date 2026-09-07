@@ -1,38 +1,42 @@
 ﻿using AppLaunchMenu.DataAccess;
-using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Windows.Input;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class Application : DataModelBase
+    public class Application : DataModelBase, IElementName
     {
         public Application(LaunchMenuFile p_objMenuFile, XmlNode p_objApplicationNode)
-            : base(p_objMenuFile, new Type[] { typeof(Environment) }, p_objApplicationNode)
+            : base(p_objMenuFile, new Type[] { typeof(Environment), typeof(ServiceList) }, p_objApplicationNode)
         {
         }
 
         public Application(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { typeof(Environment) }, p_strName)
+            : base(p_objMenuFile, new Type[] { typeof(Environment), typeof(ServiceList) }, p_strName)
         {
         }
 
-        internal static string ElementName
+        internal override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
+        public static string ElementName
         {
             get { return nameof(Application); }
         }
 
-        protected override string _ElementName
+        public Environment Environment
         {
-            get { return ElementName; }
+            get { return GetItem<Environment>(); }
+        }
+
+        public ServiceList ServiceList
+        {
+            get { return GetItem<ServiceList>(); }
         }
 
         public string ExecutablePath
@@ -96,24 +100,6 @@ namespace AppLaunchMenu.DataModels
         {
             get { return GetXmlAttribute(nameof(ReservationOwner)); }
             set { SetXmlAttribute(nameof(ReservationOwner), value); }
-        }
-
-        public Environment Environment
-        {
-            get
-            {
-                XmlNode? objEnvironmentNode = XmlNode.SelectSingleNode("./" + Environment.ElementName);
-                if (objEnvironmentNode != null)
-                    return new Environment(MenuFile, objEnvironmentNode);
-                else
-                {
-                    Environment objEnvironment = NewItem<Environment>();
-
-                    InsertItem(objEnvironment, 0);
-
-                    return objEnvironment;
-                }
-            }
         }
 
         public string GetWorkingDirectory(Environment? p_objEnvironment)

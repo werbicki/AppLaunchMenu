@@ -9,7 +9,7 @@ using Environment = AppLaunchMenu.DataModels.Environment;
 
 namespace AppLaunchMenu.DataAccess
 {
-    public class LaunchMenuFile : DataAccessBase
+    public class LaunchMenuFile : DataAccessBase, IElementName
     {
         private readonly DispatcherQueue m_objDispatcherQueue = DispatcherQueue.GetForCurrentThread();
         public delegate void FileChangedEventHandler(object? sender, DataChangedEventArgs e);
@@ -30,13 +30,13 @@ namespace AppLaunchMenu.DataAccess
         private FileSystemWatcher m_objFileSystemWatcher = new FileSystemWatcher();
 
         public LaunchMenuFile()
-            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
+            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList), typeof(Environment) }, new XmlDocument())
         {
             CreateFile("New AppLaunchMenu");
         }
 
         public LaunchMenuFile(string p_strFilename)
-            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList) }, new XmlDocument())
+            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList), typeof(Environment) }, new XmlDocument())
         {
             FileInfo objFileInfo = new FileInfo(p_strFilename);
 
@@ -52,19 +52,45 @@ namespace AppLaunchMenu.DataAccess
             }
         }
 
-        internal static string ElementName
+        internal override LaunchMenuFile MenuFile
         {
-            get { return "AppLaunchMenu"; }
+            get { return this; }
         }
 
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
         }
 
-        internal override LaunchMenuFile MenuFile
+        public static string ElementName
         {
-            get { return this; }
+            get { return "AppLaunchMenu"; }
+        }
+
+
+        public DataCenterList DataCenterList
+        {
+            get { return GetItem<DataCenterList>(); }
+        }
+
+        public NetworkDriveList NetworkDriveList
+        {
+            get { return GetItem<NetworkDriveList>(); }
+        }
+
+        public ScriptList ScriptList
+        {
+            get { return GetItem<ScriptList>(); }
+        }
+
+        public MenuList MenuList
+        {
+            get { return GetItem<MenuList>(); }
+        }
+
+        public Environment Environment
+        {
+            get { return GetItem<Environment>(); }
         }
 
         public String Directory
@@ -185,6 +211,12 @@ namespace AppLaunchMenu.DataAccess
 
                 return "None";
             }
+        }
+
+        public bool MapNetworkDrives
+        {
+            get { return GetXmlAttributeBool(nameof(MapNetworkDrives), false); }
+            set { SetXmlAttributeBool(nameof(MapNetworkDrives), value, false); }
         }
 
         public string LogoImage
@@ -417,101 +449,6 @@ namespace AppLaunchMenu.DataAccess
         {
             XmlElement objEnvironmentElement = XmlDocument.CreateElement(Environment.ElementName);
             return new Environment(this, objEnvironmentElement);
-        }
-
-        public DataCenterList DataCenterList
-        {
-            get
-            {
-                XmlNode? objDataCenterListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + DataCenterList.ElementName);
-
-                if (objDataCenterListNode == null)
-                {
-                    DataCenterList objDataCenterList = CreateDataCenterList();
-
-                    InsertItem(objDataCenterList, 0);
-
-                    return objDataCenterList;
-                }
-                else
-                    return new DataCenterList(this, objDataCenterListNode);
-            }
-        }
-
-        public NetworkDriveList NetworkDriveList
-        {
-            get
-            {
-                XmlNode? objNetworkDriveListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + NetworkDriveList.ElementName);
-
-                if (objNetworkDriveListNode == null)
-                {
-                    NetworkDriveList objNetworkDriveList = CreateNetworkDriveList();
-
-                    InsertItem(objNetworkDriveList, 0);
-
-                    return objNetworkDriveList;
-                }
-                else
-                    return new NetworkDriveList(this, objNetworkDriveListNode);
-            }
-        }
-
-        public ScriptList ScriptList
-        {
-            get
-            {
-                XmlNode? objScriptListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + ScriptList.ElementName);
-
-                if (objScriptListNode == null)
-                {
-                    ScriptList objConfigList = CreateScriptList();
-
-                    InsertItem(objConfigList, 0);
-
-                    return objConfigList;
-                }
-                else
-                    return new ScriptList(this, objScriptListNode);
-            }
-        }
-
-        public MenuList MenuList
-        {
-            get
-            {
-                XmlNode? objMenuListNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + MenuList.ElementName);
-
-                if (objMenuListNode == null)
-                {
-                    MenuList objMenuList = CreateMenuList();
-
-                    InsertItem(objMenuList, 0);
-
-                    return objMenuList;
-                }
-                else
-                    return new MenuList(this, objMenuListNode);
-            }
-        }
-
-        public Environment Environment
-        {
-            get
-            {
-                XmlNode? objEnvironmentNode = XmlNode?.SelectSingleNode("/" + LaunchMenuFile.ElementName + "/" + MenuList.ElementName + "/" + Environment.ElementName);
-
-                if (objEnvironmentNode == null)
-                {
-                    Environment objEnvironment = CreateEnvironment();
-
-                    InsertItem(objEnvironment, 0);
-
-                    return objEnvironment;
-                }
-                else
-                    return new Environment(this, objEnvironmentNode);
-            }
         }
     }
 }

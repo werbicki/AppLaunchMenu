@@ -1,12 +1,10 @@
 ﻿using AppLaunchMenu.DataAccess;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class Folder : DataModelBase
+    public class Folder : DataModelBase, IElementName
     {
         public Folder(LaunchMenuFile p_objMenuFile, XmlNode p_objFolderNode)
             : base(p_objMenuFile, new Type[] { typeof(Folder), typeof(Environment), typeof(Application) }, p_objFolderNode)
@@ -18,39 +16,25 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        internal static string ElementName
+        internal override string _ElementName
+        {
+            get { return ElementName; }
+        }
+
+        public static string ElementName
         {
             get { return nameof(Folder); }
         }
 
-        protected override string _ElementName
+        public Environment Environment
         {
-            get { return ElementName; }
+            get { return GetItem<Environment>(); }
         }
 
         public bool Expanded
         {
             get { return GetXmlAttribute(nameof(Expanded)).Equals("true", StringComparison.CurrentCultureIgnoreCase); }
             set { SetXmlAttribute(nameof(Expanded), value ? "true" : "false"); }
-        }
-
-        public Environment Environment
-        {
-            get
-            {
-                XmlNode? objEnvironmentNode = XmlNode.SelectSingleNode("./" + Environment.ElementName);
-
-                if (objEnvironmentNode == null)
-                {
-                    Environment objEnvironment = NewItem<Environment>();
-
-                    InsertItem(objEnvironment, 0);
-
-                    return objEnvironment;
-                }
-                else
-                    return new Environment(MenuFile, objEnvironmentNode);
-            }
         }
     }
 }

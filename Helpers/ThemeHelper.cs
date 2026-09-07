@@ -1,9 +1,7 @@
-using System;
-using Windows.Storage;
-using Microsoft.UI;
-using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
+using System;
 using System.Reflection;
+using Windows.Storage;
 
 namespace AppLaunchMenu.Helper
 {

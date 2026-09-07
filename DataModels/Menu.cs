@@ -1,8 +1,4 @@
 ﻿using AppLaunchMenu.DataAccess;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
@@ -19,14 +15,14 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        internal static new string ElementName
-        {
-            get { return nameof(Menu); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public new static string ElementName
+        {
+            get { return nameof(Menu); }
         }
     }
 }

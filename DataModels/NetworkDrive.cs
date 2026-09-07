@@ -1,16 +1,14 @@
 ﻿using AppLaunchMenu.DataAccess;
-using AppLaunchMenu.Helper;
 using System;
 using System.Runtime.InteropServices;
 using System.Xml;
-using Windows.Media.Core;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.NetworkManagement.WNet;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class NetworkDrive : DataModelBase
+    public class NetworkDrive : DataModelBase, IElementName
     {
         public NetworkDrive(LaunchMenuFile p_objMenuFile, XmlNode p_objNetworkDriveNode)
             : base(p_objMenuFile, new Type[] { }, p_objNetworkDriveNode)
@@ -22,14 +20,14 @@ namespace AppLaunchMenu.DataModels
         {
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(NetworkDrive); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(NetworkDrive); }
         }
 
         public string RemoteUncPath

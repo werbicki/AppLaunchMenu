@@ -2,16 +2,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Text;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.XPath;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class Environment : DataModelBase, IEnumerable<Variable>
+    public class Environment : DataModelBase, IElementName, IEnumerable<Variable>
     {
         DataModelCollection<Variable> m_objVariables;
         DataModelCollection<Variable> m_objAllVariables;
@@ -25,14 +24,14 @@ namespace AppLaunchMenu.DataModels
             UpdateItems();
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(Environment); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(Environment); }
         }
 
         private void Initialize(List<XmlNode> p_objIncludedNodes, XmlNodeList? p_objNodeList)

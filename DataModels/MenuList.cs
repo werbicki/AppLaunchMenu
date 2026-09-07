@@ -1,14 +1,11 @@
 ﻿using AppLaunchMenu.DataAccess;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class MenuList : DataModelBase
+    public class MenuList : DataModelBase, IElementName
     {
         DataModelCollection<Menu> m_objMenus;
 
@@ -26,14 +23,14 @@ namespace AppLaunchMenu.DataModels
             m_objMenus = new(this, null);
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(MenuList); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(MenuList); }
         }
 
         protected override void UpdateItems()
@@ -54,21 +51,7 @@ namespace AppLaunchMenu.DataModels
 
         public Environment Environment
         {
-            get
-            {
-                XmlNode? objEnvironmentNode = XmlNode.SelectSingleNode("./" + Environment.ElementName);
-
-                if (objEnvironmentNode == null)
-                {
-                    Environment objEnvironment = NewItem<Environment>();
-
-                    InsertItem(objEnvironment, 0);
-
-                    return objEnvironment;
-                }
-                else
-                    return new Environment(MenuFile, objEnvironmentNode);
-            }
+            get { return GetItem<Environment>(); }
         }
     }
 }

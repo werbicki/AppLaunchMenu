@@ -1,14 +1,11 @@
 ﻿using AppLaunchMenu.DataAccess;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class ScriptList : DataModelBase
+    public class ScriptList : DataModelBase, IElementName
     {
         DataModelCollection<Script> m_objScripts;
 
@@ -26,14 +23,14 @@ namespace AppLaunchMenu.DataModels
             m_objScripts = new(this, null);
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(ScriptList); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(ScriptList); }
         }
 
         protected override void UpdateItems()

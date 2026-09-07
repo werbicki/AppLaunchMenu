@@ -1,14 +1,11 @@
 ﻿using AppLaunchMenu.DataAccess;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
-    public class NetworkDriveList : DataModelBase
+    public class NetworkDriveList : DataModelBase, IElementName
     {
         DataModelCollection<NetworkDrive> m_objNetworkDrives;
 
@@ -26,14 +23,14 @@ namespace AppLaunchMenu.DataModels
             m_objNetworkDrives = new(this, null);
         }
 
-        internal static string ElementName
-        {
-            get { return nameof(NetworkDriveList); }
-        }
-
-        protected override string _ElementName
+        internal override string _ElementName
         {
             get { return ElementName; }
+        }
+
+        public static string ElementName
+        {
+            get { return nameof(NetworkDriveList); }
         }
 
         protected override void UpdateItems()
