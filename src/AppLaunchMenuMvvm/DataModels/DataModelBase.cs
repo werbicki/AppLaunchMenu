@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Principal;
@@ -13,6 +14,18 @@ using System.Xml;
 
 namespace AppLaunchMenu.DataModels
 {
+    public enum ElementTypeEnum
+    {
+        ZeroOrOne,
+        OneOrMore
+    }
+
+    public struct ChildElementType
+    {
+        public Type Type;
+        public ElementTypeEnum ElementType;
+    }
+
     public interface IElementName
     {
         static abstract string ElementName { get; }
@@ -21,26 +34,32 @@ namespace AppLaunchMenu.DataModels
     public abstract class DataModelBase : IComparable
     {
         private readonly LaunchMenuFile? m_objMenuFile;
-        private readonly Type[] m_objXmlChildNodeTypes = [];
+        private readonly Dictionary<Type, ElementTypeEnum> m_objXmlChildNodeTypes = new Dictionary<Type, ElementTypeEnum>();
         private XmlNode m_objXmlNode;
 
-        protected DataModelBase(Type[] p_objXmlChildNodeTypes, XmlDocument p_objXmlDocument)
+        protected DataModelBase(XmlDocument p_objXmlDocument)
         {
-            m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
+            foreach (ChildElementType objChildElementType in ChildElementTypes)
+                m_objXmlChildNodeTypes.Add(objChildElementType.Type, objChildElementType.ElementType);
+
             m_objXmlNode = p_objXmlDocument;
         }
 
-        protected DataModelBase(LaunchMenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, XmlNode p_objXmlNode)
+        protected DataModelBase(LaunchMenuFile p_objMenuFile, XmlNode p_objXmlNode)
         {
+            foreach (ChildElementType objChildElementType in ChildElementTypes)
+                m_objXmlChildNodeTypes.Add(objChildElementType.Type, objChildElementType.ElementType);
+
             m_objMenuFile = p_objMenuFile;
-            m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
             m_objXmlNode = p_objXmlNode;
         }
 
-        protected DataModelBase(LaunchMenuFile p_objMenuFile, Type[] p_objXmlChildNodeTypes, string p_strName)
+        protected DataModelBase(LaunchMenuFile p_objMenuFile, string p_strName)
         {
+            foreach (ChildElementType objChildElementType in ChildElementTypes)
+                m_objXmlChildNodeTypes.Add(objChildElementType.Type, objChildElementType.ElementType);
+
             m_objMenuFile = p_objMenuFile;
-            m_objXmlChildNodeTypes = p_objXmlChildNodeTypes;
             m_objXmlNode = CreateNode();
 
             if (!string.IsNullOrEmpty(p_strName))
@@ -51,6 +70,11 @@ namespace AppLaunchMenu.DataModels
             }
 
             Name = p_strName;
+        }
+
+        protected abstract ChildElementType[] ChildElementTypes
+        {
+            get;
         }
 
         internal void SetXmlNode(DataModelBase p_objObject, XmlNode p_objXmlNode)
@@ -64,7 +88,7 @@ namespace AppLaunchMenu.DataModels
 
         internal Type[] ChildNodeTypes
         {
-            get { return m_objXmlChildNodeTypes; }
+            get { return m_objXmlChildNodeTypes.Keys.ToArray(); }
         }
 
         internal virtual LaunchMenuFile MenuFile
@@ -105,7 +129,7 @@ namespace AppLaunchMenu.DataModels
 
         protected bool IsValidChildNodeType(Type p_objType)
         {
-            foreach (Type objType in m_objXmlChildNodeTypes)
+            foreach (Type objType in m_objXmlChildNodeTypes.Keys)
             {
                 if (p_objType == objType)
                     return true;
@@ -116,7 +140,7 @@ namespace AppLaunchMenu.DataModels
 
         protected Type? GetValidChildNodeType(DataModelBase p_objObject)
         {
-            foreach (Type objType in m_objXmlChildNodeTypes)
+            foreach (Type objType in m_objXmlChildNodeTypes.Keys)
             {
                 if (p_objObject.GetType() == objType)
                     return objType;
@@ -127,7 +151,7 @@ namespace AppLaunchMenu.DataModels
 
         protected Type? GetValidChildNodeType(XmlNode p_objXmlNode)
         {
-            foreach (Type objType in m_objXmlChildNodeTypes)
+            foreach (Type objType in m_objXmlChildNodeTypes.Keys)
             {
                 if (p_objXmlNode.Name == objType.Name)
                     return objType;
@@ -138,7 +162,7 @@ namespace AppLaunchMenu.DataModels
 
         internal Type? GetValidChildNodeType(string p_strTypeName)
         {
-            foreach (Type objType in m_objXmlChildNodeTypes)
+            foreach (Type objType in m_objXmlChildNodeTypes.Keys)
             {
                 if (p_strTypeName == objType.Name)
                     return objType;

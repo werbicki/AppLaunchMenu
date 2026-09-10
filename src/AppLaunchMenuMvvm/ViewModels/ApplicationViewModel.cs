@@ -1,13 +1,25 @@
-﻿using AppLaunchMenu.DataModels;
+﻿using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.DataModels;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using Environment = AppLaunchMenu.DataModels.Environment;
 
 namespace AppLaunchMenu.ViewModels
 {
     public class ApplicationViewModel : ViewModelTreeBase<Application>
     {
-        public ApplicationViewModel(Application p_objApplication, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get
+            {
+                return
+                [
+                    new() { DataModelType = typeof(Environment), ViewModelType = typeof(EnvironmentViewModel) },
+                    new() { DataModelType = typeof(ServiceList), ViewModelType = typeof(ServiceListViewModel) },
+                ];
+            }
+        }
+
+        public ApplicationViewModel(Application p_objApplication, ILaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
             : base(p_objApplication, p_objLaunchMenu, p_objParent)
         {
         }

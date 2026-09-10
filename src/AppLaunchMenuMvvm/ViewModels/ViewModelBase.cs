@@ -6,9 +6,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Text;
-using Windows.UI.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
@@ -26,15 +23,21 @@ namespace AppLaunchMenu.ViewModels
         }
     }
 
+    public struct ViewModelMapping
+    {
+        public Type DataModelType;
+        public Type ViewModelType;
+    }
+
     public abstract class ViewModelBase<T> : ViewModelNotifyBase
         where T : DataModelBase
     {
         private readonly T m_objDataModel;
-        private readonly LaunchMenu m_objLaunchMenu;
-        protected Dictionary<Type, object> m_objViewModels = new();
-        protected Dictionary<Type, object> m_objCollections = new();
+        private readonly ILaunchMenu m_objLaunchMenu;
+        protected Dictionary<Type, object> m_objViewModels = new Dictionary<Type, object>();
+        protected Dictionary<Type, object> m_objCollections = new Dictionary<Type, object>();
 
-        protected ViewModelBase(T p_objDataModel, LaunchMenu objLaunchMenu)
+        protected ViewModelBase(T p_objDataModel, ILaunchMenu objLaunchMenu)
             : base(p_objDataModel)
         {
             if (!m_objDataModelViewModelMappings.ContainsKey(typeof(T)))
@@ -44,6 +47,11 @@ namespace AppLaunchMenu.ViewModels
             m_objLaunchMenu = objLaunchMenu;
 
             m_objLaunchMenu.PropertyChanged += LaunchMenu_PropertyChanged;
+        }
+
+        protected abstract ViewModelMapping[] ViewModelMappings
+        {
+            get;
         }
 
         private void LaunchMenu_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -61,7 +69,12 @@ namespace AppLaunchMenu.ViewModels
             get { return m_objDataModel; }
         }
 
-        protected LaunchMenu LaunchMenu
+        protected Dictionary<Type, Type> DataModelViewModelMappings
+        {
+            get { return m_objDataModelViewModelMappings; }
+        }
+
+        protected ILaunchMenu LaunchMenu
         {
             get { return m_objLaunchMenu; }
         }

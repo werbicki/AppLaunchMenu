@@ -6,13 +6,18 @@ namespace AppLaunchMenu.DataModels
 {
     public class DataCenter : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get { return []; }
+        }
+
         public DataCenter(LaunchMenuFile p_objMenuFile, XmlNode p_objDataCenterNode)
-            : base(p_objMenuFile, new Type[] { }, p_objDataCenterNode)
+            : base(p_objMenuFile, p_objDataCenterNode)
         {
         }
 
         public DataCenter(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 

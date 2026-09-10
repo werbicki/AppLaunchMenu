@@ -1,16 +1,18 @@
-﻿using AppLaunchMenu.DataModels;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Text;
+﻿using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.DataModels;
 
 namespace AppLaunchMenu.ViewModels
 {
     public class VariableViewModel : ViewModelTreeBase<Variable>
     {
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get { return []; }
+        }
+
         protected DataModels.Environment m_objEnvironment;
 
-        public VariableViewModel(Variable p_objVariable, LaunchMenu p_objLaunchMenu, EnvironmentViewModel p_objEnvironmentViewModel)
+        public VariableViewModel(Variable p_objVariable, ILaunchMenu p_objLaunchMenu, EnvironmentViewModel p_objEnvironmentViewModel)
             : base(p_objVariable, p_objLaunchMenu, p_objEnvironmentViewModel)
         {
             m_objEnvironment = p_objEnvironmentViewModel.Environment;

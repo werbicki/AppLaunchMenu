@@ -1,0 +1,4 @@
+﻿WNetGetConnection
+WNetAddConnection2
+WNetCancelConnection2
+NETRESOURCEW

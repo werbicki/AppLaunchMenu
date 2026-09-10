@@ -5,8 +5,13 @@ namespace AppLaunchMenu.DataModels
 {
     public class Empty : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get { return []; }
+        }
+
         public Empty()
-            : base(new LaunchMenuFile(), new Type[] { }, "Empty")
+            : base(new LaunchMenuFile(),  "Empty")
         {
         }
 

@@ -25,8 +25,8 @@ namespace AppLaunchMenu.DataModels
         private XmlDocument m_objXmlDocument;
         protected bool m_blnIsDirty = false;
 
-        protected DataAccessBase(Type[] p_objXmlChildNodeTypes, XmlDocument p_objXmlDocument)
-             : base(p_objXmlChildNodeTypes, p_objXmlDocument)
+        protected DataAccessBase(XmlDocument p_objXmlDocument)
+             : base(p_objXmlDocument)
         {
             m_objXmlDocument = p_objXmlDocument;
 

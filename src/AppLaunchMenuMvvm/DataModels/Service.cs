@@ -7,13 +7,24 @@ namespace AppLaunchMenu.DataModels
 {
     public class Service : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get
+            {
+                return
+                [
+                    new() { Type = typeof(Server), ElementType = ElementTypeEnum.OneOrMore },
+                ];
+            }
+        }
+
         public Service(LaunchMenuFile p_objMenuFile, XmlNode p_objServiceNode)
-            : base(p_objMenuFile, new Type[] { typeof(Server) }, p_objServiceNode)
+            : base(p_objMenuFile, p_objServiceNode)
         {
         }
 
         public Service(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { typeof(Server) }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 

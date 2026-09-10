@@ -2,26 +2,35 @@
 using AppLaunchMenu.DataModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Text;
+using Application = AppLaunchMenu.DataModels.Application;
+using Environment = AppLaunchMenu.DataModels.Environment;
 
 namespace AppLaunchMenu.ViewModels
 {
     public partial class MenuViewModel : ViewModelTreeBase<Menu>
     {
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get
+            {
+                return
+                [
+                    new() { DataModelType = typeof(Folder), ViewModelType = typeof(FolderViewModel) },
+                    new() { DataModelType = typeof(Environment), ViewModelType = typeof(EnvironmentViewModel) },
+                    new() { DataModelType = typeof(Application), ViewModelType = typeof(ApplicationViewModel) },
+                ];
+            }
+        }
+
         private readonly Menu m_objMenu;
-        private readonly Page m_objMenuPage;
         private readonly IconSource m_objDataIconSource = new SymbolIconSource() { Symbol = Symbol.Placeholder };
         private GridLength m_objTreeViewItemWidth = new GridLength(200.0, GridUnitType.Auto);
         private double m_dblTreeViewItemMinWidth = 200.0;
 
-        public MenuViewModel(Menu p_objMenu, LaunchMenu p_objLaunchMenu)
+        public MenuViewModel(Menu p_objMenu, ILaunchMenu p_objLaunchMenu)
             : base(p_objMenu, p_objLaunchMenu)
         {
             m_objMenu = p_objMenu;
-            m_objMenuPage = new MenuPage(p_objLaunchMenu, this);
         }
 
         protected override void OnLoadChildren()
@@ -36,11 +45,6 @@ namespace AppLaunchMenu.ViewModels
 
             foreach (ApplicationViewModel objApplicationViewModel in Collection<ApplicationViewModel, DataModels.Application>(this))
                 Children.Add(objApplicationViewModel);
-        }
-
-        public Page MenuPage
-        {
-            get { return m_objMenuPage; }
         }
 
         public IconSource Icon

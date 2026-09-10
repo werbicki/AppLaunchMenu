@@ -80,7 +80,7 @@
             TabCloseRequested="Menus_RemoveMenu"
             TabItemsSource="{x:Bind Menus, Mode=OneWay}">
             <TabView.TabItemTemplate>
-                <DataTemplate x:DataType="local1:MenuViewModel">
+                <DataTemplate x:DataType="local:TabViewMenuPage">
                     <TabViewItem
                         Content="{x:Bind MenuPage, Mode=OneWay}"
                         Header="{x:Bind Name, Mode=OneWay}"

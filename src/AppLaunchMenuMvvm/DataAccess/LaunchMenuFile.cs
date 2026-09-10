@@ -11,32 +11,36 @@ namespace AppLaunchMenu.DataAccess
 {
     public class LaunchMenuFile : DataAccessBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        { 
+            get
+            { 
+                return
+                [
+                    new() { Type = typeof(DataCenterList), ElementType = ElementTypeEnum.ZeroOrOne },
+                    new() { Type = typeof(NetworkDriveList), ElementType = ElementTypeEnum.ZeroOrOne },
+                    new() { Type = typeof(ScriptList), ElementType = ElementTypeEnum.ZeroOrOne },
+                    new() { Type = typeof(MenuList), ElementType = ElementTypeEnum.ZeroOrOne },
+                    new() { Type = typeof(Environment), ElementType = ElementTypeEnum.ZeroOrOne }
+                ];
+            }
+        }
+
         private readonly DispatcherQueue m_objDispatcherQueue = DispatcherQueue.GetForCurrentThread();
         public delegate void FileChangedEventHandler(object? sender, DataChangedEventArgs e);
         public event FileChangedEventHandler? FileChanged;
         private bool m_blnEditMode = false;
-
-        protected virtual void OnFileChanged()
-        {
-            m_objDispatcherQueue.TryEnqueue(() =>
-            {
-                var eventHandler = FileChanged;
-                if (eventHandler != null)
-                    eventHandler(this, new DataChangedEventArgs());
-            });
-        }
-
         private string m_strFilename = "";
         private FileSystemWatcher m_objFileSystemWatcher = new FileSystemWatcher();
 
         public LaunchMenuFile()
-            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList), typeof(Environment) }, new XmlDocument())
+            : base(new XmlDocument())
         {
             CreateFile("New AppLaunchMenu");
         }
 
         public LaunchMenuFile(string p_strFilename)
-            : base(new Type[] { typeof(DataCenterList), typeof(NetworkDriveList), typeof(ScriptList), typeof(MenuList), typeof(Environment) }, new XmlDocument())
+            : base(new XmlDocument())
         {
             FileInfo objFileInfo = new FileInfo(p_strFilename);
 
@@ -50,6 +54,16 @@ namespace AppLaunchMenu.DataAccess
                 CreateFile(p_strFilename);
                 m_strFilename = p_strFilename;
             }
+        }
+
+        protected virtual void OnFileChanged()
+        {
+            m_objDispatcherQueue.TryEnqueue(() =>
+            {
+                var eventHandler = FileChanged;
+                if (eventHandler != null)
+                    eventHandler(this, new DataChangedEventArgs());
+            });
         }
 
         internal override LaunchMenuFile MenuFile

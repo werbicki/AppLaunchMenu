@@ -10,13 +10,18 @@ namespace AppLaunchMenu.DataModels
 {
     public class NetworkDrive : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get { return []; }
+        }
+
         public NetworkDrive(LaunchMenuFile p_objMenuFile, XmlNode p_objNetworkDriveNode)
-            : base(p_objMenuFile, new Type[] { }, p_objNetworkDriveNode)
+            : base(p_objMenuFile, p_objNetworkDriveNode)
         {
         }
 
         public NetworkDrive(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 

@@ -1,13 +1,25 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
 using System.Net;
-using System.Net.Sockets;
 
 namespace AppLaunchMenu.ViewModels
 {
     public partial class MenuFileViewModel : ViewModelTreeBase<LaunchMenuFile>
     {
-        public MenuFileViewModel(LaunchMenuFile p_objMenuFile, LaunchMenu p_objLaunchMenu)
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get
+            {
+                return
+                [
+                    new() { DataModelType = typeof(Folder), ViewModelType = typeof(FolderViewModel) },
+                    new() { DataModelType = typeof(Environment), ViewModelType = typeof(EnvironmentViewModel) },
+                    new() { DataModelType = typeof(Application), ViewModelType = typeof(ApplicationViewModel) },
+                ];
+            }
+        }
+
+        public MenuFileViewModel(LaunchMenuFile p_objMenuFile, ILaunchMenu p_objLaunchMenu)
             : base(p_objMenuFile, p_objLaunchMenu)
         {
             p_objMenuFile.FileChanged += MenuFile_FileChanged; 
@@ -96,7 +108,7 @@ namespace AppLaunchMenu.ViewModels
             get { return ViewModel<EnvironmentViewModel, Environment>(DataModel.Environment); }
         }
 
-        public void Reload(LaunchMenu p_objLaunchMenu)
+        public void Reload(ILaunchMenu p_objLaunchMenu)
         {
             DataModel.Reload();
 

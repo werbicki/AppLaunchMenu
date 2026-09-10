@@ -7,10 +7,22 @@ namespace AppLaunchMenu.DataModels
 {
     public class MenuList : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get
+            {
+                return
+                [
+                    new() { Type = typeof(Menu), ElementType = ElementTypeEnum.OneOrMore },
+                    new() { Type = typeof(Environment), ElementType = ElementTypeEnum.ZeroOrOne }
+                ];
+            }
+        }
+
         DataModelCollection<Menu> m_objMenus;
 
         public MenuList(LaunchMenuFile p_objMenuFile, XmlNode p_objMenuNode)
-            : base(p_objMenuFile, new Type[] { typeof(Menu), typeof(Environment) }, p_objMenuNode)
+            : base(p_objMenuFile, p_objMenuNode)
         {
             m_objMenus = new(this, null);
 
@@ -18,7 +30,7 @@ namespace AppLaunchMenu.DataModels
         }
 
         public MenuList(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { typeof(Menu), typeof(Environment) }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
             m_objMenus = new(this, null);
         }

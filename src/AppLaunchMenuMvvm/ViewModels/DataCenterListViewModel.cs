@@ -1,19 +1,25 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
     public partial class DataCenterListViewModel : ViewModelTreeBase<DataCenterList>
     {
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get
+            {
+                return
+                [
+                    new() { DataModelType = typeof(DataCenter), ViewModelType = typeof(DataCenterViewModel) },
+                ];
+            }
+        }
+
         protected ObservableCollection<DataCenterViewModel> m_objAllDataCenters = new ObservableCollection<DataCenterViewModel>();
 
-        public DataCenterListViewModel(DataCenterList p_objDataCenterList, LaunchMenu p_objLaunchMenu)
+        public DataCenterListViewModel(DataCenterList p_objDataCenterList, ILaunchMenu p_objLaunchMenu)
             : base(p_objDataCenterList, p_objLaunchMenu)
         {
             foreach (DataCenter objDataCenter in DataModel.DataCenters)

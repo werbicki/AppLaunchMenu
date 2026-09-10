@@ -1,4 +1,4 @@
-<AppLaunchMenu SecurityGroup="Everyone" MapNetworkDrives="True" LogoImage="CompanyLogo.png">
+<AppLaunchMenu SecurityGroup="Everyone" MapNetworkDrives="False" LogoImage="CompanyLogo.png">
   <DataCenterList>
     <DataCenter Name="Local" Hostname="localhost" />
     <DataCenter Name="Internal" Subnet="192.168.1.*" />

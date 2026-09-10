@@ -12,11 +12,22 @@ namespace AppLaunchMenu.DataModels
 {
     public class Environment : DataModelBase, IElementName, IEnumerable<Variable>
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get
+            {
+                return
+                [
+                    new() { Type = typeof(Variable), ElementType = ElementTypeEnum.OneOrMore }
+                ];
+            }
+        }
+
         DataModelCollection<Variable> m_objVariables;
         DataModelCollection<Variable> m_objAllVariables;
 
         public Environment(LaunchMenuFile p_objMenuFile, XmlNode p_objEnvironmentNode)
-             : base(p_objMenuFile, new Type[] { typeof(Variable) }, p_objEnvironmentNode)
+             : base(p_objMenuFile, p_objEnvironmentNode)
         {
             m_objVariables = new(this, null);
             m_objAllVariables = new(this, null);

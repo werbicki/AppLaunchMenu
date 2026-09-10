@@ -15,13 +15,16 @@
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Menus\**" />
+    <EmbeddedResource Remove="Menus\**" />
+    <None Remove="Menus\**" />
+    <Page Remove="Menus\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Assets\Folder.png" />
     <None Remove="EnvironmentReview.xaml" />
     <None Remove="LaunchMenu.xaml" />
     <None Remove="MenuPage.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Menus\CompanyLogo.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,7 +43,6 @@
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" Version="*" />
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="*" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="*" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -52,9 +54,7 @@
     <PackageReference Include="WinUIEdit" Version="0.0.5-prerelease" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Menus\Endur_Sample.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\AppLaunchMenuMvvm\AppLaunchMenuMvvm.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="ApplicationDialogContent.xaml">
@@ -109,5 +109,10 @@
   <PropertyGroup>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BaseOutputPath>$(SolutionDir)bin</BaseOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PRIResource Remove="Menus\**" />
+  </ItemGroup>
 </Project>

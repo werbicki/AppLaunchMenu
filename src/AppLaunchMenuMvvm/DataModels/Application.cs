@@ -4,18 +4,31 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Windows.UI.ViewManagement;
 
 namespace AppLaunchMenu.DataModels
 {
     public class Application : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get
+            {
+                return
+                [
+                    new() { Type = typeof(Environment), ElementType = ElementTypeEnum.ZeroOrOne },
+                    new() { Type = typeof(ServiceList), ElementType = ElementTypeEnum.ZeroOrOne }
+                ];
+            }
+        }
+
         public Application(LaunchMenuFile p_objMenuFile, XmlNode p_objApplicationNode)
-            : base(p_objMenuFile, new Type[] { typeof(Environment), typeof(ServiceList) }, p_objApplicationNode)
+            : base(p_objMenuFile, p_objApplicationNode)
         {
         }
 
         public Application(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { typeof(Environment), typeof(ServiceList) }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 

@@ -7,10 +7,21 @@ namespace AppLaunchMenu.DataModels
 {
     public class DataCenterList : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get
+            {
+                return
+                [
+                    new() { Type = typeof(DataCenter), ElementType = ElementTypeEnum.OneOrMore }
+                ];
+            }
+        }
+
         DataModelCollection<DataCenter> m_objDataCenters;
 
         public DataCenterList(LaunchMenuFile p_objMenuFile, XmlNode p_objFolderNode)
-            : base(p_objMenuFile, new Type[] { typeof(DataCenter) }, p_objFolderNode)
+            : base(p_objMenuFile, p_objFolderNode)
         {
             m_objDataCenters = new(this, null);
 
@@ -18,7 +29,7 @@ namespace AppLaunchMenu.DataModels
         }
 
         public DataCenterList(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { typeof(DataCenter) }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
             m_objDataCenters = new(this, null);
         }

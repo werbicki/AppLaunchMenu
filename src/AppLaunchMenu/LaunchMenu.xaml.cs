@@ -21,13 +21,47 @@ using Windows.Foundation;
 
 namespace AppLaunchMenu
 {
+    public class TabViewMenuPage : PageNotifyPropertyChanged
+    {
+        private readonly MenuPage m_objMenuPage;
+        private readonly MenuViewModel m_objMenuViewModel;
+
+        public TabViewMenuPage(MenuPage p_objMenuPage, MenuViewModel p_objMenuViewModel)
+        {
+            m_objMenuPage = p_objMenuPage;
+            m_objMenuViewModel = p_objMenuViewModel;
+        }
+
+        public new string Name
+        {
+            get { return m_objMenuViewModel.Name; }
+        }
+
+        public MenuPage MenuPage
+        {
+            get { return m_objMenuPage; }
+        }
+
+        public bool EditMode
+        {
+            get { return m_objMenuViewModel.EditMode; }
+        }
+
+        public IconSource Icon
+        {
+            get { return m_objMenuViewModel.Icon; }
+        }
+
+    }
+
     /// <summary>
     /// An empty window that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class LaunchMenu : PageNotifyPropertyChanged
+    public sealed partial class LaunchMenu : PageNotifyPropertyChanged, ILaunchMenu
     {
         private LaunchMenuFile m_objMenuFile = new();
         private MenuFileViewModel m_objMenuFileViewModel;
+        private ObservableCollection<TabViewMenuPage> m_objTabViewMenuPages = new ObservableCollection<TabViewMenuPage>();
         private ApplicationViewModel? m_objSelectedApplication = null;
         private bool m_blnShowEnvironment = false;
         private string m_strCommandLine = "Select an application from the list and press the 'Launch' button.";
@@ -43,14 +77,25 @@ namespace AppLaunchMenu
             m_objMenuFileViewModel.MenuListViewModel.PropertyChanged += MenuListViewModel_OnPropertyChanged;
 
             m_objLogoImage.Source = new BitmapImage(new Uri("ms-appx:///Assets/CompanyName.png"));
+
+            InializeMenus();
         }
 
         public LaunchMenu(bool p_blnEmptyConstructor)
         {
             m_objMenuFileViewModel = new MenuFileViewModel(m_objMenuFile, this);
             m_objMenuFileViewModel.MenuListViewModel.PropertyChanged += MenuListViewModel_OnPropertyChanged;
+
+            InializeMenus();
         }
 
+        private void InializeMenus()
+        {
+            m_objTabViewMenuPages.Clear();
+
+            foreach (MenuViewModel objMenuViewModel in m_objMenuFileViewModel.MenuListViewModel.Menus)
+                m_objTabViewMenuPages.Add(new TabViewMenuPage(new MenuPage(this, objMenuViewModel), objMenuViewModel));
+        }
 
         private void LaunchMenu_Loaded(object sender, RoutedEventArgs e)
         {
@@ -79,6 +124,8 @@ namespace AppLaunchMenu
 
                 m_objMenuFileViewModel = new MenuFileViewModel(m_objMenuFile, this);
                 m_objMenuFileViewModel.PropertyChanged += MenuListViewModel_OnPropertyChanged;
+
+                InializeMenus();
 
                 m_objLogoImage.Source = new BitmapImage(new Uri(m_objMenuFile.LogoImagePath, UriKind.Absolute));
 
@@ -228,14 +275,14 @@ namespace AppLaunchMenu
             }
         }
 
-        internal MenuFileViewModel MenuFileViewModel
+        public MenuFileViewModel MenuFileViewModel
         {
             get { return m_objMenuFileViewModel; }
         }
 
-        public ObservableCollection<MenuViewModel> Menus
+        public ObservableCollection<TabViewMenuPage> Menus
         {
-            get { return m_objMenuFileViewModel.MenuListViewModel.Menus; }
+            get { return m_objTabViewMenuPages; }
         }
 
         public int SelectedMenuIndex

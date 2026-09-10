@@ -6,15 +6,20 @@ namespace AppLaunchMenu.DataModels
 {
     public class Variable : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get { return []; }
+        }
+
         protected string m_strExpandedValue = "";
 
         public Variable(LaunchMenuFile p_objMenuFile, XmlNode p_objVariableNode)
-            : base(p_objMenuFile, new Type[] { }, p_objVariableNode)
+            : base(p_objMenuFile, p_objVariableNode)
         {
         }
 
         public Variable(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 

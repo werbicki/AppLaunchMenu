@@ -2,17 +2,15 @@
 using Microsoft.UI.Dispatching;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
     public abstract class ViewModelNotifyBase : INotifyPropertyChanged
     {
+        protected static Dictionary<Type, Type> m_objDataModelViewModelMappings = new Dictionary<Type, Type>();
         private readonly DispatcherQueue m_objDispatcherQueue = DispatcherQueue.GetForCurrentThread();
-        protected static Dictionary<Type, Type> m_objDataModelViewModelMappings = new();
         private readonly DataModelBase m_objDataModelBase;
 
         /// <summary>

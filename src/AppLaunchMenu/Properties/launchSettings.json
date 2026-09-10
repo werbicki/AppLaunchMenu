@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AppLaunchMenu": {
+      "commandName": "Project",
+      "commandLineArgs": "$(SolutionDir)Menus\\Endur_Advanced.xml"
+    }
+  }
+}

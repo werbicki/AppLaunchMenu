@@ -7,10 +7,21 @@ namespace AppLaunchMenu.DataModels
 {
     public class ScriptList : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get
+            {
+                return
+                [
+                    new() { Type = typeof(NetworkDrive), ElementType = ElementTypeEnum.OneOrMore }
+                ];
+            }
+        }
+
         DataModelCollection<Script> m_objScripts;
 
         public ScriptList(LaunchMenuFile p_objMenuFile, XmlNode p_objScriptListNode)
-            : base(p_objMenuFile, new Type[] { typeof(Script) }, p_objScriptListNode)
+            : base(p_objMenuFile, p_objScriptListNode)
         {
             m_objScripts = new(this, null);
 
@@ -18,7 +29,7 @@ namespace AppLaunchMenu.DataModels
         }
 
         public ScriptList(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { typeof(Script) }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
             m_objScripts = new(this, null);
         }

@@ -1,21 +1,25 @@
-﻿using AppLaunchMenu.DataModels;
+﻿using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.DataModels;
 using Microsoft.UI.Xaml;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Xml;
-using Windows.UI.Text;
+using System.Reflection;
 
 namespace AppLaunchMenu.ViewModels
 {
     public class EmptyViewModel : ViewModelTreeBase<Empty>
     {
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get { return []; }
+        }
+
         private static ITreeViewItem? m_objEmptyChild;
 
-        public EmptyViewModel(LaunchMenu p_objLaunchMenu)
+        public EmptyViewModel(ILaunchMenu p_objLaunchMenu)
             : base(new Empty(), p_objLaunchMenu)
         {
         }
@@ -25,7 +29,7 @@ namespace AppLaunchMenu.ViewModels
             get { return DataModel.Name; }
         }
 
-        internal static ITreeViewItem? EmptyChild
+        public static ITreeViewItem? EmptyChild
         {
             get { return m_objEmptyChild; }
             set { m_objEmptyChild = value; }
@@ -103,7 +107,7 @@ namespace AppLaunchMenu.ViewModels
     /// Base class for all ViewModel classes displayed by TreeViewItems.  
     /// This acts as an adapter between a raw data object and a TreeViewItem.
     /// </summary>
-    public partial class ViewModelTreeBase<T> : ViewModelBase<T>, ITreeViewItem
+    public abstract partial class ViewModelTreeBase<T> : ViewModelBase<T>, ITreeViewItem
         where T : DataModelBase
     {
         private ITreeViewItem? m_objParent = null;
@@ -112,7 +116,7 @@ namespace AppLaunchMenu.ViewModels
         private bool m_blnExpanded = false;
         private bool m_blnSelected = false;
 
-        protected ViewModelTreeBase(T p_objDataModel, LaunchMenu p_objLaunchMenu, bool p_blnLazyLoadChildren = false)
+        protected ViewModelTreeBase(T p_objDataModel, ILaunchMenu p_objLaunchMenu, bool p_blnLazyLoadChildren = false)
             : base(p_objDataModel, p_objLaunchMenu)
         {
             m_blnLazyLoadChildren = p_blnLazyLoadChildren;
@@ -121,7 +125,7 @@ namespace AppLaunchMenu.ViewModels
                 m_objChildren.Add(EmptyChild);
         }
 
-        protected ViewModelTreeBase(T p_objDataModel, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent, bool p_blnLazyLoadChildren = false)
+        protected ViewModelTreeBase(T p_objDataModel, ILaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent, bool p_blnLazyLoadChildren = false)
             : base(p_objDataModel, p_objLaunchMenu)
         {
             m_objParent = p_objParent;
@@ -137,6 +141,11 @@ namespace AppLaunchMenu.ViewModels
 
             if (objTreeViewItemViewModel != null)
                 objTreeViewItemViewModel.PropertyChanged += MenuViewModel_PropertyChanged;
+        }
+
+        protected override abstract ViewModelMapping[] ViewModelMappings
+        {
+            get;
         }
 
         private void MenuViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -479,6 +488,28 @@ namespace AppLaunchMenu.ViewModels
         /// </summary>
         protected virtual void OnLoadChildren()
         {
+            foreach (Type objDataModelType in DataModel.ChildNodeTypes)
+            {
+                Type objEmptyTemplateType = typeof(ViewModelTreeBase<>);
+                Type objConstructedType = objEmptyTemplateType.MakeGenericType(objDataModelType);
+                MethodInfo? objEmptyMethodInfo = objConstructedType.GetMethod(nameof(ViewModelTreeBase<>.ViewModel));
+
+                Type objViewModelType = DataModelViewModelMappings[objDataModelType];
+
+                if (objEmptyMethodInfo != null)
+                {
+                    MethodInfo? objConstructedMethodInfo = objEmptyMethodInfo?.MakeGenericMethod([objViewModelType, objDataModelType]);
+
+                    if (objConstructedMethodInfo != null)
+                    {
+                        object[] objParameters = new object[] { objDataModelType };
+                        ITreeViewItem? objTreeViewItem = (ITreeViewItem?)objConstructedMethodInfo.Invoke(this, objParameters);
+
+                        if (objTreeViewItem != null)
+                            Children.Add(objTreeViewItem);
+                    }
+                }
+            }
         }
     }
 }

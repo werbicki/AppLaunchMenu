@@ -1,19 +1,27 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+using Environment = AppLaunchMenu.DataModels.Environment;
 
 namespace AppLaunchMenu.ViewModels
 {
     public partial class MenuListViewModel : ViewModelBase<MenuList>
     {
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get
+            {
+                return
+                [
+                    new() { DataModelType = typeof(Menu), ViewModelType = typeof(MenuViewModel) },
+                    new() { DataModelType = typeof(Environment), ViewModelType = typeof(EnvironmentViewModel) },
+                ];
+            }
+        }
+
         private int m_intSelectedMenu = -1;
 
-        public MenuListViewModel(MenuList p_objMenuList, LaunchMenu p_objLaunchMenu)
+        public MenuListViewModel(MenuList p_objMenuList, ILaunchMenu p_objLaunchMenu)
             : base(p_objMenuList, p_objLaunchMenu)
         {
             if (Menus.Count > 0)

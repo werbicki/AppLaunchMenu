@@ -1,19 +1,25 @@
 ﻿using AppLaunchMenu.DataAccess;
 using AppLaunchMenu.DataModels;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace AppLaunchMenu.ViewModels
 {
     public partial class NetworkDriveListViewModel : ViewModelTreeBase<NetworkDriveList>
     {
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get
+            {
+                return
+                [
+                    new() { DataModelType = typeof(NetworkDrive), ViewModelType = typeof(NetworkDriveViewModel) },
+                ];
+            }
+        }
+
         protected ObservableCollection<NetworkDriveViewModel> m_objAllNetworkDrives = new ObservableCollection<NetworkDriveViewModel>();
 
-        public NetworkDriveListViewModel(NetworkDriveList p_objNetworkDriveList, LaunchMenu p_objLaunchMenu)
+        public NetworkDriveListViewModel(NetworkDriveList p_objNetworkDriveList, ILaunchMenu p_objLaunchMenu)
             : base(p_objNetworkDriveList, p_objLaunchMenu)
         {
             foreach (NetworkDrive objNetworkDrive in DataModel.NetworkDrives)

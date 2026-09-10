@@ -7,10 +7,21 @@ namespace AppLaunchMenu.DataModels
 {
     public class NetworkDriveList : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get
+            {
+                return
+                [
+                    new() { Type = typeof(NetworkDrive), ElementType = ElementTypeEnum.OneOrMore }
+                ];
+            }
+        }
+
         DataModelCollection<NetworkDrive> m_objNetworkDrives;
 
         public NetworkDriveList(LaunchMenuFile p_objMenuFile, XmlNode p_objFolderNode)
-            : base(p_objMenuFile, new Type[] { typeof(NetworkDrive) }, p_objFolderNode)
+            : base(p_objMenuFile, p_objFolderNode)
         {
             m_objNetworkDrives = new(this, null);
 
@@ -18,7 +29,7 @@ namespace AppLaunchMenu.DataModels
         }
 
         public NetworkDriveList(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { typeof(NetworkDrive) }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
             m_objNetworkDrives = new(this, null);
         }

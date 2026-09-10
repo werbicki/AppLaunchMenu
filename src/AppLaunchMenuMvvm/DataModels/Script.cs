@@ -76,13 +76,18 @@ namespace AppLaunchMenu.DataModels
 
     public class Script : DataModelBase, IElementName
     {
+        protected override ChildElementType[] ChildElementTypes
+        {
+            get { return []; }
+        }
+
         public Script(LaunchMenuFile p_objMenuFile, XmlNode p_objMenuNode)
-            : base(p_objMenuFile, new Type[] { }, p_objMenuNode)
+            : base(p_objMenuFile, p_objMenuNode)
         {
         }
 
         public Script(LaunchMenuFile p_objMenuFile, string p_strName)
-            : base(p_objMenuFile, new Type[] { }, p_strName)
+            : base(p_objMenuFile, p_strName)
         {
         }
 

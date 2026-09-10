@@ -1,14 +1,16 @@
-﻿using AppLaunchMenu.DataModels;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Text;
+﻿using AppLaunchMenu.DataAccess;
+using AppLaunchMenu.DataModels;
 
 namespace AppLaunchMenu.ViewModels
 {
     public class ScriptViewModel : ViewModelTreeBase<Script>
     {
-        public ScriptViewModel(Script p_objScript, LaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
+        protected override ViewModelMapping[] ViewModelMappings
+        {
+            get { return []; }
+        }
+
+        public ScriptViewModel(Script p_objScript, ILaunchMenu p_objLaunchMenu, ITreeViewItem p_objParent)
             : base(p_objScript, p_objLaunchMenu, p_objParent)
         {
         }
