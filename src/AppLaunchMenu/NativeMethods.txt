@@ -18,8 +18,3 @@ DebugBreak
 GetActiveWindow
 WM_GETMINMAXINFO
 MINMAXINFO
-GetSystemMetricsForDpi
-WNetGetConnection
-WNetAddConnection2
-WNetCancelConnection2
-NETRESOURCEW
