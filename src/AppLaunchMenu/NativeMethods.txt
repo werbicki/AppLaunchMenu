@@ -1,5 +1,6 @@
 ﻿GetCurrentPackageFullName
 GetModuleHandle
+GetSystemMetricsForDpi
 GetDpiForWindow
 SetWindowLongPtr
 SetWindowLong
