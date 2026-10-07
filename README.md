@@ -1,4 +1,4 @@
-#Introduction
+# Introduction
 
 AppLaunchMenu allows for multiple applications to be streamed in a single session using Citrix Workspace, Amazon AppStream, Azure RemoteApp, or any other remote application virtualization platform. Virtual delivery of multiple applications with different environments and configurations is possible while sharing a common cloud-based runtime environment. Where applications need to "talk" with each other, this approach ensures that applications are always started on the same remote session.
 
@@ -8,7 +8,7 @@ AppLaunchMenu is configured using a LaunchMenu file which is written using XML. 
 
 AppLaunchMenu is written in Visual Studio using the C#, .NET, and WinUI. WinUI is now the primary UI stack for the Windows App SDK, decoupling the UI framework from the Windows Operating System to allow for faster iteration and backward compatibility. It is designed to provide a modern user interface layer for Windows applications, offering Fluent controls and styles. 
 
-#Using AppLaunchMenu
+# Using AppLaunchMenu
 
 AppLaunchMenu is a simple application, all based around the LaunchMenu file. The LaunchMenu file defines Menus, each represented by a tab along the top. Menus allow for the separation of applications into larger groups (e.g. Applications vs. Development Tools). By default, the first Menu in the LaunchMenu file is displayed. In each Menu are Folders and Applications. A Folder is not required but is a nice way to organize Applications into groups (e.g. Development Environments, Test Environments, etc.). An Application is the published program that the user can double-click, or select and click the Launch button, to start. The Application software must be installed on the remote instance prior to being started, otherwise an error message will indicate that the Application was not found. For an end-user, AppLaunchMenu is as simple as that, and fairly intuitive to use.
 
@@ -18,6 +18,6 @@ Advanced features such as configuring Data Center grouping, Network Drives for a
 
 Please see the Detailed description of the LaunchMenu file for more details.
 
-#Contributing
+# Contributing
 
 AppLaunchMenu is licensed under the [MIT License]. Contributions can be made; however, they must confirm to the purpose and simplistic design of the application to be accepted.
